@@ -14,10 +14,10 @@ sade('seo-lint <dir>', true)
 
     console.log(dir);
 
-    const results = await tester.folder(dir);
+    const { meta, ...results } = await tester.folder(dir);
 
     if (Object.keys(results).length > 0) {
-      // console.log(results);
+      console.log(results);
     } else {
       console.log(`No SEO issues detected.`);
     }

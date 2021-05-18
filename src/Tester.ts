@@ -38,46 +38,65 @@ const $attributes = ($, search) => {
   return arr;
 };
 
+type TMessage = {
+  message: string;
+  priority: number;
+};
+
 const emptyRule = {
   name: '',
   description: '',
-  success: false,
-  errors: [],
-  warnings: [],
-  info: [],
+  success: false as boolean,
+  errors: [] as TMessage[],
+  warnings: [] as TMessage[],
+  info: [] as TMessage[],
+};
+
+type TRule = typeof emptyRule;
+
+type TPair = [string, string];
+
+type TSiteResults = {
+  [key: string]: any[];
+};
+
+type TLinkers = {
+  [key: string]: string[];
 };
 
 export const Tester = function ({ rules = [], display = ['errors', 'warnings'], siteWide = false, host = '' }) {
-  this.rules = [...pkgRules, ...rules];
-  this.internalLinks = []; //[[link, linkedFrom]]
-  this.pagesSeen = new Set();
-
+  this.currentRule = JSON.parse(JSON.stringify(emptyRule));
   this.currentUrl = '';
 
-  this.titleTags = new Map();
-  this.metaDescriptions = new Map();
+  const rulesToUse = [...pkgRules, ...rules];
+  const internalLinks: Array<TPair> = []; //[[link, linkedFrom]]
+  const pagesSeen: Set<string> = new Set();
+  const siteWideLinks = new Map();
 
-  this.currentRule = JSON.parse(JSON.stringify(emptyRule));
+  const titleTags = new Map();
+  const metaDescriptions = new Map();
 
-  this.results = [];
-  this.siteResults = {
+  let results: TRule[] = [];
+  const siteResults: TSiteResults = {
     duplicateTitles: [],
     duplicateMetaDescriptions: [],
+    orphanPages: [],
+    brokenInternalLinks: [],
   };
 
   const logMetaDescription = (meta) => {
-    if (this.metaDescriptions.has(meta)) {
-      this.siteResults.duplicateMetaDescriptions.push([this.metaDescriptions.get(meta), this.currentUrl]);
+    if (metaDescriptions.has(meta)) {
+      siteResults.duplicateMetaDescriptions.push([metaDescriptions.get(meta), this.currentUrl]);
     } else {
-      this.metaDescriptions.set(meta, this.currentUrl);
+      metaDescriptions.set(meta, this.currentUrl);
     }
   };
 
   const logTitleTag = (title) => {
-    if (this.titleTags.has(title)) {
-      this.siteResults.duplicateTitles.push([this.titleTags.get(title), this.currentUrl]);
+    if (titleTags.has(title)) {
+      siteResults.duplicateTitles.push([titleTags.get(title), this.currentUrl]);
     } else {
-      this.titleTags.set(title, this.currentUrl);
+      titleTags.set(title, this.currentUrl);
     }
   };
 
@@ -122,14 +141,14 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
   };
   const finishRule = () => {
     if (this.currentRule.errors.length === 0 && this.currentRule.warnings.length === 0) this.currentRule.success = true;
-    this.results.push(this.currentRule);
+    results.push(this.currentRule);
     this.currentRule = JSON.parse(JSON.stringify(emptyRule));
   };
 
-  const test = async (html, url) => {
+  const test = async (html: string, url: string) => {
     try {
       this.currentUrl = url;
-      this.pagesSeen.add(url);
+      pagesSeen.add(url);
 
       const $ = cheerio.load(html);
 
@@ -152,6 +171,7 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
       };
 
       if (siteWide) {
+        siteWideLinks.set(url, result.aTags);
         if (result.title[0] && result.title[0].innerText) {
           logTitleTag(result.title[0].innerText);
         }
@@ -170,11 +190,11 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
           })
           .filter((a) => a.href !== this.currentUrl)
           .map((a) => a.href)
-          .forEach((a) => this.internalLinks.push([a, this.currentUrl]));
+          .forEach((a) => internalLinks.push([a, this.currentUrl]));
       }
 
-      for (let i = 0; i < this.rules.length; i++) {
-        const rule = this.rules[i];
+      for (let i = 0; i < rulesToUse.length; i++) {
+        const rule = rulesToUse[i];
         startRule(rule);
         await rule.validator(
           { result, response: { url, host } },
@@ -187,27 +207,32 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
       }
 
       const validDisplay = ['warnings', 'errors'];
+
       const out = display
         .filter((d) => validDisplay.includes(d))
         .reduce((out, key) => {
           return [
             ...out,
-            ...this.results
+            ...results
               .filter((r) => !r.success)
-              .sort((a, b) => a.priority > b.priority)
               .reduce((o, ruleResult) => {
-                return [...o, ...ruleResult[key].map((r) => ({ ...r, level: key }))];
-              }, []),
+                return [
+                  ...o,
+                  ...ruleResult[key]
+                    .sort((a: TMessage, b: TMessage) => a.priority - b.priority)
+                    .map((r) => ({ ...r, level: key })),
+                ];
+              }, [] as TMessage[]),
           ];
-        }, []);
+        }, [] as TMessage[]);
 
       if (siteWide) {
-        this.siteResults[url] = out;
+        siteResults[url] = out;
       } else {
         return out;
       }
 
-      this.results = [];
+      results = [];
     } catch (e) {
       console.error(e);
     }
@@ -230,24 +255,34 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
         await test(html, relPermalink);
       }
 
-      this.siteResults.orphanPages = [];
-      for (const page of this.pagesSeen.values()) {
-        if (!this.internalLinks.find((il) => il[0] === page)) this.siteResults.orphanPages.push(page);
+      for (const page of pagesSeen.values()) {
+        if (!internalLinks.find((il) => il[0] === page)) siteResults.orphanPages.push(page);
       }
 
-      this.siteResults.brokenInternalLinks = [];
-      for (const [link, linker] of this.internalLinks) {
-        if (!this.pagesSeen.has(link)) this.siteResults.brokenInternalLinks.push({ link, linker });
+      for (const [link, linker] of internalLinks) {
+        if (!pagesSeen.has(link)) siteResults.brokenInternalLinks.push({ link, linker });
       }
 
-      const results = Object.keys(this.siteResults).reduce((out, key) => {
-        if (Array.isArray(this.siteResults[key]) && this.siteResults[key].length > 0) {
-          out[key] = this.siteResults[key];
+      const whatLinksWhere: TLinkers = {};
+      for (const [linker, links] of siteWideLinks.entries()) {
+        for (let i = 0; i < links.length; i++) {
+          const link = links[i];
+          if (!whatLinksWhere[link.href]) whatLinksWhere[link.href] = [];
+          whatLinksWhere[link.href].push(linker);
         }
-        return out;
-      }, {});
+      }
 
-      return results;
+      const outResults = Object.keys(siteResults).reduce(
+        (out, key) => {
+          if (Array.isArray(siteResults[key]) && siteResults[key].length > 0) {
+            out[key] = siteResults[key];
+          }
+          return out;
+        },
+        { meta: { whatLinksWhere } },
+      );
+
+      return outResults;
     },
   };
 };

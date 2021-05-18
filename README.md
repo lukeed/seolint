@@ -133,6 +133,10 @@ These are only checked when Elder.js runs in build mode.
 
 Written by <a href="https://nicholasreese.com">Nick Reese</a>. Initially written to audit [Elder Guide](https://elderguide.com/).
 
+## Contributing
+
+- We could add a way to filter out rules based on name.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
