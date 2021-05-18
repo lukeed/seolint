@@ -1,0 +1,62 @@
+{
+  "name": "@nickreese/seo-lint",
+  "version": "1.0.1",
+  "description": "A robust SEO linter for local html files",
+  "main": "build/index.js",
+  "scripts": {
+    "seo-lint": "seo-lint",
+    "build": "rimraf ./build && tsc",
+    "dev": "tsc -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --collect-coverage",
+    "eslint": "eslint --ext .ts .",
+    "eslint:fix": "eslint --fix --ext .ts ."
+  },
+  "bin": {
+    "seo-lint": "build/bin.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickreese/seo-lint.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "NONE",
+  "bugs": {
+    "url": "https://github.com/nickreese/seo-lint/issues"
+  },
+  "homepage": "https://github.com/nickreese/seo-lint#readme",
+  "files": [
+    "build/**/*"
+  ],
+  "engines": {
+    "node": ">= 12.0.0"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.9",
+    "sade": "^1.7.4",
+    "totalist": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.10",
+    "nodemon": "^2.0.6",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.1.2",
+    "eslint": "^7.7.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-standard": "^4.0.1",
+    "prettier": "^2.1.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
