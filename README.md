@@ -5,7 +5,7 @@ This package offers both a CLI and a library to help you with linting HTML for o
 This SEO tool was spun out of [Elder.js'](https://elderguide.com/tech/elderjs/) plugin called [seo-check](https://github.com/Elderjs/plugins/tree/master/packages/seo-check).
 
 ```sh
-$ npm -g i @nickreese/seo-lint
+$ npm i -g  @nickreese/seo-lint
 ```
 
 ## CLI
