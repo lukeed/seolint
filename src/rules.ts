@@ -15,7 +15,7 @@ const cleanString = (str) =>
     .replace('!', '')
     .replace('?', '');
 
-const rules = [
+export const rules = [
   {
     name: 'Canonical Tag',
     description: `Validates that the canonical tag is well formed, that there isn't multiple, and that it matches the url crawled.`,
@@ -337,8 +337,8 @@ const rules = [
         tester.lint(
           10,
           assert.ok,
-          h4.innerText.length < 10,
-          `h4 tag is shorter than the recommended limit of 10. (${h4.innerText})`,
+          h4.innerText.length < 7,
+          `h4 tag is shorter than the recommended limit of 7. (${h4.innerText})`,
         );
       });
 
@@ -386,18 +386,20 @@ const rules = [
     },
     validator: async (payload, tester) => {
       const viewport = payload.result.meta.find((m) => m.name === 'viewport');
-      tester.test(assert.ok, !!viewport, `Meta viewport should be defined`);
-      tester.test(assert.ok, !!viewport.content, `Meta viewport has a content attribute`);
-      tester.test(
-        assert.ok,
-        viewport.content.includes('width=device-width'),
-        `Meta viewport content includes width=device-width`,
-      );
-      tester.lint(
-        assert.ok,
-        viewport.content.includes('initial-scale=1'),
-        `Meta viewport content may want to include initial-scale=1`,
-      );
+      if (viewport) {
+        tester.test(assert.ok, !!viewport, `Meta viewport should be defined`);
+        tester.test(assert.ok, !!viewport.content, `Meta viewport has a content attribute`);
+        tester.test(
+          assert.ok,
+          viewport.content.includes('width=device-width'),
+          `Meta viewport content includes width=device-width`,
+        );
+        tester.lint(
+          assert.ok,
+          viewport.content.includes('initial-scale=1'),
+          `Meta viewport content may want to include initial-scale=1`,
+        );
+      }
     },
   },
   {
@@ -574,5 +576,3 @@ const rules = [
     },
   },
 ];
-
-module.exports = rules;

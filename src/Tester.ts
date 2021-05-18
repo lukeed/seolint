@@ -1,14 +1,14 @@
-const cheerio = require('cheerio');
+import cheerio from 'cheerio';
 
-const { totalist } = require('totalist/sync');
-const fs = require('fs');
-const path = require('path');
-const pkgRules = require('./rules');
+import { totalist } from 'totalist/sync';
+import fs from 'fs';
+import path from 'path';
+import { rules as pkgRules } from './rules';
 
-const getHtmlFiles = (path): string[] => {
+const getHtmlFiles = (p): string[] => {
   const html = new Set();
-  totalist(path, (name: string, abs: string, stats) => {
-    if (/\.html$/.test(name)) {
+  totalist(p, (name: string, abs: string, stats) => {
+    if (/\.html$/.test(name) && !name.includes('node_modules')) {
       html.add(abs);
     }
   });
@@ -216,12 +216,16 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
   return {
     test,
     folder: async (folder) => {
-      const files = getHtmlFiles(folder);
+      const parsedFolder = path.parse(path.resolve(folder));
+      const normalizedFolder = `${parsedFolder.dir}/${parsedFolder.base}`;
+
+      const files = getHtmlFiles(`${normalizedFolder}`);
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const html = fs.readFileSync(path.resolve(file), { encoding: 'utf-8' });
-        const relPermalink = file.replace('index.html', '').replace(folder, '');
+
+        const relPermalink = file.replace('index.html', '').replace(normalizedFolder, '');
         // eslint-disable-next-line jest/expect-expect
         await test(html, relPermalink);
       }

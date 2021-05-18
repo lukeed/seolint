@@ -13,7 +13,7 @@ $ npm -g i @nickreese/seo-lint
 **Usage:**
 
 ```sh
-`seo-lint` <dir> [options]
+seo-lint <dir> [options]
 ```
 
 **Options**

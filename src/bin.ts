@@ -12,10 +12,12 @@ sade('seo-lint <dir>', true)
     // Program handler
     const tester = new Tester({ siteWide: true, host: opts.host ? opts.host : '' });
 
+    console.log(dir);
+
     const results = await tester.folder(dir);
 
     if (Object.keys(results).length > 0) {
-      console.log(results);
+      // console.log(results);
     } else {
       console.log(`No SEO issues detected.`);
     }
