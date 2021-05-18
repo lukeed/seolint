@@ -1,6 +1,6 @@
-# seo-lint: A robust SEO Linter / Checker for Local HTML Files
+# `seo-lint`: A Robust SEO Linter / Checker for Local HTML Files
 
-This package offers both a CLI and a library to help you with linting HTML for common SEO issues.
+This package offers both a CLI and a library to help you with linting HTML for over 50 common SEO issues.
 
 This SEO tool was spun out of [Elder.js'](https://elderguide.com/tech/elderjs/) plugin called [seo-check](https://github.com/Elderjs/plugins/tree/master/packages/seo-check).
 
@@ -74,6 +74,7 @@ These are only checked when Elder.js runs in build mode.
 - [x] Title doesn't include common stopwords.
 - [x] Title tag doesn't have `null`
 - [x] Title tag doesn't have `undefined`
+- [x] checks for stop words.
 
 ### Meta Description
 
