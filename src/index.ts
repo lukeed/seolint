@@ -1,2 +1,2 @@
-export { Tester, defaultConfig } from './Tester';
+export { Tester, defaultPreferences } from './Tester';
 export { rules } from './rules';

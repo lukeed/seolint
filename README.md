@@ -4,24 +4,7 @@ This package offers both a CLI and a library to help you with linting HTML for o
 
 This SEO tool was spun out of [Elder.js'](https://elderguide.com/tech/elderjs/) plugin called [seo-check](https://github.com/Elderjs/plugins/tree/master/packages/seo-check).
 
-```sh
-$ npm i -g  @nickreese/seo-lint
-```
-
-## CLI
-
-**Usage:**
-
-```sh
-seo-lint <dir> [options]
-```
-
-**Options**
-
-- `-H`, `--host` Set the expected host for internal links. (example.com)
-- `-v`, `--version` Displays current version
-
-## Tester
+## Tester (Library Usage)
 
 The library exports a `Tester` class which has 2 methods: `folder` and `test`.
 
@@ -45,6 +28,44 @@ const tester = new Tester({ host: 'example.com' });
 const results = await test(html, relPermalink);
 
 // results will be an object with issues by url and sitewide issues.
+```
+
+## CLI
+
+```sh
+$ npm i -g  @nickreese/seo-lint
+```
+
+**Usage:**
+
+```sh
+seo-lint <dir> [options]
+```
+
+**Options**
+
+- `-H`, `--host` Set the expected host for internal links. (example.com)
+- `-v`, `--version` Displays current version
+- `-c`, `--config` Set a custom config to specify rules.
+- `-w`, `--write` Location to write a report to a JSON file.
+
+**CLI config**
+
+```js
+// const { defaultPreferences, rules } = require('@nickreese/seo-lint');
+// available if you want the defaults from the package.
+module.exports = {
+  rules: [],
+  preferences: [],
+  writeLocation: `./report.json`, // if this is set it assumes you want the report written.
+  display: ['errors', 'warnings'],
+};
+```
+
+**Advanced Example:**
+
+```sh
+$ seo-lint public -H example.com -c seo-lint.config.js -w report.json
 ```
 
 ## Checks

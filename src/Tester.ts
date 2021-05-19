@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { rules as pkgRules } from './rules';
 
-export const defaultConfig = {
+export const defaultPreferences = {
   internalLinksLowerCase: true,
   internalLinksTrailingSlash: true,
 };
@@ -74,8 +74,9 @@ export const Tester = function ({
   display = ['errors', 'warnings'],
   siteWide = false,
   host = '',
-  config = defaultConfig,
+  preferences = {},
 }) {
+  preferences = { ...defaultPreferences, ...preferences };
   this.currentRule = JSON.parse(JSON.stringify(emptyRule));
   this.currentUrl = '';
 
@@ -208,7 +209,7 @@ export const Tester = function ({
         const rule = rulesToUse[i];
         startRule(rule);
         await rule.validator(
-          { result, response: { url, host }, config },
+          { result, response: { url, host }, preferences },
           {
             test: runTest(70, 'errors'),
             lint: runTest(40, 'warnings'),

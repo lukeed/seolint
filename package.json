@@ -1,6 +1,6 @@
 {
   "name": "@nickreese/seo-lint",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "A robust SEO linter for local html files",
   "main": "build/index.js",
   "scripts": {
