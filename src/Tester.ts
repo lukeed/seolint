@@ -5,6 +5,11 @@ import fs from 'fs';
 import path from 'path';
 import { rules as pkgRules } from './rules';
 
+export const defaultConfig = {
+  internalLinksLowerCase: true,
+  internalLinksTrailingSlash: true,
+};
+
 const getHtmlFiles = (p): string[] => {
   const html = new Set();
   totalist(p, (name: string, abs: string, stats) => {
@@ -64,11 +69,17 @@ type TLinkers = {
   [key: string]: string[];
 };
 
-export const Tester = function ({ rules = [], display = ['errors', 'warnings'], siteWide = false, host = '' }) {
+export const Tester = function ({
+  rules = [],
+  display = ['errors', 'warnings'],
+  siteWide = false,
+  host = '',
+  config = defaultConfig,
+}) {
   this.currentRule = JSON.parse(JSON.stringify(emptyRule));
   this.currentUrl = '';
 
-  const rulesToUse = [...pkgRules, ...rules];
+  const rulesToUse = rules.length > 0 ? rules : pkgRules;
   const internalLinks: Array<TPair> = []; //[[link, linkedFrom]]
   const pagesSeen: Set<string> = new Set();
   const siteWideLinks = new Map();
@@ -197,7 +208,7 @@ export const Tester = function ({ rules = [], display = ['errors', 'warnings'], 
         const rule = rulesToUse[i];
         startRule(rule);
         await rule.validator(
-          { result, response: { url, host } },
+          { result, response: { url, host }, config },
           {
             test: runTest(70, 'errors'),
             lint: runTest(40, 'warnings'),

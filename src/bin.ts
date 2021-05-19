@@ -12,7 +12,7 @@ sade('seo-lint <dir>', true)
     // Program handler
     const tester = new Tester({ siteWide: true, host: opts.host ? opts.host : '' });
 
-    console.log(dir);
+    // write to json?
 
     const { meta, ...results } = await tester.folder(dir);
 

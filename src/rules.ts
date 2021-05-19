@@ -1,9 +1,5 @@
-const assert = require('assert');
-
-const seoLint = {
-  internalLinksLowerCase: true,
-  internalLinksTrailingSlash: true,
-};
+import assert from 'assert';
+import { defaultConfig } from './Tester';
 
 const cleanString = (str) =>
   str
@@ -20,6 +16,7 @@ export const rules = [
     name: 'Canonical Tag',
     description: `Validates that the canonical tag is well formed, that there isn't multiple, and that it matches the url crawled.`,
     testData: {
+      config: defaultConfig,
       response: {
         url: 'https://nicholasreese.com/',
       },
@@ -51,6 +48,7 @@ export const rules = [
     name: 'Title tag',
     description: `Validate that the title tag exists, isn't too long, and isn't too short.`,
     testData: {
+      config: defaultConfig,
       result: {
         title: [
           {
@@ -118,6 +116,7 @@ export const rules = [
     name: 'Meta description',
     description: `Validate that a meta description exists, isn't too long, isn't too short, and uses at least a few keywords from the title.`,
     testData: {
+      config: defaultConfig,
       result: {
         meta: [
           {
@@ -192,6 +191,7 @@ export const rules = [
     name: 'HTags',
     description: `Validate that H tags are being used properly.`,
     testData: {
+      config: defaultConfig,
       result: {
         title: [
           {
@@ -380,6 +380,7 @@ export const rules = [
     description:
       'Page has a <meta name="viewport" content="width=device-width, initial-scale=1.0" />. This will allow users to zoom on your mobile page but won\'t be zoomed in by default.',
     testData: {
+      config: defaultConfig,
       response: {
         meta: [{ charset: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
       },
@@ -406,6 +407,7 @@ export const rules = [
     name: 'Internal Links are well formed',
     description: 'Checks that all internal links are lowercase and have a trailing slash',
     testData: {
+      config: defaultConfig,
       response: {
         ok: true,
         url: 'https://nicholasreese.com/',
@@ -434,7 +436,7 @@ export const rules = [
       const internal = payload.result.aTags.filter(
         (l) => (payload.response.host && l.href.includes(payload.response.host)) || !l.href.includes('http'),
       );
-      if (seoLint.internalLinksLowerCase) {
+      if (payload.config.internalLinksLowerCase) {
         internal.forEach((l) => {
           tester.lint(
             80,
@@ -445,7 +447,7 @@ export const rules = [
         });
       }
 
-      if (seoLint.internalLinksTrailingSlash) {
+      if (payload.config.internalLinksTrailingSlash) {
         internal.forEach((l) => {
           tester.lint(
             80,
@@ -486,6 +488,7 @@ export const rules = [
     name: 'Outbound links',
     description: 'Checks for the number of outbound links',
     testData: {
+      config: defaultConfig,
       response: {
         ok: true,
         url: 'https://nicholasreese.com/',
@@ -551,6 +554,7 @@ export const rules = [
     name: 'Images',
     description: 'Checks for alt tags on images.',
     testData: {
+      config: defaultConfig,
       response: {
         ok: true,
         url: 'https://nicholasreese.com/',
