@@ -6,7 +6,7 @@ This SEO tool was spun out of [Elder.js'](https://elderguide.com/tech/elderjs/) 
 
 ## Tester (Library Usage)
 
-The library exports a `Tester` class which has 2 methods: `folder` and `test`.
+The library exports a `Tester` method which returns an object with 2 methods: `folder` and `test`.
 
 ### Recursive Folder Linting: `folder`
 
