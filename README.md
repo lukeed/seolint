@@ -14,7 +14,7 @@ If you have a folder of `.html` files you're looking to check for common SEO iss
 
 ```js
 const { Tester } = require('./Tester');
-const tester = new Tester({ siteWide: true, host: 'example.com' });
+const tester = Tester({ siteWide: true, host: 'example.com' });
 const results = await tester.folder('public'); // relative to process.cwd()
 ```
 
@@ -24,8 +24,8 @@ If you have a build process that generates HTML, such as a static site generator
 
 ```js
 const { Tester } = require('./Tester');
-const tester = new Tester({ host: 'example.com' });
-const results = await test(html, relPermalink);
+const tester = Tester({ host: 'example.com' });
+const results = await tester.test(html, relPermalink);
 
 // results will be an object with issues by url and sitewide issues.
 ```
