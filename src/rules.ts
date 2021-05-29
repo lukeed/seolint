@@ -34,12 +34,12 @@ export const rules = [
         `There should be 1 and only 1 canonical tag, currently there are ${canonicals.length}`,
       );
       if (canonicals[0]) {
+        const {url, host} = payload.response
         tester.test(
-          100,
-          assert.strictEqual,
-          canonicals[0].href,
-          payload.response.url,
-          'Canonical should match the url that was crawled. ',
+          100, 
+          assert_1.default.ok, 
+          canonicals[0].href.includes('http') && canonicals[0].href.includes(host) && canonicals[0].href.includes(url), 
+          'Canonical should absolute url and match the url that was crawled. '
         );
       }
     },
