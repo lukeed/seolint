@@ -34,12 +34,12 @@ export const rules = [
         `There should be 1 and only 1 canonical tag, currently there are ${canonicals.length}`,
       );
       if (canonicals[0]) {
-        const {url, host} = payload.response
+        const { url, host } = payload.response;
         tester.test(
-          100, 
-          assert_1.default.ok, 
-          canonicals[0].href.includes('http') && canonicals[0].href.includes(host) && canonicals[0].href.includes(url), 
-          'Canonical should absolute url and match the url that was crawled. '
+          100,
+          assert.ok,
+          canonicals[0].href.includes('http') && canonicals[0].href.includes(host) && canonicals[0].href.includes(url),
+          `Canonical should match absolute url and match the url that was crawled. host:${host} | crawled: ${url} | canonical: ${canonicals[0].href}`,
         );
       }
     },
@@ -151,13 +151,13 @@ export const rules = [
         tester.lint(
           assert.ok,
           metas[0].content.length > 10,
-          `This meta description is shorter than the recommended minimum limit of 10.`,
+          `This meta description is shorter than the recommended minimum limit of 10. (${metas[0].content})`,
         );
         tester.lint(
           30,
           assert.ok,
           metas[0].content.length < 120,
-          'This meta description is longer than the recommended limit of 120.',
+          `This meta description is longer than the recommended limit of 120. ${metas[0].content.length} (${metas[0].content})`,
         );
 
         tester.test(
@@ -258,9 +258,7 @@ export const rules = [
       }
 
       let usesKeywords = false;
-      if (html[0].innerText.length > 3000) {
-        tester.lint(60, assert.ok, h2s.length >= 1, 'Page is missing an h2 tag.');
-      }
+
       h2s.forEach((h2) => {
         tester.test(80, assert.notEqual, h2.innerText.length, 0, 'H2 tags should not be empty');
         tester.lint(
@@ -270,11 +268,11 @@ export const rules = [
         );
         tester.lint(
           assert.ok,
-          h2.innerText.length > 10,
-          `H2 tag is shorter than the recommended limit of 10. (${h2.innerText})`,
+          h2.innerText.length > 7,
+          `H2 tag is shorter than the recommended limit of 7. (${h2.innerText})`,
         );
 
-        const compareArr = cleanString(h2.innerText)
+        const compareArr = cleanString(h2.innerText.toLowerCase())
           .split(' ')
           .filter((i) => [':', '|', '-'].indexOf(i) === -1);
 
@@ -331,13 +329,13 @@ export const rules = [
         tester.lint(
           10,
           assert.ok,
-          h4.innerText.length > 100,
+          h4.innerText.length < 100,
           `h4 tag is longer than the recommended limit of 100. (${h4.innerText})`,
         );
         tester.lint(
           10,
           assert.ok,
-          h4.innerText.length < 7,
+          h4.innerText.length > 7,
           `h4 tag is shorter than the recommended limit of 7. (${h4.innerText})`,
         );
       });
@@ -433,9 +431,15 @@ export const rules = [
       },
     },
     validator: async (payload, tester) => {
-      const internal = payload.result.aTags.filter(
-        (l) => (payload.response.host && l.href.includes(payload.response.host)) || !l.href.includes('http'),
-      );
+      const internal = payload.result.aTags
+        .filter((l) => (payload.response.host && l.href.includes(payload.response.host)) || !l.href.includes('http'))
+        .map((l) => {
+          if (l.href.includes('#')) {
+            l.href = l.href.split('#')[0];
+          }
+          return l;
+        })
+        .filter((l) => !l.href.includes('mailto') && l.href.length > 0);
       if (payload.preferences.internalLinksLowerCase) {
         internal.forEach((l) => {
           tester.lint(

@@ -157,6 +157,10 @@ export const Tester = function ({
     this.currentRule = JSON.parse(JSON.stringify(emptyRule));
   };
 
+  const reset = () => {
+    results = [];
+  };
+
   const test = async (html: string, url: string) => {
     try {
       this.currentUrl = url;
@@ -252,6 +256,7 @@ export const Tester = function ({
 
   return {
     test,
+    reset,
     folder: async (folder) => {
       const parsedFolder = path.parse(path.resolve(folder));
       const normalizedFolder = `${parsedFolder.dir}/${parsedFolder.base}`;
