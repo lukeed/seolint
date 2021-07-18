@@ -1,18 +1,23 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "commonjs",
-    "lib": ["ES2019"],
-    "allowJs": true,
-    "outDir": "build",
-    "rootDir": "src",
-    "strict": false,
-    // "noImplicitAny": true,
-    "esModuleInterop": true,
+    "strict": true,
+    "target": "es2019",
+    "module": "esnext",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": false,
     "resolveJsonModule": true,
-    "declaration": true
+    "esModuleInterop": false,
+    "removeComments": true,
+    "sourceMap": false,
+    "allowJs": false,
+    "noEmit": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules/**", "**/__tests__/**", "dist"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
