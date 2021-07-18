@@ -1,2 +1,1 @@
-export { Tester, defaultPreferences } from './Tester';
-export { rules } from './rules';
+export const foo = 123;
