@@ -12,7 +12,11 @@
     "removeComments": true,
     "sourceMap": false,
     "allowJs": false,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "seolint": ["index.d.ts"]
+    }
   },
   "include": [
     "src"
