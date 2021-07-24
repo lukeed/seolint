@@ -9,17 +9,9 @@ export interface Context<T extends Dict = Dict> {
 	load<K extends keyof T>(title: K): T[K] | void;
 	report<K extends keyof T>(title: K, message: string): void;
 
-	assert<K extends keyof T>(
-		title: K,
-		check: (options: T[K]) => boolean,
-		message: string
-	): void;
-
-	assert<K extends keyof T>(
-		title: K,
-		check: (options: T[K]) => Promise<boolean>,
-		message: string
-	): Promise<void>;
+	assert<K extends keyof T>(title: K, check: boolean, message: string): void;
+	assert<K extends keyof T>(title: K, check: (options: T[K]) => boolean, message: string): void;
+	assert<K extends keyof T>(title: K, check: (options: T[K]) => Promise<boolean>, message: string): Promise<void>;
 }
 
 export type Plugin<R extends Rules = Rules> = (context: Context<R>, document: HTMLElement) => Promisable<void>;

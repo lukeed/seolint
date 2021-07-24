@@ -15,7 +15,7 @@ export const image: Plugin<Image> = function (context, document) {
 
 		context.assert(
 			'image.alt.exists',
-			() => alt.trim().length > 0,
+			alt.trim().length > 0,
 			'Must have an `alt` attribute'
 		);
 
@@ -25,13 +25,13 @@ export const image: Plugin<Image> = function (context, document) {
 
 		context.assert(
 			'image.alt.content.undefined',
-			() => !alt.includes('undefined'),
+			alt.indexOf('undefined') === -1,
 			'Must not include "undefined" in `alt` value'
 		);
 
 		context.assert(
 			'image.alt.content.null',
-			() => !alt.includes('null'),
+			alt.indexOf('null') === -1,
 			'Must not include "null" in `alt` value'
 		);
 	});

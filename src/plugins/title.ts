@@ -16,35 +16,26 @@ interface Title {
 export const title: Plugin<Title> = function (context, document) {
 	let [elem, ...rest] = document.querySelectorAll('title');
 
-	context.assert(
-		'title.exists',
-		() => elem != null,
-		'A title tag must exist'
-	);
-
-	context.assert(
-		'title.single',
-		() => rest.length === 0,
-		'Must have only one title tag'
-	);
+	context.assert('title.exists', elem != null, 'A title tag must exist');
+	context.assert('title.single', rest.length === 0, 'Must have only one title tag');
 
 	let text = elem.innerText;
 
 	context.assert(
 		'title.content.html',
-		() => text === elem.innerHTML,
+		text === elem.innerHTML,
 		'Must not include HTML content'
 	);
 
 	context.assert(
 		'title.content.undefined',
-		() => !text.includes('undefined'),
+		text.indexOf('undefined') === -1,
 		'Must not include "undefined" in `title` value'
 	);
 
 	context.assert(
 		'title.content.null',
-		() => !text.includes('null'),
+		text.indexOf('null') === -1,
 		'Must not include "null" in `title` value'
 	);
 
