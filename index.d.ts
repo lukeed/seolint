@@ -1,19 +1,11 @@
-export type Toggle =
-	| 'off' | 'warn' | 'error'
-	| 0 | 1 | 2;
-
 type Dict = Record<string, any>;
-export type Rule<T extends Dict = Dict> = Toggle | [Toggle, T];
+type Promisable<T> = Promise<T> | T;
+
 export type Rules<T extends Dict = Dict> = {
-	[K in keyof T]: Rule<T[K]>;
+	[K in keyof T]: boolean | T[K];
 };
 
-export type Severity = 'warn' | 'error';
-
-// export type Check
-
 export interface Message {
-	level: Severity;
 	message: string;
 	line?: number;
 	col?: number;
@@ -52,9 +44,23 @@ export interface Argv {
 	cwd?: string;
 	host?: string;
 	input?: string[];
-	// pipe?: string;
-	// log?: Severity;
-	// quiet?: boolean;
+}
+
+export interface Context<T extends Dict = Dict> {
+	load<K extends keyof T>(title: K): T[K] | void;
+	report<K extends keyof T>(title: K, message: string): void;
+
+	assert<K extends keyof T>(
+		title: K,
+		check: (options: T[K]) => boolean,
+		message: string
+	): void;
+
+	assert<K extends keyof T>(
+		title: K,
+		check: (options: T[K]) => Promise<boolean>,
+		message: string
+	): Promise<void>;
 }
 
 // export function file(): Promise<Messages>;

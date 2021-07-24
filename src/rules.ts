@@ -1,25 +1,10 @@
-// 0, "off", false -> disable
-// 1, "warn", <---> -> warn
-// 2, "error", true -> error
-export const rules = {
+import { Rules } from 'seolint';
+
+export const rules: Rules = {
 	'canonical.exists': 2,
 	'canonical.single': 2,
 	'canonical.absolute': 2,
 	'canonical.match': 1,
-
-	'title.exists': 2,
-	'title.single': 2,
-	'title.content.html': 2,
-	'title.content.undefined': 2,
-	'title.content.null': 2,
-	// 'title.content.exclude': [2, {
-	// 	words:
-	// }],
-	'title.length': [2, {
-		min: 10,
-		avg: 120,
-		max: 300
-	}],
 
 	'description.exists': 2,
 	'description.single': 2,
@@ -80,9 +65,9 @@ export const rules = {
 	'link.internal.pretty': 2,
 	'link.internal.https': 2,
 
-	'link.external.limit': [2, 50],
+	'link.external.limit': {
+		max: 50
+	},
 	'link.external.follow': 1,
 	'link.external.https': 1,
-
-	'image.alt': 2,
 }
