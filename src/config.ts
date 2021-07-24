@@ -1,7 +1,15 @@
 import { dirname, join, resolve } from 'path';
 import { list } from './utils/fs';
 
-import type { Config } from 'seolint';
+// Default plugins
+import { title } from './plugins/title';
+import { canonical } from './plugins/canonical';
+import { description } from './plugins/description';
+import { viewport } from './plugins/viewport';
+import { image } from './plugins/image';
+import { link } from './plugins/link';
+
+import type { Config, Plugin } from 'seolint';
 
 const priority = [
 	'seolint.config.mjs',
@@ -37,17 +45,32 @@ export async function find(root: string, start: string): Promise<string|void> {
  * @NOTE Mutates `base` object!
  */
 export function merge(base: Config, custom: Config) {
-
+	base.host = custom.host || base.host;
+	base.inputs = custom.inputs || base.inputs;
+	if (custom.plugins) base.plugins!.push(...custom.plugins);
+	if (custom.rules) Object.assign(base.rules!, custom.rules);
 }
 
 export async function load(root: string): Promise<Config> {
-	let output: Config = {};
+	let output: Config = {
+		host: '',
+		inputs: [],
+		plugins: [],
+		rules: {},
+	};
 
 	let file = await find(root, '.');
-	if (!file) return output;
 
-	let config = /\.cjs$/.test(file) ? require(file) : await import(file);
-	output = config.default || config;
+	if (file) {
+		let config = /\.cjs$/.test(file) ? require(file) : await import(file);
+		merge(output, config.default || config);
+	}
 
-	return merge(defaults, output);
+	// include default plugins
+	(output.plugins as Plugin<any>[]).unshift(
+		title, canonical, description,
+		viewport, image, link,
+	);
+
+	return output;
 }

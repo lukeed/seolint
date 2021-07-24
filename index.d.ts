@@ -28,12 +28,6 @@ export interface Argv {
 export interface Config {
 	host?: string;
 	inputs?: string[];
-	// output?: {
-	// 	quiet?: boolean;
-	// 	colors?: boolean;
-	// 	loglevel?: Severity;
-	// };
-	// presets?: Rule[];
 	plugins?: Plugin[];
 	rules?: Rules;
 }
