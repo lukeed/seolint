@@ -18,10 +18,24 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 	context.assert('canonical.single', rest.length === 0, 'Must have only one canonical link');
 
 	let target = elem.getAttribute('href') || '';
-	context.assert('canonical.href.exists', target.length > 0, 'Must not have empty `href` target');
 
-	context.assert('canonical.href.absolute', /^https?:\/\//.test(target), 'Must point to an absolute URL target');
-	context.assert('canonical.href.https', /^https:\/\//.test(target), 'Must point to an "https://" address');
+	context.assert(
+		'canonical.href.exists',
+		target.length > 0,
+		'Must not have empty `href` target'
+	);
+
+	context.assert(
+		'canonical.href.absolute',
+		/^https?:\/\//.test(target),
+		'Must include a URL protocol in target'
+	);
+
+	context.assert(
+		'canonical.href.https',
+		/^https:\/\//.test(target),
+		'Must point to an "https://" address'
+	);
 
 	context.assert(
 		'canonical.href.match',
