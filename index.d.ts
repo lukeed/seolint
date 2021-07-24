@@ -23,6 +23,10 @@ export type Messages = {
 	[rule: string]: Message;
 }
 
+export type Report = {
+	[input: string]: Messages;
+}
+
 export type Plugin<
 	O extends Dict = Dict,
 	T extends Dict = Dict,
@@ -32,14 +36,30 @@ export type Plugin<
 };
 
 export interface Config {
-	inputs: string | string[];
-	hostname?: string;
-	output?: {
-		quiet?: boolean;
-		colors?: boolean;
-		loglevel?: Severity;
-	};
+	host?: string;
+	inputs?: string[];
+	// output?: {
+	// 	quiet?: boolean;
+	// 	colors?: boolean;
+	// 	loglevel?: Severity;
+	// };
 	// presets?: Rule[];
 	plugins?: Plugin[];
 	rules?: Rules;
 }
+
+export interface Argv {
+	cwd?: string;
+	host?: string;
+	input?: string[];
+	// pipe?: string;
+	// log?: Severity;
+	// quiet?: boolean;
+}
+
+// export function file(): Promise<Messages>;
+// export function http(): Promise<Messages>;
+
+export function config(options?: Argv): Promise<Config>;
+export function lint(html: string, config: Config): Promise<Messages>;
+export function run(config: Config, options: Argv): Promise<Report>;

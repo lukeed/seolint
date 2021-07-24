@@ -30,10 +30,6 @@ export async function find(root: string, start: string): Promise<string|void> {
 	}
 }
 
-export async function load(file: string): Promise<Config> {
-	return /\.cjs$/.test(file) ? require(file) : import(file);
-}
-
 /**
  * Merge config objects
  * Overrides default values
@@ -42,4 +38,16 @@ export async function load(file: string): Promise<Config> {
  */
 export function merge(base: Config, custom: Config) {
 
+}
+
+export async function load(root: string): Promise<Config> {
+	let output: Config = {};
+
+	let file = await find(root, '.');
+	if (!file) return output;
+
+	let config = /\.cjs$/.test(file) ? require(file) : await import(file);
+	output = config.default || config;
+
+	return merge(defaults, output);
 }
