@@ -1,4 +1,4 @@
-import type { Context } from 'seolint';
+import type { Plugin } from 'seolint';
 
 interface Title {
 	'title.exists': boolean;
@@ -13,7 +13,7 @@ interface Title {
 }
 
 // TODO: stop words
-export function title(context: Context<Title>, document: HTMLElement) {
+export const title: Plugin<Title> = function (context, document) {
 	let [elem, ...rest] = document.querySelectorAll('title');
 
 	context.assert(
