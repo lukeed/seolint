@@ -1,4 +1,4 @@
-import type { Context } from 'seolint';
+import type { Plugin } from 'seolint';
 
 interface Image {
 	'image.alt.exists': boolean;
@@ -7,7 +7,7 @@ interface Image {
 	'image.alt.content.null': boolean;
 }
 
-export function image(context: Context<Image>, document: HTMLElement) {
+export const image: Plugin<Image> = function (context, document) {
 	let images = document.querySelectorAll('img');
 
 	images.forEach(img => {
