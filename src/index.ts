@@ -2,8 +2,8 @@ import { request } from 'https';
 import { globalAgent } from 'http';
 import { parse } from 'node-html-parser';
 import { join, relative, resolve } from 'path';
+import { lstat, list, read } from './utils/fs';
 import { load } from './config';
-import * as fs from './utils/fs';
 
 import type { Argv, Context, Config, Dict } from 'seolint';
 import type { Report, Messages } from 'seolint';
@@ -70,14 +70,14 @@ export async function lint(html: string, config: Omit<Config, 'inputs'>): Promis
 	return output;
 }
 
-export async function file(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
+export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
 	let output: Report = {};
 
-	let stats = await fs.lstat(path);
+	let stats = await lstat(path);
 
 	if (stats.isFile()) {
 		if (!/\.html?$/.test(path)) return output;
-		let data = await fs.read(path, 'utf8');
+		let data = await read(path, 'utf8');
 
 		return lint(data, config).then(msgs => {
 			output[path] = msgs;
@@ -85,12 +85,12 @@ export async function file(path: string, config: Omit<Config, 'inputs'>): Promis
 		});
 	}
 
-	let arr = await fs.list(path);
+	let arr = await list(path);
 
 	await Promise.all(
 		arr.map(x => {
 			let nxt = join(path, x);
-			return file(nxt, config).then(rep => {
+			return fs(nxt, config).then(rep => {
 				Object.assign(output, rep);
 			});
 		})
@@ -99,12 +99,12 @@ export async function file(path: string, config: Omit<Config, 'inputs'>): Promis
 	return output;
 }
 
-export function http(url: string, config: Omit<Config, 'inputs'>): Promise<Report> {
+export function url(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
 	return new Promise((res, rej) => {
 		let content = '', output: Report = {};
-		let agent = /^http:\/\//.test(url) && globalAgent;
+		let agent = /^http:\/\//.test(path) && globalAgent;
 
-		let req = request(url, { agent }, r => {
+		let req = request(path, { agent }, r => {
 			let type = r.headers['content-type'] || '';
 			console.log('~> type:', type, r.statusCode);
 
@@ -116,7 +116,7 @@ export function http(url: string, config: Omit<Config, 'inputs'>): Promise<Repor
 			r.on('data', d => { content += d });
 			r.on('end', async () => {
 				let msgs = await lint(content, config).catch(rej);
-				if (msgs) output[url] = msgs;
+				if (msgs) output[path] = msgs;
 				return res(output);
 			});
 		});
@@ -141,7 +141,7 @@ export async function run(config: Config, options: Argv): Promise<Report> {
 		throw new Error('Inputs cannot contain both file-system and URL targets');
 	}
 
-	let action = isHTTP ? http : file;
+	let action = isHTTP ? url : fs;
 
 	await Promise.all(
 		inputs.map(input => {
