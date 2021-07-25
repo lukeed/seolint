@@ -1,5 +1,5 @@
+import { join, resolve } from 'path';
 import { parse } from 'node-html-parser';
-import { join, relative, resolve } from 'path';
 import { lstat, list, read } from './utils/fs';
 import { fetch } from './utils/http';
 import { load } from './config';
@@ -106,7 +106,6 @@ export async function url(path: string, config: Omit<Config, 'inputs'>): Promise
 }
 
 export async function run(config: Config, options: Argv): Promise<Report> {
-	let output: Report = {};
 	let isHTTP=0, HTTP=/^https?:\/\//;
 	let cwd = options.cwd = resolve(options.cwd || '.');
 	let i=0, inputs = ([] as string[]).concat(config.inputs || []);
@@ -121,15 +120,13 @@ export async function run(config: Config, options: Argv): Promise<Report> {
 		throw new Error('Inputs cannot contain both file-system and URL targets');
 	}
 
+	let output: Report = {};
 	let action = isHTTP ? url : fs;
 
 	await Promise.all(
 		inputs.map(input => {
 			return action(input, config).then(report => {
-				if (isHTTP) Object.assign(output, report);
-				else for (let key in report) {
-					output[relative(cwd, key)] = report[key];
-				}
+				Object.assign(output, report);
 			}).catch(err => {
 				console.error('ERROR', input, err.stack || err);
 			});
