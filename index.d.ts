@@ -19,9 +19,6 @@ export interface Context<T extends Dict = Rules> {
 
 export type Plugin<R extends Rules = Rules> = (context: Context<R>, document: HTMLElement) => Promisable<void>;
 
-// export function file(): Promise<Messages>;
-// export function http(): Promise<Messages>;
-
 export interface Argv {
 	cwd?: string;
 	host?: string;

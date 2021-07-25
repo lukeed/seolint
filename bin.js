@@ -17,9 +17,6 @@ for (; i <= argv.length; i++) {
 }
 
 let host = flags['--host'] || flags['-H'];
-let loglevel = flags['--loglevel'] || flags['-l'];
-
-let options = { host, input };
 let quiet = flags['--quiet'] || flags['-q'];
 
 function bail(message, code = 1) {
@@ -38,6 +35,7 @@ async function init() {
 	if (flags['--no-color']) colors.$.enabled = false;
 
 	try {
+		var options = { host, input };
 		var config = await seolint.config(options);
 	} catch (err) {
 		return console.error('ERROR.CONFIG', err.stack);
@@ -109,15 +107,6 @@ if (host === true) {
 	return bail(`Missing '${key}' value`);
 }
 
-if (loglevel === 'warn') loglevel = 1;
-else if (loglevel === 'error') loglevel = 2;
-else if (loglevel) {
-	key = flags['--loglevel'] ? '--loglevel' : '-l';
-	if (loglevel === true) return bail(`Missing '${key}' value`);
-	else return bail(`Invalid '${key}' value`);
-}
-
-if (quiet) loglevel = 0;
 if (quiet && quiet !== true) input.unshift(quiet);
 
 if (key = flags['--input'] || flags['-i']) {
