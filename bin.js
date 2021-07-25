@@ -50,10 +50,29 @@ async function init() {
 			? await seolint.lint(piped, config)
 			: await seolint.run(config, options);
 	} catch (err) {
+		process.exitCode = 1;
 		return console.log('ERROR', err);
 	}
 
-	console.log("OK", report);
+	let input, errors, output='';
+
+	for (input in report) {
+		errors = report[input];
+		if (output.length) {
+			output += '\n';
+		}
+		// TODO: colorize
+		output += input + '\n';
+		for (let title in errors) {
+			output += '  ' + title + ' :: ' + errors[title].message + '\n';
+		}
+	}
+
+	if (output.length) {
+		process.exitCode = 1;
+	}
+
+	console.error(output);
 }
 
 if (flags['--help'] || flags['-h']) {
