@@ -1,6 +1,5 @@
 // @ts-check
 const argv = process.argv.slice(2);
-const { NODE_DISABLE_COLORS, NO_COLOR, TERM } = process.env;
 const isPIPE = !process.stdin.isTTY;
 
 let i=0, key='';
@@ -24,8 +23,6 @@ let loglevel = flags['--loglevel'] || flags['-l'];
 let options = { host, input };
 let quiet = flags['--quiet'] || flags['-q'];
 
-let colors = !NODE_DISABLE_COLORS && NO_COLOR == null && TERM !== 'dumb' && !flags['--no-color'];
-
 function bail(message, code = 1) {
 	process.exitCode = code;
 	console.error(message);
@@ -38,6 +35,8 @@ function onpipe(chunk) {
 
 async function init() {
 	const seolint = require('.');
+	const colors = require('kleur/colors');
+	if (flags['--no-color']) colors.$.enabled = false;
 
 	try {
 		var config = await seolint.config(options);
@@ -54,25 +53,48 @@ async function init() {
 		return console.log('ERROR', err);
 	}
 
-	let input, errors, output='';
+	const SYM = colors.red('  ✘  ');
+	const FAIL = colors.bold(colors.bgRed(' FAIL '));
+	const FILE = x => colors.bold(' ' + colors.underline(colors.white(x)));
+
+	let total=0, output='';
+	let rule, input, errors, wMsg=0;
 
 	for (input in report) {
 		errors = report[input];
-		if (output.length) {
-			output += '\n';
+
+		// reset per entry
+		output = '\n';
+		wMsg = 0;
+
+		// get widths first
+		for (rule in errors) {
+			total++;
+			// TODO: col:row
+			wMsg = Math.max(wMsg, errors[rule].message.length);
 		}
-		// TODO: colorize
-		output += input + '\n';
-		for (let title in errors) {
-			output += '  ' + title + ' :: ' + errors[title].message + '\n';
+
+		if (total > 0) {
+			output += FAIL + FILE(input) + '\n';
+			for (rule in errors) {
+				output += '  ' + colors.dim(' 9:44') + SYM;
+				output += errors[rule].message.padEnd(wMsg, ' ');
+				output += '  ' + colors.dim(rule) + '\n';
+			}
+			process.stderr.write(output);
 		}
 	}
 
-	if (output.length) {
+	if (total > 0) {
+		output = '\n' + FAIL + ' Reported ' + colors.red(total) + ' error';
+		if (total !== 1) output += 's';
+		console.error(output + '!\n');
 		process.exitCode = 1;
+	} else {
+		output = '\n' + colors.bold(colors.bgGreen(' PASS '));
+		output += ' Looks great! 🎉\n'
+		console.log(output);
 	}
-
-	console.error(output);
 }
 
 if (flags['--help'] || flags['-h']) {
