@@ -49,11 +49,10 @@ export type Report = {
 	[input: string]: Messages;
 }
 
-export function fs(path: string, config: Omit<Config, 'inputs'>): Promise<Messages>;
-export function url(href: string, config: Omit<Config, 'inputs'>): Promise<Messages>;
-export function lint(html: string, config: Omit<Config, 'inputs'>): Promise<Messages>;
-
 export function config(options?: Argv): Promise<Config>;
+export function lint(html: string, config: Omit<Config, 'inputs'>): Promise<Messages|void>;
+export function url(href: string, config: Omit<Config, 'inputs'>): Promise<Report>;
+export function fs(path: string, config: Omit<Config, 'inputs'>): Promise<Report>;
 export function run(config: Config, options: Argv): Promise<Report>;
 
 export declare class Assertion extends Error {

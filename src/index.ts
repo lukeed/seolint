@@ -25,9 +25,10 @@ export async function config(options: Argv = {}): Promise<Config> {
 	return value;
 }
 
-export async function lint(html: string, config: Omit<Config, 'inputs'>): Promise<Messages> {
+export async function lint(html: string, config: Omit<Config, 'inputs'>): Promise<Messages|void> {
 	let document = parse(html);
 
+	let invalid = false;
 	let output: Messages = {};
 	let rules = config.rules || {};
 	let plugins = config.plugins || [];
@@ -60,13 +61,14 @@ export async function lint(html: string, config: Omit<Config, 'inputs'>): Promis
 		} catch (err) {
 			if (err instanceof Assertion) {
 				output[err.rule] = { message: err.message };
+				invalid = true;
 			} else {
 				console.error('ERROR', err.stack);
 			}
 		}
 	}
 
-	return output;
+	if (invalid) return output;
 }
 
 export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
@@ -79,7 +81,7 @@ export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<
 		let data = await read(path, 'utf8');
 
 		return lint(data, config).then(msgs => {
-			output[path] = msgs;
+			if (msgs) output[path] = msgs;
 			return output;
 		});
 	}
@@ -101,7 +103,8 @@ export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<
 export async function url(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
 	let output: Report = {};
 	let html = await fetch(path);
-	output[path] = await lint(html, config);
+	let msgs = await lint(html, config);
+	if (msgs) output[path] = msgs;
 	return output;
 }
 
