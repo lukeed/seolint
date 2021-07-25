@@ -46,7 +46,7 @@ async function init() {
 
 	try {
 		var report = piped.length
-			? await seolint.lint(piped, config)
+			? await seolint.lint(piped, config).then(m => ({ 'stdin': m }))
 			: await seolint.run(config, options);
 	} catch (err) {
 		process.exitCode = 1;
@@ -91,7 +91,7 @@ async function init() {
 		console.error(output + '!\n');
 		process.exitCode = 1;
 	} else {
-		output = '\n' + colors.bold(colors.bgGreen(' PASS '));
+		output = '\n' + colors.bold(colors.green(' PASS '));
 		output += ' Looks great! 🎉\n'
 		console.log(output);
 	}
