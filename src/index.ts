@@ -1,8 +1,7 @@
-import { request } from 'https';
-import { globalAgent } from 'http';
 import { parse } from 'node-html-parser';
 import { join, relative, resolve } from 'path';
 import { lstat, list, read } from './utils/fs';
+import { fetch } from './utils/http';
 import { load } from './config';
 
 import type { Argv, Context, Config, Dict } from 'seolint';
@@ -99,30 +98,11 @@ export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<
 	return output;
 }
 
-export function url(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
-	return new Promise((res, rej) => {
-		let content = '', output: Report = {};
-		let agent = /^http:\/\//.test(path) && globalAgent;
-
-		let req = request(path, { agent }, r => {
-			let type = r.headers['content-type'] || '';
-
-			if (!type.includes('text/html')) {
-				return rej('Invalid "Content-Type" header');
-			}
-
-			r.setEncoding('utf8');
-			r.on('data', d => { content += d });
-			r.on('end', async () => {
-				let msgs = await lint(content, config).catch(rej);
-				if (msgs) output[path] = msgs;
-				return res(output);
-			});
-		});
-
-		req.on('error', rej);
-		req.end(); // send
-	});
+export async function url(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
+	let output: Report = {};
+	let html = await fetch(path);
+	output[path] = await lint(html, config);
+	return output;
 }
 
 export async function run(config: Config, options: Argv): Promise<Report> {
