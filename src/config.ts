@@ -33,7 +33,8 @@ export async function find(root: string, start: string): Promise<string|void> {
 	}
 
 	dir = dirname(dir);
-	if (dir !== root) {
+
+	if (dir.startsWith(root)) {
 		return find(root, dir);
 	}
 }
