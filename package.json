@@ -33,9 +33,7 @@
     "node": ">=12"
   },
   "dependencies": {
-    "node-html-parser": "^4.1.0",
-    "sade": "^1.7.4",
-    "totalist": "^2.0.0"
+    "node-html-parser": "^4.1.0"
   },
   "keywords": [],
   "devDependencies": {
