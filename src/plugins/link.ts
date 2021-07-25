@@ -22,8 +22,8 @@ export const link: Plugin<Link> = function (context, document) {
 	let seen: Set<string> = new Set;
 	let links = document.querySelectorAll('a[href]');
 
-	let hostname = context.load('link.internal.hostname');
-	if (!hostname) console.warn('! cannot run `link.internal` rules without a `link.internal.hostname` value');
+	let host = context.load('link.internal.hostname');
+	if (!host) console.warn('! cannot run `link.internal` rules without a `link.internal.hostname` value');
 
 	links.forEach(link => {
 		let href = link.getAttribute('href') || '';
@@ -47,9 +47,9 @@ export const link: Plugin<Link> = function (context, document) {
 
 		let isExternal = true;
 
-		if (hostname) {
-			let tmp = new URL(href, 'http://x.com');
-			isExternal = tmp.hostname !== hostname;
+		if (host) {
+			let { hostname } = new URL(href, 'http://x.com');
+			isExternal = hostname !== 'x.com' && hostname !== host;
 		}
 
 		if (isExternal) {
