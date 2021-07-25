@@ -102,7 +102,7 @@ export const link: Plugin<Link> = function (context, document) {
 	if (externals) {
 		context.assert(
 			'link.external.limit',
-			o => externals <= o.max,
+			o => externals <= (o.max || 50),
 			'Exceeded external links maximum'
 		);
 	}
