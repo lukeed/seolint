@@ -5,8 +5,16 @@ import { join, relative, resolve } from 'path';
 import { load } from './config';
 import * as fs from './utils/fs';
 
-import type { Argv, Context, Config } from 'seolint';
+import type { Argv, Context, Config, Dict } from 'seolint';
 import type { Report, Messages } from 'seolint';
+
+export class Assertion extends Error {
+	rule: string;
+	constructor(message: string, rule: string) {
+		super(message);
+		this.rule = rule;
+	}
+}
 
 export async function config(options: Argv = {}): Promise<Config> {
 	options.cwd = resolve(options.cwd || '.');
@@ -20,22 +28,46 @@ export async function config(options: Argv = {}): Promise<Config> {
 
 export async function lint(html: string, config: Omit<Config, 'inputs'>): Promise<Messages> {
 	let document = parse(html);
-	// normalize rules shape
-	let { rules, checks } = {} as any;
 
 	let output: Messages = {};
-	let key, rule, lvl, check;
+	let rules = config.rules || {};
+	let plugins = config.plugins || [];
 
+	let context: Context = {
+		load(title) {
+			let tmp = rules[title];
+			return tmp == null || tmp;
+		},
+		report(title, message) {
+			throw new Assertion(message, title);
+		},
+		assert(title: string, check: boolean | ((o: Dict) => boolean), msg: string) {
+			let tmp = context.load(title);
+			if (tmp === true) tmp = {};
+			else if (!tmp) return;
 
-	for (key of checks) {
-		rule = rules[key] || [2];
-		// if (rule[0] === ) {
+			let bool = typeof check === 'function'
+				? check(tmp)
+				: check;
 
-		// }
-		check = checks[key];
-		await checks[key](document,)
-		rule = [].concat(rules[key] || 2);
+			bool || context.report(title, msg);
+		}
+	};
+
+	for (let fn of plugins) {
+		try {
+			// @ts-ignore - HTMLElement
+			await fn(context, document);
+		} catch (err) {
+			if (err instanceof Assertion) {
+				output[err.rule] = { message: err.message };
+			} else {
+				console.error('ERROR', err.stack);
+			}
+		}
 	}
+
+	return output;
 }
 
 export async function file(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
