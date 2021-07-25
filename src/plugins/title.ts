@@ -14,12 +14,12 @@ interface Title {
 
 // TODO: stop words
 export const title: Plugin<Title> = function (context, document) {
-	let [elem, ...rest] = document.querySelectorAll('title');
+	let [elem, ...rest] = document.querySelectorAll('head>title');
 
 	context.assert('title.exists', elem != null, 'A title tag must exist');
 	context.assert('title.single', rest.length === 0, 'Must have only one title tag');
 
-	let text = elem.innerText;
+	let text = (elem as HTMLTitleElement).innerText;
 
 	context.assert(
 		'title.content.html',
