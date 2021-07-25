@@ -25,13 +25,14 @@ export async function config(options: Argv = {}): Promise<Config> {
 	return value;
 }
 
-export async function lint(html: string, config: Omit<Config, 'inputs'>): Promise<Messages|void> {
-	let document = parse(html);
-
-	let invalid = false;
-	let output: Messages = {};
-	let rules = config.rules || {};
+export async function lint(html: string, config?: Omit<Config, 'inputs'>): Promise<Messages|void> {
+	config = config || {};
 	let plugins = config.plugins || [];
+	let rules = config.rules || {};
+
+	let document = parse(html);
+	let output: Messages = {};
+	let invalid = false;
 
 	let context: Context = {
 		load(title) {
@@ -71,7 +72,7 @@ export async function lint(html: string, config: Omit<Config, 'inputs'>): Promis
 	if (invalid) return output;
 }
 
-export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
+export async function fs(path: string, config?: Omit<Config, 'inputs'>): Promise<Report> {
 	let output: Report = {};
 
 	let stats = await lstat(path);
@@ -100,7 +101,7 @@ export async function fs(path: string, config: Omit<Config, 'inputs'>): Promise<
 	return output;
 }
 
-export async function url(path: string, config: Omit<Config, 'inputs'>): Promise<Report> {
+export async function url(path: string, config?: Omit<Config, 'inputs'>): Promise<Report> {
 	let output: Report = {};
 	let html = await fetch(path);
 	let msgs = await lint(html, config);
@@ -108,10 +109,10 @@ export async function url(path: string, config: Omit<Config, 'inputs'>): Promise
 	return output;
 }
 
-export async function run(config: Config, options: Argv): Promise<Report> {
+export async function run(config?: Config, options?: Argv): Promise<Report> {
 	let isHTTP=0, HTTP=/^https?:\/\//;
-	let cwd = options.cwd = resolve(options.cwd || '.');
-	let i=0, inputs = ([] as string[]).concat(config.inputs || []);
+	let cwd = resolve(options && options.cwd || '.');
+	let i=0, inputs = ([] as string[]).concat(config && config.inputs || []);
 	if (inputs.length === i) throw new Error('Missing inputs to analyze');
 
 	for (; i < inputs.length; i++) {
