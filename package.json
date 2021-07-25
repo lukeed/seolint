@@ -3,7 +3,8 @@
   "version": "1.1.2",
   "repository": "lukeed/seolint",
   "description": "A robust SEO linter for local html files",
-  "main": "build/index.js",
+  "module": "index.mjs",
+  "main": "index.js",
   "license": "MIT",
   "bin": {
     "seo-lint": "build/bin.js"
@@ -16,14 +17,21 @@
     "build": "rollup -c",
     "types": "tsc --noEmit"
   },
-  "engines": {
-    "node": ">=12"
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "index.d.ts",
     "index.*",
     "bin.js"
   ],
+  "engines": {
+    "node": ">=12"
+  },
   "dependencies": {
     "node-html-parser": "^4.1.0",
     "sade": "^1.7.4",
