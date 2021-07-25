@@ -106,7 +106,6 @@ export function url(path: string, config: Omit<Config, 'inputs'>): Promise<Repor
 
 		let req = request(path, { agent }, r => {
 			let type = r.headers['content-type'] || '';
-			console.log('~> type:', type, r.statusCode);
 
 			if (!type.includes('text/html')) {
 				return rej('Invalid "Content-Type" header');
@@ -122,6 +121,7 @@ export function url(path: string, config: Omit<Config, 'inputs'>): Promise<Repor
 		});
 
 		req.on('error', rej);
+		req.end(); // send
 	});
 }
 
@@ -146,12 +146,12 @@ export async function run(config: Config, options: Argv): Promise<Report> {
 	await Promise.all(
 		inputs.map(input => {
 			return action(input, config).then(report => {
-				if (isHTTP) output = report;
+				if (isHTTP) Object.assign(output, report);
 				else for (let key in report) {
 					output[relative(cwd, key)] = report[key];
 				}
 			}).catch(err => {
-				console.error('ERROR', input, err.stack);
+				console.error('ERROR', input, err.stack || err);
 			});
 		})
 	);
