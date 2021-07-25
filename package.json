@@ -1,14 +1,12 @@
 {
-  "name": "@nickreese/seo-lint",
-  "version": "1.1.2",
+  "name": "seolint",
+  "version": "0.0.0",
   "repository": "lukeed/seolint",
-  "description": "A robust SEO linter for local html files",
+  "description": "A robust and configurable SEO linter",
   "module": "index.mjs",
   "main": "index.js",
   "license": "MIT",
-  "bin": {
-    "seo-lint": "build/bin.js"
-  },
+  "bin": "bin.js",
   "author": "Nick Reese (https://elderguide.com)",
   "contributors": [
     "Luke Edwards <luke.edwards05@gmail.com> (https://lukeed.com)"
