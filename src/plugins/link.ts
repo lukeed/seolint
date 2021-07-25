@@ -12,7 +12,6 @@ interface Link {
 	'link.internal.https': boolean;
 
 	'link.external.https': boolean;
-	'link.external.nofollow': boolean;
 	'link.external.limit': boolean | {
 		max: number
 	};
@@ -60,12 +59,6 @@ export const link: Plugin<Link> = function (context, document) {
 				'link.external.https',
 				/^https:\/\//.test(href),
 				'External link must include "https://" prefix'
-			);
-
-			context.assert(
-				'link.external.nofollow',
-				link.getAttribute('rel') === 'nofollow',
-				'External link is missing "rel=nofollow" attribute'
 			);
 		} else {
 			context.assert(
