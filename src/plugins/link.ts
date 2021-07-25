@@ -69,7 +69,7 @@ export const link: Plugin<Link> = function (context, document) {
 
 			context.assert(
 				'link.internal.lowercase',
-				/[A-Z]/.test(href),
+				!/[A-Z]/.test(href),
 				'Internal links should not include uppercase'
 			);
 
