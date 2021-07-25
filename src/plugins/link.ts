@@ -75,7 +75,7 @@ export const link: Plugin<Link> = function (context, document) {
 
 			context.assert(
 				'link.internal.trailing',
-				href.endsWith('/'),
+				/(\S+\.\w+){1,}$/.test(href) || href.endsWith('/'),
 				'Internal links must end with a trailing slash'
 			);
 
