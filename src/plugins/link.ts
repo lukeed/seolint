@@ -93,7 +93,7 @@ export const link: Plugin<Link> = function (context, document) {
 
 			context.assert(
 				'link.internal.https',
-				/^\/[^/]/.test(href) || /^https:\/\//.test(href),
+				href === '/' || /^https:\/\//.test(href) || /^\/[^/]+/.test(href),
 				'Must include "https://" prefix'
 			);
 		}
