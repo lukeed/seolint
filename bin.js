@@ -56,10 +56,10 @@ async function init() {
 	const FILE = x => colors.bold(' ' + colors.underline(colors.white(x)));
 
 	let total=0, output='';
-	let rule, input, errors, wMsg=0;
+	let rule, item, errors, wMsg=0;
 
-	for (input in report) {
-		errors = report[input];
+	for (item in report) {
+		errors = report[item];
 
 		// reset per entry
 		output = '\n';
@@ -73,7 +73,7 @@ async function init() {
 		}
 
 		if (total > 0) {
-			output += FAIL + FILE(input) + '\n';
+			output += FAIL + FILE(item) + '\n';
 			for (rule in errors) {
 				output += '  ' + colors.dim(' 9:44') + SYM;
 				output += errors[rule].message.padEnd(wMsg, ' ');
