@@ -65,7 +65,7 @@ export const link: Plugin<Link> = function (context, document) {
 			context.assert(
 				'link.external.nofollow',
 				link.getAttribute('rel') === 'nofollow',
-				'External link is misisng "rel=nofollow" attribute'
+				'External link is missing "rel=nofollow" attribute'
 			);
 		} else {
 			context.assert(
