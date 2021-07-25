@@ -1,4 +1,3 @@
-// @ts-check
 const argv = process.argv.slice(2);
 const isPIPE = !process.stdin.isTTY;
 
@@ -102,7 +101,7 @@ if (flags['--help'] || flags['-h']) {
 }
 
 if (flags['--version'] || flags['-v']) {
-	return console.log('TODO --version');
+	return console.log('seolint, v0.0.0');
 }
 
 if (host === true) {
