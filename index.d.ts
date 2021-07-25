@@ -11,7 +11,10 @@ export interface Context<T extends Dict = Rules> {
 
 	assert<K extends keyof T>(title: K, check: boolean, message: string): void;
 	assert<K extends keyof T>(title: K, check: (options: Exclude<T[K],boolean>) => boolean, message: string): void;
-	assert<K extends keyof T>(title: K, check: (options: Exclude<T[K],boolean>) => Promise<boolean>, message: string): Promise<void>;
+
+	// TODO?: async checks
+	// assert<K extends keyof T>(title: K, check: (options: Exclude<T[K],boolean>) => Promise<boolean>, message: string): Promise<void>;
+	// assert<K extends keyof T>(title: K, check: boolean | ((options: Exclude<T[K],boolean>) => Promisable<boolean>), message: string): Promisable<void>;
 }
 
 export type Plugin<R extends Rules = Rules> = (context: Context<R>, document: HTMLElement) => Promisable<void>;
@@ -49,3 +52,8 @@ export type Report = {
 export function config(options?: Argv): Promise<Config>;
 export function lint(html: string, config: Config): Promise<Messages>;
 export function run(config: Config, options: Argv): Promise<Report>;
+
+export declare class Assertion extends Error {
+	rule: string;
+	constructor(message: string, rule: string);
+}
