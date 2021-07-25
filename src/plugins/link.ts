@@ -87,7 +87,7 @@ export const link: Plugin<Link> = function (context, document) {
 
 			context.assert(
 				'link.internal.absolute',
-				/^([/]{,2}|https?:\/\/)/.test(href),
+				/^([/]{1,2}|https?:\/\/)/.test(href),
 				'Must be an absolute URL format'
 			);
 
