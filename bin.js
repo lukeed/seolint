@@ -101,7 +101,23 @@ async function init() {
 }
 
 if (flags['--help'] || flags['-h']) {
-	return console.log('TODO --help');
+	let msg = '';
+	msg += '\n  Usage';
+	msg += '\n    $ seolint [inputs] [options]\n';
+	msg += '\n  Options';
+	msg += '\n    -i, --input    Accept HTML via stdin pipe';
+	msg += '\n    -H, --host     Specify the target hostname';
+	msg += '\n    -q, --quiet    Disable terminal reporting';
+	msg += '\n    -v, --version  Displays current version';
+	msg += '\n    -h, --help     Displays this message\n';
+	msg += '\n  Examples';
+	msg += '\n    $ seolint public';
+	msg += '\n    $ seolint public/index.html';
+	msg += '\n    $ seolint dir1 dir2 dir3/file.html';
+	msg += '\n    $ seolint https://example.com https://google.com';
+	msg += '\n    $ curl -s https://example.com | seolint -i';
+	msg += '\n    $ find public -type f -exec seolint {} +\n';
+	return console.log(msg);
 }
 
 if (flags['--version'] || flags['-v']) {
