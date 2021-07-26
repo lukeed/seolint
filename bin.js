@@ -53,6 +53,10 @@ async function init() {
 		return console.log('ERROR', err);
 	}
 
+	if (quiet) {
+		return process.exit(report ? 1 : 0);
+	}
+
 	const SYM = colors.red('  ✘  ');
 	const FAIL = colors.bold(colors.bgRed(' FAIL '));
 	const FILE = x => colors.bold(' ' + colors.underline(colors.white(x)));
