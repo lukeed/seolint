@@ -39,7 +39,7 @@ async function init() {
 		var options = { host, input };
 		var config = await seolint.config(options);
 	} catch (err) {
-		return console.error('ERROR.CONFIG', err.stack);
+		return bail(err.stack || err);
 	}
 
 	try {
@@ -49,8 +49,7 @@ async function init() {
 					return m ? { stdin: m } : null;
 				});
 	} catch (err) {
-		process.exitCode = 1;
-		return console.log('ERROR', err);
+		return bail(err.stack || err);
 	}
 
 	if (quiet) {
