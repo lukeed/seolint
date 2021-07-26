@@ -43,9 +43,11 @@ async function init() {
 	}
 
 	try {
-		var report = piped.length
-			? await seolint.lint(piped, config).then(m => ({ 'stdin': m }))
-			: await seolint.run(config, options);
+		var report = piped.length === 0
+			? await seolint.run(config, options)
+			: await seolint.lint(piped, config).then(m => {
+					return m ? { stdin: m } : null;
+				});
 	} catch (err) {
 		process.exitCode = 1;
 		return console.log('ERROR', err);
