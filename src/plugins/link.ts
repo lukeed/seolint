@@ -22,7 +22,6 @@ export const link: Plugin<Link> = function (context, document) {
 
 	let { host } = context.options;
 	if (!host) console.warn('! cannot run `link.internal` rules without a known `host` value');
-	else if (!/^https?:\/\//.test(host)) throw new Error('A `host` value must include "http://" or "https://" protocol');
 
 	links.forEach(link => {
 		let href = link.getAttribute('href') || '';

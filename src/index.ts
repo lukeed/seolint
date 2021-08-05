@@ -22,6 +22,10 @@ export async function config(options: Argv = {}): Promise<Config> {
 	if (options.host) value.host = options.host;
 	if (options.input) value.inputs = options.input;
 
+	if (value.host && !/^https?:\/\//.test(value.host)) {
+		throw new Error('A `host` value must include "http://" or "https://" protocol');
+	}
+
 	return value;
 }
 
