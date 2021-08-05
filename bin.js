@@ -53,7 +53,11 @@ async function init() {
 	}
 
 	if (quiet) {
-		return process.exit(report ? 1 : 0);
+		let item, _;
+		for (item in report)
+			for (_ in report[item])
+				return process.exit(1);
+		return process.exit(0);
 	}
 
 	const SYM = colors.red('  ✘  ');
