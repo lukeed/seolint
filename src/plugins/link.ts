@@ -3,7 +3,6 @@ import type { Plugin } from 'seolint';
 interface Link {
 	'link.href.empty': boolean;
 
-	'link.internal.hostname': string;
 	'link.internal.trailing': boolean;
 	'link.internal.lowercase': boolean;
 	'link.internal.nofollow': boolean;
@@ -21,8 +20,9 @@ export const link: Plugin<Link> = function (context, document) {
 	let seen: Set<string> = new Set;
 	let links = document.querySelectorAll('a[href]');
 
-	let host = context.load('link.internal.hostname');
-	if (!host) console.warn('! cannot run `link.internal` rules without a `link.internal.hostname` value');
+	let { host } = context.options;
+	if (!host) console.warn('! cannot run `link.internal` rules without a known `host` value');
+	else if (!/^https?:\/\//.test(host)) throw new Error('A `host` value must include "http://" or "https://" protocol');
 
 	links.forEach(link => {
 		let href = link.getAttribute('href') || '';
