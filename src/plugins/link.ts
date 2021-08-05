@@ -11,7 +11,6 @@ interface Link {
 	'link.internal.absolute': boolean;
 	'link.internal.https': boolean;
 
-	'link.external.https': boolean;
 	'link.external.limit': boolean | {
 		max: number
 	};
@@ -54,12 +53,6 @@ export const link: Plugin<Link> = function (context, document) {
 
 		if (isExternal) {
 			externals++;
-
-			context.assert(
-				'link.external.https',
-				/^https:\/\//.test(href),
-				'External link must include "https://" prefix'
-			);
 		} else {
 			context.assert(
 				'link.internal.nofollow',
