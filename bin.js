@@ -19,6 +19,7 @@ for (; i <= argv.length; i++) {
 
 let host = flags['--host'] || flags['-H'];
 let quiet = flags['--quiet'] || flags['-q'];
+let json = flags['--json'] || flags['-j'];
 
 function bail(message, code = 1) {
 	process.exitCode = code;
@@ -44,7 +45,7 @@ async function init() {
 		var report = piped.length === 0
 			? await seolint.run(config, options)
 			: await seolint.lint(piped, config).then(m => {
-					return m ? { stdin: m } : null;
+					return m ? { stdin: m } : {};
 				});
 	} catch (err) {
 		return bail(err.stack || err);
@@ -55,6 +56,12 @@ async function init() {
 		for (item in report)
 			for (_ in report[item])
 				return process.exit(1);
+		return process.exit(0);
+	}
+
+	if (json) {
+		// TODO: remove "message" keys?
+		console.log(JSON.stringify(report));
 		return process.exit(0);
 	}
 
@@ -112,6 +119,7 @@ if (flags['--help'] || flags['-h']) {
 	msg += '\n  Options';
 	msg += '\n    -i, --input    Accept HTML via stdin pipe';
 	msg += '\n    -H, --host     Specify the target hostname';
+	msg += '\n    -j, --json     Print JSON output to console';
 	msg += '\n    -q, --quiet    Disable terminal reporting';
 	msg += '\n    -v, --version  Displays current version';
 	msg += '\n    -h, --help     Displays this message\n';
@@ -135,6 +143,7 @@ if (host === true) {
 }
 
 if (quiet && quiet !== true) input.unshift(quiet);
+if (json && json !== true) input.unshift(json);
 
 if (key = flags['--input'] || flags['-i']) {
 	if (key !== true) input.unshift(key);
