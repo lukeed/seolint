@@ -6,6 +6,8 @@ export type Rules<T extends Dict = Dict> = {
 };
 
 export interface Context<T extends Dict = Rules> {
+	readonly options: Pick<Config, 'host'> & Record<string, any>;
+
 	load<K extends keyof T>(title: K): T[K] | void;
 	report<K extends keyof T>(title: K, message: string): void;
 

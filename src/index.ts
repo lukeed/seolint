@@ -26,15 +26,16 @@ export async function config(options: Argv = {}): Promise<Config> {
 }
 
 export async function lint(html: string, config?: Omit<Config, 'inputs'>): Promise<Messages|void> {
-	config = config || {};
-	let plugins = config.plugins || [];
-	let rules = config.rules || {};
+	let { plugins=[], rules={}, ...rest } = config || {};
 
 	let document = parse(html);
 	let output: Messages = {};
 	let invalid = false;
 
 	let context: Context = {
+		get options() {
+			return rest;
+		},
 		load(title) {
 			let tmp = rules[title];
 			return tmp == null || tmp;
