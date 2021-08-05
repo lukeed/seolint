@@ -5,6 +5,7 @@ interface Canonical {
 	'canonical.single': boolean;
 	'canonical.href.exists': boolean;
 	'canonical.href.absolute': boolean;
+	'canonical.href.lowercase': boolean;
 	'canonical.href.https': boolean;
 	'canonical.href.match': boolean | {
 		hostname: string;
@@ -29,6 +30,12 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 		'canonical.href.absolute',
 		/^https?:\/\//.test(target),
 		'Must include a URL protocol in target'
+	);
+
+	context.assert(
+		'canonical.href.lowercase',
+		!/[A-Z]/.test(target),
+		'Must not include uppercase character(s)'
 	);
 
 	context.assert(
