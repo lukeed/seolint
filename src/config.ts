@@ -48,6 +48,7 @@ export async function find(root: string, start: string): Promise<string|void> {
 export function merge(base: Config, custom: Config) {
 	base.host = custom.host || base.host;
 	base.inputs = custom.inputs || base.inputs;
+	(custom.presets || []).forEach(x => merge(base, x));
 	if (custom.plugins) base.plugins!.push(...custom.plugins);
 	if (custom.rules) Object.assign(base.rules!, custom.rules);
 }

@@ -30,6 +30,7 @@ export interface Argv {
 export interface Config {
 	host?: string;
 	inputs?: string[];
+	presets?: Config[];
 	plugins?: Plugin[];
 	rules?: Rules;
 }
