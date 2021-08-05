@@ -13,6 +13,9 @@ interface Link {
 	'link.external.limit': boolean | {
 		max: number
 	};
+
+	'link.blank.noopener': boolean;
+	'link.blank.noreferrer': boolean;
 }
 
 export const link: Plugin<Link> = function (context, document) {
@@ -88,6 +91,22 @@ export const link: Plugin<Link> = function (context, document) {
 				href === '/' || /^https:\/\//.test(href) || /^\/[^/]+/.test(href),
 				'Must include "https://" prefix'
 			);
+
+			if (link.getAttribute('target') === '_blank') {
+				let rel = link.getAttribute('rel') || '';
+
+				context.assert(
+					'link.blank.noopener',
+					rel.includes('noopener'),
+					'Must include "rel=noopener" when "target=_blank" in use'
+				);
+
+				context.assert(
+					'link.blank.noreferrer',
+					rel.includes('noreferrer'),
+					'Must include "rel=noreferrer" when "target=_blank" in use'
+				);
+			}
 		}
 	});
 
