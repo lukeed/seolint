@@ -32,8 +32,6 @@ function onpipe(chunk) {
 
 async function init() {
 	const seolint = require('.');
-	const colors = require('kleur/colors');
-	if (flags['--no-color']) colors.$.enabled = false;
 
 	try {
 		var options = { host, input };
@@ -59,6 +57,9 @@ async function init() {
 				return process.exit(1);
 		return process.exit(0);
 	}
+
+	const colors = require('kleur/colors');
+	if (flags['--no-color']) colors.$.enabled = false;
 
 	const SYM = colors.red('  ✘  ');
 	const FAIL = colors.bold(colors.bgRed(' FAIL '));
