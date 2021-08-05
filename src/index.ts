@@ -109,6 +109,10 @@ export async function fs(path: string, config?: Omit<Config, 'inputs'>): Promise
 export async function url(path: string, config?: Omit<Config, 'inputs'>): Promise<Report> {
 	let output: Report = {};
 	let html = await fetch(path);
+	if (!config || !config.host) {
+		let host = new URL(path).origin;
+		config = { ...config, host };
+	}
 	let msgs = await lint(html, config);
 	if (msgs) output[path] = msgs;
 	return output;
