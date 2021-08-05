@@ -37,9 +37,11 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 		'Must point to an "https://" address'
 	);
 
+	let { host } = context.options;
+
 	context.assert(
 		'canonical.href.match',
-		o => target.includes(o.hostname),
+		o => target.includes(o.hostname || host || '\0'),
 		'Must include the provided `hostname` value'
 	);
 }
