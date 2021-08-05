@@ -1,6 +1,7 @@
 import type { Plugin } from 'seolint';
 
 interface Link {
+	'link.href.exists': boolean;
 	'link.href.empty': boolean;
 
 	'link.internal.trailing': boolean;
@@ -21,13 +22,19 @@ interface Link {
 export const link: Plugin<Link> = function (context, document) {
 	let externals = 0;
 	let seen: Set<string> = new Set;
-	let links = document.querySelectorAll('a[href]');
+	let links = document.querySelectorAll('a');
 
 	let { host } = context.options;
 	if (!host) console.warn('! cannot run `link.internal` rules without a known `host` value');
 
 	links.forEach(link => {
 		let href = link.getAttribute('href') || '';
+
+		context.assert(
+			'link.href.exists',
+			link.hasAttribute('href'),
+			'Must have an `href` attribute'
+		);
 
 		if (href === '#') return;
 		if (/^(mailto|javascript)[:]/.test(href)) return;
