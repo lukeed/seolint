@@ -64,7 +64,7 @@ export async function load(root: string): Promise<Config> {
 	let file = await find(root, '.');
 
 	if (file) {
-		let config = /\.cjs$/.test(file) ? require(file) : await import(file);
+		let config = await Function('x', 'return import(x)')(file);
 		merge(output, config.default || config);
 	}
 
