@@ -84,3 +84,26 @@ config('should always prefer `input` and `host` over config file', async () => {
 });
 
 config.run();
+
+// ---
+
+const Assertion = suite('Assertion');
+
+Assertion('should extend `Error` class', () => {
+	let foo = new seolint.Assertion('foo', 'bar');
+	assert.instance(foo, seolint.Assertion);
+	assert.instance(foo, Error);
+});
+
+Assertion('should have `message` and `stack` properties', () => {
+	let foo = new seolint.Assertion('foo', 'bar');
+	assert.is(foo.message, 'foo');
+	assert.ok(foo.stack);
+});
+
+Assertion('should have custom `rule` property', () => {
+	let foo = new seolint.Assertion('foo', 'bar');
+	assert.is(foo.rule, 'bar');
+});
+
+Assertion.run();
