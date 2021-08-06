@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build": "rollup -c",
+    "test": "uvu -r ts-node/register -i fixtures test",
     "types": "tsc --noEmit"
   },
   "exports": {
@@ -40,6 +41,7 @@
     "rollup": "2.53.2",
     "terser": "5.7.1",
     "ts-node": "10.1.0",
-    "typescript": "4.3.5"
+    "typescript": "4.3.5",
+    "uvu": "0.5.1"
   }
 }
