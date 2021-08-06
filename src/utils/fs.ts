@@ -1,8 +1,8 @@
-export { existsSync as exists } from 'fs';
+import * as fs from 'fs';
+import { promisify } from 'util';
 
-export {
-	readdir as list,
-	writeFile as write,
-	readFile as read,
-	lstat as lstat,
-} from 'fs/promises';
+export const exists = /*#__PURE__*/ fs.existsSync;
+export const list = /*#__PURE__*/ promisify(fs.readdir);
+export const write = /*#__PURE__*/ promisify(fs.writeFile);
+export const read = /*#__PURE__*/ promisify(fs.readFile);
+export const lstat = /*#__PURE__*/ promisify(fs.lstat);
