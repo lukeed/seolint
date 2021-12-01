@@ -14,8 +14,8 @@ $ npm install seolint@next
 
 ## Credits
 
-Originally written by [Nick Reese](https://nicholasreese.com) to audit [Elder Guide](https://elderguide.com/).
+Originally written by [@nickreese](https://github.com/nickreese) to audit [Elder Guide](https://elderguide.com/).
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT © [Nick Reese](https://nicholasreese.com) · [Luke Edwards](https://lukeed.com)
