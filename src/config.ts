@@ -64,7 +64,7 @@ export async function load(root: string): Promise<Config> {
 	let file = await find(root, '.');
 
 	if (file) {
-		let config = await Function('x', 'return import(x)')(file);
+		let config = await Function('x', 'return import("file:///"+x)')(file);
 		merge(output, config.default || config);
 	}
 
