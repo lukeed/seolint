@@ -68,6 +68,7 @@ async function init() {
 	const colors = require('kleur/colors');
 	if (flags['--no-color']) colors.$.enabled = false;
 
+	const CWD = process.cwd();
 	const SYM = colors.red('  ✘  ');
 	const FAIL = colors.bold(colors.bgRed(' FAIL '));
 	const FILE = x => colors.bold(' ' + colors.underline(colors.white(x)));
@@ -90,7 +91,12 @@ async function init() {
 		}
 
 		if (total > 0) {
+			if (item.startsWith(CWD)) {
+				item = item.substring(CWD.length).replace(/^[\\/]+/, '');
+			}
+
 			output += FAIL + FILE(item) + '\n';
+
 			for (rule in errors) {
 				// output += '  ' + colors.dim(' 9:44') + SYM;
 				output += '  ' + SYM + errors[rule].message.padEnd(wMsg, ' ');
