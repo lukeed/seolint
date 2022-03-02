@@ -92,8 +92,8 @@ async function init() {
 		if (total > 0) {
 			output += FAIL + FILE(item) + '\n';
 			for (rule in errors) {
-				output += '  ' + colors.dim(' 9:44') + SYM;
-				output += errors[rule].message.padEnd(wMsg, ' ');
+				// output += '  ' + colors.dim(' 9:44') + SYM;
+				output += '  ' + SYM + errors[rule].message.padEnd(wMsg, ' ');
 				output += '  ' + colors.dim(rule) + '\n';
 			}
 			process.stderr.write(output);
