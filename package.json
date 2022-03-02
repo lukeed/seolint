@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "kleur": "^4.1.4",
-    "node-html-parser": "^4.1.0"
+    "node-html-parser": "^5.2.0"
   },
   "keywords": [],
   "devDependencies": {
