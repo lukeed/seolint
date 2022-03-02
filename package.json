@@ -1,6 +1,6 @@
 {
   "name": "seolint",
-  "version": "1.0.0-next.0",
+  "version": "1.0.0-next.1",
   "repository": "lukeed/seolint",
   "description": "A robust and configurable SEO linter",
   "module": "index.mjs",
