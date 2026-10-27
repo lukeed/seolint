@@ -2,6 +2,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { parse } from "@lukeed/html";
 
+import * as glob from "./glob";
 import * as setup from "./setup";
 
 import type { Document, Node } from "@lukeed/html";
@@ -40,6 +41,8 @@ const HTML = /\.html?$/;
 /** One page to lint. */
 type Target = {
 	input: string;
+	/** The path that `ignore` patterns match: relative to the root, or the URL path. */
+	path: string;
 	url: string | undefined;
 	host: string | undefined;
 	html(): Promise<string>;
@@ -237,6 +240,7 @@ function address(
 function local(root: string, file: string, host: string | undefined): Target {
 	return {
 		input: file,
+		path: relative(root, file).split(sep).join("/"),
 		url: address(root, file, host),
 		host,
 		html: () => readFile(file, "utf8"),
@@ -246,6 +250,7 @@ function local(root: string, file: string, host: string | undefined): Target {
 function remote(href: string, host: string | undefined): Target {
 	return {
 		input: href,
+		path: new URL(href).pathname.replace(/^\//, ""),
 		url: href,
 		host: host || new URL(href).origin,
 		async html() {
@@ -285,10 +290,13 @@ async function walk(path: string): Promise<string[]> {
  * `finish` step over the pages. Report keys keep the order of `targets`.
  */
 async function collect(
-	targets: Target[],
+	all: Target[],
 	config: Config,
 	roots: string[],
 ): Promise<Report> {
+	let ignore = (config.ignore ?? []).map(glob.compile);
+	let targets = all.filter((x) => !ignore.some((re) => re.test(x.path)));
+
 	let state = setup.setup(config);
 	let results: Result[] = [];
 	let queue = targets.entries();

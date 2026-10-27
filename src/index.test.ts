@@ -539,6 +539,39 @@ describe("rules", () => {
 	});
 });
 
+describe("ignore", () => {
+	let config = (ignore: string[]) => ({ host: "https://example.com", ignore });
+
+	test("should skip pages that match a pattern", async () => {
+		expect(reported(await seolint.fs(site, config(["sub/**"])))).toEqual({});
+		expect(reported(await seolint.fs(site, config(["bad.html"])))).toEqual({});
+		expect(Object.keys(await seolint.fs(site, config(["other/**"])))).toEqual([
+			join(site, "sub/bad.html"),
+		]);
+	});
+
+	test("should leave ignored pages out of site checks", async () => {
+		let rules = { "*": false, "site.sitemap": true };
+		let output = await seolint.fs(site, {
+			...config(["sub/**"]),
+			rules,
+		});
+		expect(output).toEqual({});
+	});
+
+	test("should match the URL path for URLs", async () => {
+		let server = Bun.serve({
+			port: 0,
+			fetch: () =>
+				new Response(BAD, { headers: { "content-type": "text/html" } }),
+		});
+		let href = new URL("/drafts/a/", server.url).href;
+		expect(await seolint.url(href, config(["drafts/**"]))).toEqual({});
+		expect(Object.keys(await seolint.url(href, config([])))).toEqual([href]);
+		server.stop(true);
+	});
+});
+
 describe("site", () => {
 	let tmp: string;
 	let config = (rules: Record<string, Setting> = {}) => ({

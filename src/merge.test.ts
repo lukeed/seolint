@@ -133,4 +133,13 @@ describe("merge()", () => {
 			},
 		});
 	});
+
+	test("should concatenate `ignore` arrays", () => {
+		let input: Config = { ignore: ["404.html"] };
+		merger.merge(input, {
+			presets: [{ ignore: ["drafts/**"] }],
+			ignore: ["print/*"],
+		});
+		expect(input.ignore).toEqual(["404.html", "drafts/**", "print/*"]);
+	});
 });

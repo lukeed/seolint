@@ -203,6 +203,15 @@ export type Config = {
 	host?: string;
 	/** Files, folders, or URLs to lint. Paths are relative to the working directory. They must be all URLs or all paths. */
 	inputs?: string[];
+	/**
+	 * Pages to skip, as glob patterns. A pattern matches the page's path,
+	 * relative to the linted folder, or the URL path for URLs. `*` matches
+	 * within one folder, `**` across folders, and `?` one character. A
+	 * pattern without `/` matches at any depth.
+	 * @example
+	 * let ignore = ["404.html", "drafts/**"];
+	 */
+	ignore?: string[];
 	/** Other configs to merge in first. This config's values win. */
 	presets?: Config[];
 	/** Plugins to run after the built-in ones. A plugin replaces a built-in plugin with the same name. */
