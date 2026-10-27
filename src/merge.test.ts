@@ -142,4 +142,35 @@ describe("merge()", () => {
 		});
 		expect(input.ignore).toEqual(["404.html", "drafts/**", "print/*"]);
 	});
+
+	test("should let a later pattern replace earlier settings it matches", () => {
+		let input: Config = {};
+		merger.merge(input, {
+			presets: [
+				{
+					rules: {
+						"og.title": "error",
+						"og.url": "warn",
+						"title.*": false,
+						"html.lang": true,
+					},
+				},
+			],
+			rules: { "og.*": false, "*": "warn", "html.lang": false },
+		});
+		expect(input.rules).toEqual({
+			"og.*": false,
+			"*": "warn",
+			"html.lang": false,
+		});
+	});
+
+	test("should keep earlier settings that a later pattern does not match", () => {
+		let input: Config = {};
+		merger.merge(input, {
+			presets: [{ rules: { "og.title": "error", "html.lang": "warn" } }],
+			rules: { "og.*": false },
+		});
+		expect(input.rules).toEqual({ "html.lang": "warn", "og.*": false });
+	});
 });
