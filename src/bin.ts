@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { text } from "node:stream/consumers";
-import { parseArgs } from "node:util";
-
-import * as colors from "kleur/colors";
+import { parseArgs, styleText } from "node:util";
 
 import * as seolint from "./index";
 import { version } from "../package.json";
 
 import type { Report } from "./types";
+
+type Format = Parameters<typeof styleText>[0];
 
 const HELP = `
   Usage
@@ -112,11 +112,27 @@ if (flags.json) {
 	process.exit(0);
 }
 
-if (flags["no-color"]) colors.$.enabled = false;
+/**
+ * Whether to color output for `stream`. Node 22.0 to 22.12 ignore
+ * styleText's stream checks, so the decision is made here.
+ */
+function colors(stream: NodeJS.WriteStream): boolean {
+	if (flags["no-color"]) return false;
+	let force = process.env.FORCE_COLOR;
+	if (force) return force !== "0";
+	return stream.hasColors?.() === true;
+}
+
+function style(on: boolean, format: Format, input: string): string {
+	return on ? styleText(format, input, { validateStream: false }) : input;
+}
+
+const ERR = colors(process.stderr);
+const OUT = colors(process.stdout);
 
 const cwd = process.cwd();
-const SYM = colors.red("  ✘  ");
-const FAIL = colors.bold(colors.bgRed(" FAIL "));
+const SYM = style(ERR, "red", "  ✘  ");
+const FAIL = style(ERR, "bold", style(ERR, "bgRed", " FAIL "));
 
 let total = 0;
 
@@ -140,25 +156,32 @@ for (let [item, messages] of Object.entries(report)) {
 	let output =
 		"\n" +
 		FAIL +
-		colors.bold(" " + colors.underline(colors.white(file))) +
+		style(
+			ERR,
+			"bold",
+			" " + style(ERR, "underline", style(ERR, "white", file)),
+		) +
 		"\n";
 
 	rows.forEach((row, i) => {
-		output += "  " + colors.dim(locations[i].padStart(wLoc, " ")) + SYM;
+		output += "  " + style(ERR, "dim", locations[i].padStart(wLoc, " ")) + SYM;
 		output += row.message.padEnd(wMsg, " ");
-		output += "  " + colors.dim(row.rule) + "\n";
+		output += "  " + style(ERR, "dim", row.rule) + "\n";
 	});
 
 	process.stderr.write(output);
 }
 
 if (total > 0) {
-	let output = "\n" + FAIL + " Reported " + colors.red(total) + " error";
+	let output =
+		"\n" + FAIL + " Reported " + style(ERR, "red", String(total)) + " error";
 	if (total !== 1) output += "s";
 	console.error(output + "!\n");
 	process.exitCode = 1;
 } else {
 	console.log(
-		"\n" + colors.bold(colors.green(" PASS ")) + " Looks great! 🎉\n",
+		"\n" +
+			style(OUT, "bold", style(OUT, "green", " PASS ")) +
+			" Looks great! 🎉\n",
 	);
 }
