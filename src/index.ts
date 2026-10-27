@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { parse } from "@lukeed/html";
 
 import * as glob from "./glob";
+import * as merger from "./merge";
 import * as setup from "./setup";
 
 import type { Document, Node } from "@lukeed/html";
@@ -53,6 +54,16 @@ type Result = {
 	messages: Message[];
 	data: Map<string, unknown>;
 };
+
+/**
+ * The config with its `presets` merged in, so presets work for every entry point.
+ */
+function flatten(config: Config): Config {
+	if (!config.presets || config.presets.length === 0) return config;
+	let output: Config = {};
+	merger.merge(output, config);
+	return output;
+}
 
 /**
  * Build a {@link Message}, or `undefined` when the rule is off.
@@ -145,9 +156,10 @@ async function inspect(
  */
 export async function lint(
 	html: string,
-	config: Config = {},
+	options: Config = {},
 	url?: string,
 ): Promise<Message[] | undefined> {
+	let config = flatten(options);
 	let { messages } = await inspect(html, setup.setup(config), config.host, url);
 	if (messages.length > 0) return messages;
 }
@@ -158,7 +170,8 @@ export async function lint(
  * @example
  * let report = await fs('public', await resolve());
  */
-export async function fs(path: string, config: Config = {}): Promise<Report> {
+export async function fs(path: string, options: Config = {}): Promise<Report> {
+	let config = flatten(options);
 	let single = (await stat(path)).isFile();
 	let root = single ? dirname(path) : path;
 	let files = await walk(path);
@@ -174,7 +187,8 @@ export async function fs(path: string, config: Config = {}): Promise<Report> {
  * @example
  * let report = await url('https://example.com', await resolve());
  */
-export async function url(href: string, config: Config = {}): Promise<Report> {
+export async function url(href: string, options: Config = {}): Promise<Report> {
+	let config = flatten(options);
 	return collect([remote(href, config.host)], config, []);
 }
 
@@ -183,10 +197,8 @@ export async function url(href: string, config: Config = {}): Promise<Report> {
  * @example
  * let report = await run(await resolve({ inputs: ['public'] }));
  */
-export async function run(
-	config: Config = {},
-	options?: Argv,
-): Promise<Report> {
+export async function run(input: Config = {}, options?: Argv): Promise<Report> {
+	let config = flatten(input);
 	let cwd = resolve((options && options.cwd) || ".");
 	let inputs = config.inputs || [];
 	if (inputs.length === 0) throw new Error("Missing inputs to analyze");
