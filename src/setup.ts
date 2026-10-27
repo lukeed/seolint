@@ -1,3 +1,4 @@
+import * as pattern from "./pattern";
 import * as plugins from "./plugins";
 
 import type { Config, Dict, Meta, Plugin, Setting, Severity } from "./types";
@@ -74,13 +75,6 @@ function apply(
 	);
 }
 
-function pattern(input: string): RegExp {
-	let escaped = input
-		.split("*")
-		.map((x) => x.replace(/[.+?^${}()|[\]\\]/g, "\\$&"));
-	return new RegExp(`^${escaped.join(".*")}$`);
-}
-
 /**
  * The plugins and rules to lint with. The built-in plugins come first; a
  * config plugin with the same name replaces one. Rule settings apply over
@@ -139,7 +133,7 @@ export function setup(config: Config): Setup {
 
 	for (let [key, setting] of entries) {
 		if (!key.includes("*")) continue;
-		let regex = pattern(key);
+		let regex = pattern.compile(key);
 		let matched = [...rules.keys()].filter((rule) => regex.test(rule));
 		if (matched.length === 0) unknown.push(key);
 		for (let rule of matched) set(rule, setting);
