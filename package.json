@@ -1,20 +1,27 @@
 {
-  "name": "seolint",
+  "type": "module",
   "version": "1.0.0-next.1",
+  "name": "seolint",
   "repository": "lukeed/seolint",
   "description": "A robust and configurable SEO linter",
-  "type": "module",
   "license": "MIT",
-  "bin": "dist/bin.js",
-  "author": "Nick Reese (https://elderguide.com)",
+  "author": {
+    "name": "Luke Edwards",
+    "email": "luke.edwards05@gmail.com",
+    "url": "https://lukeed.com"
+  },
   "contributors": [
-    "Luke Edwards <luke.edwards05@gmail.com> (https://lukeed.com)"
+    {
+      "name": "Nick Reese",
+      "url": "https://elderguide.com"
+    }
   ],
   "scripts": {
     "build": "bun run build:js && bun run build:types",
     "build:js": "bun build src/index.ts src/bin.ts --outdir dist --target node --packages external --splitting --minify",
     "build:types": "tsc -p tsconfig.build.json"
   },
+  "bin": "dist/bin.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,10 +35,10 @@
   "engines": {
     "node": ">=22.8"
   },
+  "keywords": [],
   "dependencies": {
     "@lukeed/html": "^0.0.0"
   },
-  "keywords": [],
   "devDependencies": {
     "@types/bun": "1.4.4",
     "typescript": "7.0.2"
