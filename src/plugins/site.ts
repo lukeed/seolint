@@ -129,11 +129,11 @@ export const site = plugin({
 
 		return {
 			title: title && {
-				text: title.text,
+				text: detach(title.text),
 				position: document.position(title.start),
 			},
 			description: description && {
-				text: description.getAttr("content") ?? "",
+				text: detach(description.getAttr("content") ?? ""),
 				position: document.position(description.start),
 			},
 			links,

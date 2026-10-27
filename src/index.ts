@@ -2,6 +2,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { parse } from "@lukeed/html";
 
+import { detach } from "./detach";
 import * as glob from "./glob";
 import * as merger from "./merge";
 import * as setup from "./setup";
@@ -79,7 +80,11 @@ function message(
 	if (!info) throw new Error(`Rule "${rule}" is not declared by any plugin`);
 	if (info.state === false) return;
 
-	let output: Message = { rule, severity: info.state.severity, message: text };
+	let output: Message = {
+		rule,
+		severity: info.state.severity,
+		message: detach(text),
+	};
 	if (position) {
 		output.line = position.line;
 		output.col = position.column;
