@@ -1,4 +1,6 @@
-import type { Config, Plugin } from "seolint";
+import { define } from "seolint/config";
+
+import type { Plugin } from "seolint";
 
 /**
  * The <html> element must declare the page language.
@@ -60,7 +62,7 @@ const opengraph: Plugin<{
 	);
 };
 
-export default {
+export default define({
 	host: "https://example.com",
 	inputs: ["public"],
 	plugins: [lang, heading, opengraph],
@@ -69,4 +71,4 @@ export default {
 		"description.content.title": false,
 		"og.image": { secure: true },
 	},
-} satisfies Config;
+});

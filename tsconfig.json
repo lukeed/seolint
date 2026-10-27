@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "seolint": ["./src/index.ts"]
+      "seolint": ["./src/index.ts"],
+      "seolint/config": ["./src/config.ts"]
     }
   },
   "include": ["src", "build.ts", "example/seolint.config.ts"]
