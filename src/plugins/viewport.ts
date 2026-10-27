@@ -42,6 +42,6 @@ export const viewport: Plugin<Viewport> = function (context, document) {
 	context.assert(
 		"viewport.content.scale",
 		content.includes("initial-scale=1"),
-		'Must must include "initial-scale=1" value',
+		'Must include "initial-scale=1" value',
 	);
 };
