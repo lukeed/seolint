@@ -125,7 +125,7 @@ export function define<const P extends readonly Plugin[] = []>(
 }
 
 /**
- * Load the nearest `seolint.config.*` file from `options.cwd` and apply
+ * Load the `seolint.config.*` file in `options.cwd` and apply
  * CLI-style overrides.
  * @example
  * let config = await resolve({ host: "https://example.com", inputs: ["public"] });
