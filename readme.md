@@ -12,6 +12,10 @@ A work in progress – check back soon~!
 $ npm install seolint@next
 ```
 
+## Rules
+
+seolint checks titles, descriptions, canonical links, headings, links, images, social tags, and more. Some checks span the whole site, such as duplicate titles and broken links. See [`docs/rules.md`](docs/rules.md) for every rule, what it checks, and how to configure it, or run `seolint --rules`.
+
 ## Credits
 
 Originally written by [@nickreese](https://github.com/nickreese) to audit [Elder Guide](https://elderguide.com/).
