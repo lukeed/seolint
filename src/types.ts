@@ -1,4 +1,4 @@
-import type { HTMLElement } from "node-html-parser";
+import type { HTMLElement, Node } from "node-html-parser";
 
 export type Dict = Record<string, unknown>;
 export type Promisable<T> = Promise<T> | T;
@@ -11,13 +11,19 @@ export type Context<T extends Dict = Rules> = {
 	readonly options: Pick<Config, "host"> & Dict;
 
 	load<K extends keyof T>(title: K): T[K] | undefined;
-	report<K extends keyof T>(title: K, message: string): void;
+	report<K extends keyof T>(title: K, message: string, node?: Node): void;
 
-	assert<K extends keyof T>(title: K, check: boolean, message: string): void;
+	assert<K extends keyof T>(
+		title: K,
+		check: boolean,
+		message: string,
+		node?: Node,
+	): void;
 	assert<K extends keyof T>(
 		title: K,
 		check: (options: Exclude<T[K], boolean>) => boolean,
 		message: string,
+		node?: Node,
 	): void;
 
 	// TODO?: async checks
@@ -51,7 +57,7 @@ export type Message = {
 };
 
 export type Messages = {
-	[rule: string]: Message;
+	[rule: string]: Message[];
 };
 
 export type Report = {

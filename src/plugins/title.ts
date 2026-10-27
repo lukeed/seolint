@@ -32,18 +32,21 @@ export const title: Plugin<Title> = function (context, document) {
 		"title.content.html",
 		text === elem.innerHTML,
 		"Must not include HTML content",
+		elem,
 	);
 
 	context.assert(
 		"title.content.undefined",
 		text.indexOf("undefined") === -1,
 		'Must not include "undefined" in `title` value',
+		elem,
 	);
 
 	context.assert(
 		"title.content.null",
 		text.indexOf("null") === -1,
 		'Must not include "null" in `title` value',
+		elem,
 	);
 
 	let rule = context.load("title.content.length");
@@ -58,11 +61,13 @@ export const title: Plugin<Title> = function (context, document) {
 			context.report(
 				"title.content.length",
 				`Must not have less than ${min} characters`,
+				elem,
 			);
 		else if (length > max)
 			context.report(
 				"title.content.length",
 				`Must not have more than ${max} characters`,
+				elem,
 			);
 	}
 };

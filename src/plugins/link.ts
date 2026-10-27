@@ -27,10 +27,7 @@ export const link: Plugin<Link> = function (context, document) {
 	let links = document.querySelectorAll("a");
 
 	let { host } = context.options;
-	if (!host)
-		console.warn(
-			"! cannot run `link.internal` rules without a known `host` value",
-		);
+	let origin = host && URL.canParse(host) ? new URL(host).hostname : "";
 
 	links.forEach((link) => {
 		let href = link.getAttribute("href") || "";
@@ -39,6 +36,7 @@ export const link: Plugin<Link> = function (context, document) {
 			"link.href.exists",
 			link.hasAttribute("href"),
 			"Must have an `href` attribute",
+			link,
 		);
 
 		if (href === "#") return;
@@ -56,13 +54,14 @@ export const link: Plugin<Link> = function (context, document) {
 			"link.href.empty",
 			href.trim().length > 0,
 			"Must not have empty `href` target",
+			link,
 		);
 
 		let isExternal = true;
 
-		if (host) {
+		if (origin && URL.canParse(href, "http://x.com")) {
 			let { hostname } = new URL(href, "http://x.com");
-			isExternal = hostname !== "x.com" && hostname !== new URL(host).hostname;
+			isExternal = hostname !== "x.com" && hostname !== origin;
 		}
 
 		if (isExternal) {
@@ -72,36 +71,42 @@ export const link: Plugin<Link> = function (context, document) {
 				"link.internal.nofollow",
 				link.getAttribute("rel") !== "nofollow",
 				"Internal links must not include `rel=nofollow`",
+				link,
 			);
 
 			context.assert(
 				"link.internal.lowercase",
 				!/[A-Z]/.test(href),
 				"Internal links should not include uppercase",
+				link,
 			);
 
 			context.assert(
 				"link.internal.trailing",
 				/(\S+\.\w+){1,}$/.test(href) || href.endsWith("/"),
 				"Internal links must end with a trailing slash",
+				link,
 			);
 
 			context.assert(
 				"link.internal.pretty",
 				!/\.html?$/i.test(href),
 				'Internal links should not include ".html" suffix',
+				link,
 			);
 
 			context.assert(
 				"link.internal.absolute",
 				/^([/]{1,2}|https?:\/\/)/.test(href),
 				"Must be an absolute URL format",
+				link,
 			);
 
 			context.assert(
 				"link.internal.https",
 				href === "/" || /^https:\/\//.test(href) || /^\/[^/]+/.test(href),
 				'Must include "https://" prefix',
+				link,
 			);
 
 			if (link.getAttribute("target") === "_blank") {
@@ -111,12 +116,14 @@ export const link: Plugin<Link> = function (context, document) {
 					"link.blank.noopener",
 					rel.includes("noopener"),
 					'Must include "rel=noopener" when "target=_blank" in use',
+					link,
 				);
 
 				context.assert(
 					"link.blank.noreferrer",
 					rel.includes("noreferrer"),
 					'Must include "rel=noreferrer" when "target=_blank" in use',
+					link,
 				);
 			}
 		}

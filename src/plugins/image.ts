@@ -17,6 +17,7 @@ export const image: Plugin<Image> = function (context, document) {
 			"image.alt.exists",
 			alt.trim().length > 0,
 			"Must have an `alt` attribute",
+			img,
 		);
 
 		// TODO
@@ -27,12 +28,14 @@ export const image: Plugin<Image> = function (context, document) {
 			"image.alt.content.undefined",
 			alt.indexOf("undefined") === -1,
 			'Must not include "undefined" in `alt` value',
+			img,
 		);
 
 		context.assert(
 			"image.alt.content.null",
 			alt.indexOf("null") === -1,
 			'Must not include "null" in `alt` value',
+			img,
 		);
 	});
 };

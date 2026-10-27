@@ -33,7 +33,18 @@ const HELP = `
 
 function bail(err: unknown): void {
 	process.exitCode = 1;
-	console.error(err instanceof Error ? err.stack || err.message : err);
+
+	let chain: string[] = [];
+	while (err instanceof Error && err.cause != null) {
+		chain.push(err.message);
+		err = err.cause;
+	}
+
+	if (!(err instanceof Error)) chain.push(String(err));
+	else if (chain.length > 0) chain.push(err.stack || err.message);
+	else chain.push(err.message);
+
+	console.error(chain.join("\n  caused by: "));
 }
 
 try {
@@ -50,7 +61,7 @@ try {
 		},
 	});
 } catch (err) {
-	bail(err instanceof Error ? err.message : err);
+	bail(err);
 	process.exit();
 }
 
@@ -83,8 +94,16 @@ try {
 }
 
 if (flags.quiet) {
-	let failed = Object.values(report).some((x) => Object.keys(x).length > 0);
-	process.exit(failed ? 1 : 0);
+	process.exit(Object.keys(report).length > 0 ? 1 : 0);
+}
+
+let remote =
+	!flags.input && (config.inputs || []).every((x) => /^https?:\/\//.test(x));
+
+if (!config.host && !remote) {
+	console.warn(
+		"! cannot run `link.internal` rules without a known `host` value",
+	);
 }
 
 if (flags.json) {
@@ -101,12 +120,19 @@ const FAIL = colors.bold(colors.bgRed(" FAIL "));
 
 let total = 0;
 
-for (let [item, errors] of Object.entries(report)) {
-	let entries = Object.entries(errors);
-	if (entries.length === 0) continue;
+for (let [item, messages] of Object.entries(report)) {
+	let rows = Object.entries(messages)
+		.flatMap(([rule, list]) => list.map((x) => ({ rule, ...x })))
+		.sort(
+			(a, b) => (a.line || 0) - (b.line || 0) || (a.col || 0) - (b.col || 0),
+		);
 
-	total += entries.length;
-	let width = Math.max(...entries.map(([, x]) => x.message.length));
+	if (rows.length === 0) continue;
+	total += rows.length;
+
+	let locations = rows.map((x) => (x.line ? `${x.line}:${x.col}` : ""));
+	let wLoc = Math.max(...locations.map((x) => x.length));
+	let wMsg = Math.max(...rows.map((x) => x.message.length));
 
 	let file = item.startsWith(cwd)
 		? item.substring(cwd.length).replace(/^[\\/]+/, "")
@@ -117,11 +143,11 @@ for (let [item, errors] of Object.entries(report)) {
 		colors.bold(" " + colors.underline(colors.white(file))) +
 		"\n";
 
-	for (let [rule, error] of entries) {
-		// output += '  ' + colors.dim(' 9:44') + SYM;
-		output += "  " + SYM + error.message.padEnd(width, " ");
-		output += "  " + colors.dim(rule) + "\n";
-	}
+	rows.forEach((row, i) => {
+		output += "  " + colors.dim(locations[i].padStart(wLoc, " ")) + SYM;
+		output += row.message.padEnd(wMsg, " ");
+		output += "  " + colors.dim(row.rule) + "\n";
+	});
 
 	process.stderr.write(output);
 }

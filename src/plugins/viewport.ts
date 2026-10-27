@@ -21,6 +21,7 @@ export const viewport: Plugin<Viewport> = function (context, document) {
 		"viewport.single",
 		rest.length === 0,
 		'Must have only one "viewport" meta tag',
+		rest[0],
 	);
 
 	if (!elem) return;
@@ -31,17 +32,20 @@ export const viewport: Plugin<Viewport> = function (context, document) {
 		"viewport.content.empty",
 		content.trim().length > 0,
 		'Must not have empty "content" value',
+		elem,
 	);
 
 	context.assert(
 		"viewport.content.device",
 		content.includes("width=device-width"),
 		'Must include "width=device-width" value',
+		elem,
 	);
 
 	context.assert(
 		"viewport.content.scale",
 		content.includes("initial-scale=1"),
 		'Must include "initial-scale=1" value',
+		elem,
 	);
 };

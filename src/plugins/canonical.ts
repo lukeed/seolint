@@ -26,6 +26,7 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 		"canonical.single",
 		rest.length === 0,
 		"Must have only one canonical link",
+		rest[0],
 	);
 	if (!elem) return;
 
@@ -41,18 +42,21 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 		"canonical.href.absolute",
 		/^https?:\/\//.test(target),
 		"Must include a URL protocol in target",
+		elem,
 	);
 
 	context.assert(
 		"canonical.href.lowercase",
 		!/[A-Z]/.test(target),
 		"Must not include uppercase character(s)",
+		elem,
 	);
 
 	context.assert(
 		"canonical.href.https",
 		/^https:\/\//.test(target),
 		'Must point to an "https://" address',
+		elem,
 	);
 
 	let { host } = context.options;
@@ -61,5 +65,6 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 		"canonical.href.match",
 		(o) => target.includes(o.hostname || host || "\0"),
 		"Must include the provided `hostname` value",
+		elem,
 	);
 };

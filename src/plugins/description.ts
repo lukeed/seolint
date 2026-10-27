@@ -28,6 +28,7 @@ export const description: Plugin<Description> = function (context, document) {
 		"description.single",
 		rest.length === 0,
 		"Must have only one description meta tag",
+		rest[0],
 	);
 	if (!elem) return;
 
@@ -37,6 +38,7 @@ export const description: Plugin<Description> = function (context, document) {
 		"description.content.empty",
 		content.length > 0,
 		"Must not be empty",
+		elem,
 	);
 
 	// TODO: html chars
@@ -44,18 +46,21 @@ export const description: Plugin<Description> = function (context, document) {
 		"description.content.html",
 		!elem.innerHTML,
 		"Must not include HTML content",
+		elem,
 	);
 
 	context.assert(
 		"description.content.undefined",
 		content.indexOf("undefined") === -1,
 		'Must not include "undefined" in value',
+		elem,
 	);
 
 	context.assert(
 		"description.content.null",
 		content.indexOf("null") === -1,
 		'Must not include "null" in  value',
+		elem,
 	);
 
 	let rule = context.load("description.content.length");
@@ -70,11 +75,13 @@ export const description: Plugin<Description> = function (context, document) {
 			context.report(
 				"description.content.length",
 				`Must not have less than ${min} characters`,
+				elem,
 			);
 		else if (length > max)
 			context.report(
 				"description.content.length",
 				`Must not have more than ${max} characters`,
+				elem,
 			);
 	}
 
@@ -95,5 +102,6 @@ export const description: Plugin<Description> = function (context, document) {
 				return false;
 			},
 			"Must include at least one word in the <title> tag.",
+			elem,
 		);
 };
