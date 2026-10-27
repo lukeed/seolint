@@ -1,36 +1,16 @@
 {
-  "ts-node": {
-    "transpileOnly": true,
-    "compilerOptions": {
-      "module": "commonjs"
-    },
-    "include": [
-      "test/**/*"
-    ]
-  },
   "compilerOptions": {
     "strict": true,
-    "target": "es2019",
-    "module": "esnext",
-    "noImplicitAny": true,
-    "moduleResolution": "node",
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": false,
+    "target": "es2023",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "lib": ["es2023"],
+    "types": ["bun"],
     "resolveJsonModule": true,
-    "esModuleInterop": false,
-    "removeComments": true,
-    "sourceMap": false,
-    "allowJs": false,
-    "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "seolint": ["index.d.ts"]
-    }
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src", "test"]
 }

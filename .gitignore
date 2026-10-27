@@ -1,8 +1,5 @@
 .DS_Store
 node_modules
-*-lock.*
-*.lock
 *.log
 
-/index.js
-/index.mjs
+/dist
