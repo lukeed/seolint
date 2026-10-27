@@ -17,9 +17,7 @@
     }
   ],
   "scripts": {
-    "build": "bun run build:js && bun run build:types",
-    "build:js": "bun build src/index.ts src/bin.ts --outdir dist --target node --packages external --splitting --minify",
-    "build:types": "tsc -p tsconfig.build.json"
+    "build": "bun build.ts"
   },
   "bin": "dist/bin.js",
   "exports": {
