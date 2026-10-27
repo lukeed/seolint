@@ -1,4 +1,5 @@
 import { plugin } from "../plugin";
+import * as about from "./meta";
 
 export const image = plugin({
 	name: "image",
@@ -8,6 +9,14 @@ export const image = plugin({
 		"image.alt.content.undefined": true,
 		"image.alt.content.null": true,
 	},
+	meta: about.meta({
+		"image.alt.exists":
+			'An <img> has an alt attribute. alt="" is allowed, for decorative images.',
+		"image.alt.content.html": "The alt text has no HTML tags.",
+		"image.alt.content.undefined":
+			'The alt text does not include the text "undefined".',
+		"image.alt.content.null": 'The alt text does not include the text "null".',
+	}),
 	run(context, document) {
 		let images = document.all("img");
 
@@ -16,14 +25,20 @@ export const image = plugin({
 
 			context.assert(
 				"image.alt.exists",
-				alt.trim().length > 0,
-				"Must have an `alt` attribute",
+				img.hasAttr("alt"),
+				'Must have an `alt` attribute; use alt="" for decorative images',
 				img,
 			);
 
 			// TODO
 			// let toHTML = context.load('image.alt.content.html');
 			// if (toHTML) assert.falsey(alt.inner, 'Must not have HTML content within `alt` value');
+			context.assert(
+				"image.alt.content.html",
+				!/<[a-z/!?]/i.test(alt),
+				"Must not have HTML content within `alt` value",
+				img,
+			);
 
 			context.assert(
 				"image.alt.content.undefined",

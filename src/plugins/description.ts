@@ -1,4 +1,25 @@
 import { plugin } from "../plugin";
+import * as about from "./meta";
+
+const STOP = new Set(
+	"a an and are as at be by for from has have in is it its of on or our that the this to was we with you your".split(
+		" ",
+	),
+);
+
+/**
+ * The meaningful words of `text`: lowercase, without stop words.
+ * @example
+ * words("The Best Bread in Town"); //=> Set { "best", "bread", "town" }
+ */
+function words(text: string): Set<string> {
+	return new Set(
+		text
+			.toLowerCase()
+			.split(/[^\w]+/)
+			.filter((x) => x.length > 0 && !STOP.has(x)),
+	);
+}
 
 export const description = plugin({
 	name: "description",
@@ -10,8 +31,24 @@ export const description = plugin({
 		"description.content.title": true,
 		"description.content.undefined": true,
 		"description.content.null": true,
-		"description.content.length": { min: 10, max: 300 },
+		"description.content.length": { min: 50, max: 160 },
 	},
+	meta: about.meta({
+		"description.exists": 'A page has a <meta name="description"> tag.',
+		"description.single": "A page has only one description tag.",
+		"description.content.empty": "The description is not empty.",
+		"description.content.html": "The description has no HTML tags in its text.",
+		"description.content.title": [
+			"warn",
+			"The description shares at least one meaningful word with the title.",
+		],
+		"description.content.undefined":
+			'The description does not include the text "undefined".',
+		"description.content.null":
+			'The description does not include the text "null".',
+		"description.content.length":
+			"The description length is within a range of characters.",
+	}),
 	run(context, document) {
 		let [elem, ...rest] = document.all("meta[name=description]");
 
@@ -40,7 +77,7 @@ export const description = plugin({
 		// TODO: html chars
 		context.assert(
 			"description.content.html",
-			!elem.html,
+			!/<[a-z/!?]/i.test(content),
 			"Must not include HTML content",
 			elem,
 		);
@@ -55,7 +92,7 @@ export const description = plugin({
 		context.assert(
 			"description.content.null",
 			content.indexOf("null") === -1,
-			'Must not include "null" in  value',
+			'Must not include "null" in value',
 			elem,
 		);
 
@@ -86,14 +123,8 @@ export const description = plugin({
 			context.assert(
 				"description.content.title",
 				() => {
-					let words1 = new Set(content.toLowerCase().split(/[^\w]+/g));
-					let words2 = new Set(
-						title.text
-							.trim()
-							.toLowerCase()
-							.split(/[^\w]+/g),
-					);
-					for (let w of words2) if (words1.has(w)) return true;
+					let found = words(content);
+					for (let word of words(title.text)) if (found.has(word)) return true;
 					return false;
 				},
 				"Must include at least one word in the <title> tag.",

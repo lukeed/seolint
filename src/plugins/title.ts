@@ -1,4 +1,5 @@
 import { plugin } from "../plugin";
+import * as about from "./meta";
 
 // TODO: stop words
 export const title = plugin({
@@ -9,8 +10,17 @@ export const title = plugin({
 		"title.content.html": true,
 		"title.content.undefined": true,
 		"title.content.null": true,
-		"title.content.length": { min: 10, max: 300 },
+		"title.content.length": { min: 10, max: 60 },
 	},
+	meta: about.meta({
+		"title.exists": "A page has a <title> element in its <head>.",
+		"title.single": "A page has only one <title> element.",
+		"title.content.html": "The title has no HTML tags in its text.",
+		"title.content.undefined":
+			'The title does not include the text "undefined".',
+		"title.content.null": 'The title does not include the text "null".',
+		"title.content.length": "The title length is within a range of characters.",
+	}),
 	run(context, document) {
 		let [elem, ...rest] = document.all("head>title");
 

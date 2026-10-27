@@ -1,4 +1,16 @@
 import { plugin } from "../plugin";
+import * as about from "./meta";
+
+/**
+ * Whether a link path ends with a slash, or points to a file, such as `/menu.pdf`.
+ * @example
+ * trailing("/about/"); //=> true
+ * trailing("/about"); //=> false
+ */
+function trailing(path: string): boolean {
+	let last = path.slice(path.lastIndexOf("/") + 1);
+	return last === "" || last.includes(".");
+}
 
 export const link = plugin({
 	name: "link",
@@ -14,7 +26,44 @@ export const link = plugin({
 		"link.external.limit": { max: 50 },
 		"link.blank.noopener": true,
 		"link.blank.noreferrer": true,
+		"link.text.exists": true,
+		"link.text.vague": {
+			words: [
+				"click here",
+				"here",
+				"read more",
+				"more",
+				"learn more",
+				"link",
+				"this",
+			],
+		},
 	},
+	meta: about.meta({
+		"link.href.exists": "A link has an href attribute.",
+		"link.href.empty": "A link href is not empty.",
+		"link.internal.trailing": "An internal link to a page ends with a slash.",
+		"link.internal.lowercase": "An internal link has no uppercase letters.",
+		"link.internal.nofollow": 'An internal link does not use rel="nofollow".',
+		"link.internal.pretty": 'An internal link does not end with ".html".',
+		"link.internal.absolute":
+			"An internal link starts with /, //, or a protocol.",
+		"link.internal.https":
+			"An internal link uses https:// or a root-relative path.",
+		"link.external.limit": [
+			"warn",
+			"A page has at most a number of external links.",
+		],
+		"link.blank.noopener": 'A link with target="_blank" uses rel="noopener".',
+		"link.blank.noreferrer":
+			'A link with target="_blank" uses rel="noreferrer".',
+		"link.text.exists":
+			"A link has text, an aria-label, or an image with alt text.",
+		"link.text.vague": [
+			"warn",
+			'A link text describes its target, unlike "click here".',
+		],
+	}),
 	run(context, document) {
 		let externals = 0;
 		let seen: Set<string> = new Set();
@@ -22,6 +71,8 @@ export const link = plugin({
 
 		let { host } = context.options;
 		let origin = host && URL.canParse(host) ? new URL(host).hostname : "";
+		let base =
+			context.url && URL.canParse(context.url) ? context.url : "http://x.com";
 
 		links.forEach((link) => {
 			let href = link.getAttr("href") || "";
@@ -32,6 +83,36 @@ export const link = plugin({
 				"Must have an `href` attribute",
 				link,
 			);
+
+			let text = link.text.trim();
+			let label =
+				text ||
+				link.getAttr("aria-label")?.trim() ||
+				(link.hasAttr("aria-labelledby") ? "labelled" : "") ||
+				link
+					.all("img")
+					.map((x) => x.getAttr("alt")?.trim() ?? "")
+					.join("");
+
+			context.assert(
+				"link.text.exists",
+				label.length > 0,
+				"Must have text, an `aria-label`, or an image with `alt` text",
+				link,
+			);
+
+			let phrase = text
+				.toLowerCase()
+				.replace(/[^\w\s]/g, "")
+				.replace(/\s+/g, " ");
+			if (phrase) {
+				context.assert(
+					"link.text.vague",
+					(options) => !options.words.includes(phrase),
+					`Must describe the target, not "${text}"`,
+					link,
+				);
+			}
 
 			if (href === "#") return;
 			if (/^(mailto|javascript)[:]/.test(href)) return;
@@ -53,8 +134,8 @@ export const link = plugin({
 
 			let isExternal = true;
 
-			if (origin && URL.canParse(href, "http://x.com")) {
-				let { hostname } = new URL(href, "http://x.com");
+			if (origin && URL.canParse(href, base)) {
+				let { hostname } = new URL(href, base);
 				isExternal = hostname !== "x.com" && hostname !== origin;
 			}
 
@@ -77,7 +158,7 @@ export const link = plugin({
 
 				context.assert(
 					"link.internal.trailing",
-					/(\S+\.\w+){1,}$/.test(href) || href.endsWith("/"),
+					URL.canParse(href, base) && trailing(new URL(href, base).pathname),
 					"Internal links must end with a trailing slash",
 					link,
 				);
