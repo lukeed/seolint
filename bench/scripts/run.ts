@@ -17,9 +17,13 @@ export type Result = {
 	bytes: number;
 	/** Milliseconds to lint every corpus page once, in one process. */
 	lint: { avg: number; p75: number; p99: number };
-	/** A fresh process that lints the whole site, as the median of samples. */
-	site: { pages: number; ms: number; rss: number };
+	/** A fresh process that lints the whole site on one thread, as the median of samples. */
+	site: Site;
+	/** The same, with the default number of workers. */
+	workers: Site;
 };
+
+type Site = { pages: number; ms: number; rss: number };
 
 const FLAG = "--site";
 const SAMPLES = 5;
@@ -27,9 +31,9 @@ const SAMPLES = 5;
 /**
  * Lint the site once, then print the time and the peak resident memory.
  */
-async function sample(): Promise<void> {
+async function sample(workers: number | undefined): Promise<void> {
 	let start = performance.now();
-	let report = await seolint.fs(SITE, { host: HOST });
+	let report = await seolint.fs(SITE, { host: HOST, workers });
 	let ms = performance.now() - start;
 	let rss = process.resourceUsage().maxRSS * 1024;
 	do_not_optimize(report);
@@ -44,11 +48,10 @@ function median(values: number[]): number {
 /**
  * Lint the site in {@link SAMPLES} fresh processes, so each sample starts cold.
  */
-function site(pages: number): Result["site"] {
+function site(pages: number, workers: number | undefined): Site {
+	let args = [import.meta.filename, FLAG, String(workers ?? "")];
 	let runs = Array.from({ length: SAMPLES }, () => {
-		let proc = spawnSync(process.execPath, [import.meta.filename, FLAG], {
-			encoding: "utf8",
-		});
+		let proc = spawnSync(process.execPath, args, { encoding: "utf8" });
 		if (proc.status !== 0) throw new Error(proc.stderr);
 		return JSON.parse(proc.stdout) as {
 			ms: number;
@@ -63,7 +66,7 @@ function site(pages: number): Result["site"] {
 }
 
 if (process.argv[2] === FLAG) {
-	await sample();
+	await sample(process.argv[3] ? Number(process.argv[3]) : undefined);
 	process.exit(0);
 }
 
@@ -100,12 +103,14 @@ let result: Result = {
 		p75: stats.p75 / 1e6,
 		p99: stats.p99 / 1e6,
 	},
-	site: site(pages.length * COPIES),
+	site: site(pages.length * COPIES, 1),
+	workers: site(pages.length * COPIES, undefined),
 };
 
-console.log(
-	`site: ${result.site.ms.toFixed(0)}ms, ${(result.site.rss / 1e6).toFixed(0)}MB`,
-);
+for (let key of ["site", "workers"] as const) {
+	let { ms, rss } = result[key];
+	console.log(`${key}: ${ms.toFixed(0)}ms, ${(rss / 1e6).toFixed(0)}MB`);
+}
 
 let dir = join(import.meta.dirname, "..", "results");
 await mkdir(dir, { recursive: true });

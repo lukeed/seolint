@@ -8,8 +8,9 @@ Bun 1.4.4 and Node v26.12.1 on Apple M1 Max, 2026-10-27.
 
 | Workload | Bun | Node |
 | --- | --- | --- |
-| `lint()`, 12 pages | 22.4ms | 31.3ms |
-| `fs()`, a site of 1200 pages | 2.73s / 441MB | 3.75s / 832MB |
+| `lint()`, 12 pages | 22.2ms | 32.3ms |
+| `fs()`, a site of 1200 pages, one thread | 2.81s / 482MB | 3.80s / 889MB |
+| `fs()`, a site of 1200 pages, workers | 1.20s / 594MB | 1.48s / 992MB |
 
 ## Running
 
@@ -41,5 +42,5 @@ The site has 100 copies of each page, in its own folder, with a `robots.txt` and
 ## Method
 
 - **`lint()`** lints every corpus page once per iteration with the default rules, timed by [mitata](https://github.com/evanwashere/mitata). Each iteration starts with a collected heap. This is the cost of the checks for one page, without the file system or the site checks.
-- **`fs()`** lints the whole site in a fresh process, as the CLI does. It includes reading files and the site checks. The time is the median of 5 samples.
+- **`fs()`** lints the whole site in a fresh process, as the CLI does. It includes reading files and the site checks. The time is the median of 5 samples. The "one thread" row sets `workers: 1`. The "workers" row uses the default, which is 5 workers on this machine.
 - **Memory** is the peak resident memory of the `fs()` process, as the median of 5 samples.

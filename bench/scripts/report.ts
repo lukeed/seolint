@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { availableParallelism } from "node:os";
 import { join } from "node:path";
 
 import * as corpus from "./corpus.ts";
@@ -42,7 +43,8 @@ ${bun.runtime} and ${node.runtime} on ${bun.cpu}, ${bun.date}.
 | Workload | Bun | Node |
 | --- | --- | --- |
 | \`lint()\`, ${bun.pages} pages | ${ms(bun.lint.avg)} | ${ms(node.lint.avg)} |
-| \`fs()\`, a site of ${bun.site.pages} pages | ${ms(bun.site.ms)} / ${mb(bun.site.rss)} | ${ms(node.site.ms)} / ${mb(node.site.rss)} |
+| \`fs()\`, a site of ${bun.site.pages} pages, one thread | ${ms(bun.site.ms)} / ${mb(bun.site.rss)} | ${ms(node.site.ms)} / ${mb(node.site.rss)} |
+| \`fs()\`, a site of ${bun.site.pages} pages, workers | ${ms(bun.workers.ms)} / ${mb(bun.workers.rss)} | ${ms(node.workers.ms)} / ${mb(node.workers.rss)} |
 
 ## Running
 
@@ -63,7 +65,7 @@ The site has ${bun.site.pages / pages.length} copies of each page, in its own fo
 ## Method
 
 - **\`lint()\`** lints every corpus page once per iteration with the default rules, timed by [mitata](https://github.com/evanwashere/mitata). Each iteration starts with a collected heap. This is the cost of the checks for one page, without the file system or the site checks.
-- **\`fs()\`** lints the whole site in a fresh process, as the CLI does. It includes reading files and the site checks. The time is the median of 5 samples.
+- **\`fs()\`** lints the whole site in a fresh process, as the CLI does. It includes reading files and the site checks. The time is the median of 5 samples. The "one thread" row sets \`workers: 1\`. The "workers" row uses the default, which is ${Math.floor(availableParallelism() / 2)} workers on this machine.
 - **Memory** is the peak resident memory of the \`fs()\` process, as the median of 5 samples.
 `;
 
