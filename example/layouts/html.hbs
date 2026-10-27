@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="{{ $site.lang }}">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title>{{ $page.title }}</title>
+	{{#if $page.summary}}
+	<meta name="description" content="{{ $page.summary }}"/>
+	{{/if}}
+	<link rel="canonical" href="{{ $page.params.canonical || $page.url }}"/>
+	<meta property="og:title" content="{{ $page.title }}"/>
+	{{#if $page.params.image}}
+	<meta property="og:image" content="{{ $page.params.image }}"/>
+	{{/if}}
+</head>
+<body>
+	{{#partial src="nav"}}
+	<main>
+		{{{ $page.content }}}
+	</main>
+</body>
+</html>

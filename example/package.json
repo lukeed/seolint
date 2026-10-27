@@ -1,0 +1,15 @@
+{
+  "name": "example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bongo dev",
+    "build": "bongo build",
+    "lint": "node node_modules/seolint/dist/bin.js public"
+  },
+  "devDependencies": {
+    "@bongo/markdown": "^1.2.0",
+    "bongo": "npm:@bongo/bongo@^1.2.0",
+    "seolint": "workspace:*"
+  }
+}

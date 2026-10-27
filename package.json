@@ -17,7 +17,8 @@
     }
   ],
   "scripts": {
-    "build": "bun build.ts"
+    "build": "bun build.ts",
+    "example": "bun run --cwd example"
   },
   "bin": "dist/bin.js",
   "exports": {
@@ -39,6 +40,10 @@
   },
   "devDependencies": {
     "@types/bun": "1.4.4",
+    "@types/node": "22.20.5",
     "typescript": "7.0.2"
-  }
+  },
+  "workspaces": [
+    "example"
+  ]
 }
