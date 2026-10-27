@@ -32,7 +32,7 @@ describe("load()", () => {
 
 		expect(output.host).toBe("");
 		expect(output.inputs).toEqual([]);
-		expect(output.plugins).toHaveLength(6);
+		expect(output.plugins).toEqual([]);
 		expect(output.rules).toEqual({});
 	});
 
@@ -53,12 +53,12 @@ describe("resolve()", () => {
 
 		expect(output.host).toBe("");
 		expect(output.inputs).toEqual([]);
-		expect(output.plugins).toHaveLength(6);
+		expect(output.plugins).toEqual([]);
 		expect(output.rules).toEqual({});
 	});
 
 	test("should accept `input` option", async () => {
-		let output = await config.resolve({ input: ["foo", "bar"] });
+		let output = await config.resolve({ inputs: ["foo", "bar"] });
 		expect(output.inputs).toEqual(["foo", "bar"]);
 	});
 
@@ -85,7 +85,7 @@ describe("resolve()", () => {
 		let output = await config.resolve({
 			cwd: fixtures,
 			host: "https://x.com",
-			input: ["public"],
+			inputs: ["public"],
 		});
 
 		expect(output.host).toBe("https://x.com");
@@ -94,14 +94,43 @@ describe("resolve()", () => {
 	});
 
 	test("should keep config file `inputs` when `input` is empty", async () => {
-		let output = await config.resolve({ cwd: fixtures, input: [] });
+		let output = await config.resolve({ cwd: fixtures, inputs: [] });
 		expect(output.inputs).toEqual(["https://hello.com/world/"]);
 	});
 });
 
 describe("define()", () => {
 	test("should return the config unchanged", () => {
-		let input = { host: "https://x.com", rules: { "a.b": false } };
+		let input = { host: "https://x.com", rules: { "title.exists": false } };
 		expect(config.define(input)).toBe(input);
+	});
+
+	test("should type rule names and options", () => {
+		let custom = config.plugin({
+			name: "custom",
+			rules: { "custom.rule": { max: 1 } },
+			run() {},
+		});
+
+		config.define({
+			plugins: [custom],
+			rules: {
+				"title.content.length": { max: 70 },
+				"custom.rule": { max: 2 },
+				"link.*": false,
+				// @ts-expect-error unknown rule
+				"title.exist": false,
+			},
+		});
+
+		config.define({
+			// @ts-expect-error wrong option type
+			rules: { "title.content.length": { max: "70" } },
+		});
+
+		config.define({
+			// @ts-expect-error a rule without options
+			rules: { "title.exists": { max: 1 } },
+		});
 	});
 });

@@ -2,8 +2,10 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parse } from "@lukeed/html";
 
+import * as setup from "./setup";
+
 import type { Node } from "@lukeed/html";
-import type { Argv, Context, Config, Message, Report, Messages } from "./types";
+import type { Argv, Context, Config, Dict, Message, Report } from "./types";
 
 export type {
 	Argv,
@@ -11,10 +13,10 @@ export type {
 	Context,
 	Dict,
 	Message,
-	Messages,
 	Plugin,
 	Report,
 	Rules,
+	Setting,
 } from "./types";
 
 const CONCURRENCY = 32;
@@ -22,70 +24,70 @@ const HTTP = /^https?:\/\//;
 const HTML = /\.html?$/;
 
 /**
- * Lint an HTML string. Resolves with `undefined` when every rule passes.
- * Rejects when a plugin throws.
+ * Lint an HTML string with the built-in plugins and any `config.plugins`.
+ * Resolves with `undefined` when every rule passes. Rejects when a plugin
+ * throws, or when the config names an unknown rule.
  * @example
- * let messages = await lint('<html>...</html>', await resolve());
+ * let messages = await lint("<html>...</html>");
+ * let custom = await lint("<html>...</html>", await resolve());
  */
 export async function lint(
 	html: string,
-	config?: Omit<Config, "inputs">,
-): Promise<Messages | undefined> {
-	let { plugins = [], rules = {}, ...rest } = config || {};
+	config: Config = {},
+): Promise<Message[] | undefined> {
+	let { plugins, rules } = setup.setup(config);
 
 	let document = parse(html);
-	let output: Messages = {};
-	let invalid = false;
+	let output: Message[] = [];
+
+	let state = (rule: string): setup.State => {
+		let found = rules.get(rule);
+		if (found === undefined)
+			throw new Error(`Rule "${rule}" is not declared by any plugin`);
+		return found;
+	};
 
 	let context: Context = {
-		get options() {
-			return rest;
+		options: { host: config.host },
+		load(rule) {
+			let found = state(rule);
+			return found === false ? undefined : found;
 		},
-		load(title) {
-			let tmp = rules[title];
-			return tmp == null || tmp;
-		},
-		report(title, message, node) {
-			let entry: Message = { message };
-
+		report(rule, message, node) {
+			if (state(rule) === false) return;
+			let entry: Message = { rule, message };
 			if (node) {
 				let { line, column } = document.position(node.start);
 				entry.line = line;
 				entry.col = column;
 			}
-
-			(output[title] ||= []).push(entry);
-			invalid = true;
+			output.push(entry);
 		},
 		assert(
-			title: string,
-			check: boolean | ((o: object) => boolean),
-			msg: string,
+			rule: string,
+			check: boolean | ((options: Dict) => boolean),
+			message: string,
 			node?: Node,
 		) {
-			let tmp = context.load(title);
-			if (!tmp) return;
-
-			let bool =
+			let found = state(rule);
+			if (found === false) return;
+			let passed =
 				typeof check === "function"
-					? check(typeof tmp === "object" ? tmp : {})
+					? check(typeof found === "object" ? found : {})
 					: check;
-
-			bool || context.report(title, msg, node);
+			passed || context.report(rule, message, node);
 		},
 	};
 
-	for (let fn of plugins) {
+	for (let plugin of plugins) {
 		try {
-			await fn(context as Context<never>, document);
+			await plugin.run(context, document);
 		} catch (err) {
-			throw new Error(`Plugin "${fn.name || "anonymous"}" failed`, {
-				cause: err,
-			});
+			throw new Error(`Plugin "${plugin.name}" failed`, { cause: err });
 		}
 	}
 
-	if (invalid) return output;
+	if (output.length > 0) return output;
 }
 
 /**
@@ -93,10 +95,7 @@ export async function lint(
  * @example
  * let report = await fs('public', await resolve());
  */
-export async function fs(
-	path: string,
-	config?: Omit<Config, "inputs">,
-): Promise<Report> {
+export async function fs(path: string, config?: Config): Promise<Report> {
 	return collect(await walk(path), (file) => read(file, config));
 }
 
@@ -105,10 +104,7 @@ export async function fs(
  * @example
  * let report = await url('https://example.com', await resolve());
  */
-export async function url(
-	href: string,
-	config?: Omit<Config, "inputs">,
-): Promise<Report> {
+export async function url(href: string, config?: Config): Promise<Report> {
 	return collect([href], (x) => request(x, config));
 }
 
@@ -158,15 +154,15 @@ async function walk(path: string): Promise<string[]> {
 
 async function read(
 	file: string,
-	config?: Omit<Config, "inputs">,
-): Promise<Messages | undefined> {
+	config?: Config,
+): Promise<Message[] | undefined> {
 	return lint(await readFile(file, "utf8"), config);
 }
 
 async function request(
 	href: string,
-	config?: Omit<Config, "inputs">,
-): Promise<Messages | undefined> {
+	config?: Config,
+): Promise<Message[] | undefined> {
 	let res = await fetch(href);
 	if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
 
@@ -185,9 +181,9 @@ async function request(
  */
 async function collect(
 	targets: string[],
-	action: (target: string) => Promise<Messages | undefined>,
+	action: (target: string) => Promise<Message[] | undefined>,
 ): Promise<Report> {
-	let results: (Messages | undefined)[] = [];
+	let results: (Message[] | undefined)[] = [];
 	let queue = targets.entries();
 
 	await Promise.all(

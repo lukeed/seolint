@@ -5,6 +5,8 @@ import { join, resolve } from "node:path";
 
 import { version } from "../package.json";
 
+import type { Message } from "./types";
+
 const fixtures = resolve(import.meta.dir, "fixtures");
 const bin = join(import.meta.dir, "bin.ts");
 
@@ -69,9 +71,17 @@ describe("bin", () => {
 
 	test("should print JSON report", () => {
 		let output = seolint(["site/sub", "--json", "-H", "https://example.com"]);
-		let file = join(fixtures, "site/sub/bad.html");
+		let report = JSON.parse(output.stdout);
 		expect(output.code).toBe(0);
-		expect(Object.keys(JSON.parse(output.stdout)[file])).toHaveLength(11);
+		expect(Object.keys(report)).toEqual(["site/sub/bad.html"]);
+		expect(report["site/sub/bad.html"]).toHaveLength(11);
+		let messages: Message[] = report["site/sub/bad.html"];
+		expect(messages.find((x) => x.rule === "title.content.null")).toEqual({
+			rule: "title.content.null",
+			message: 'Must not include "null" in `title` value',
+			line: 4,
+			col: 3,
+		});
 	});
 
 	test("should only set exit code when quiet", () => {
@@ -114,6 +124,28 @@ describe("bin", () => {
 		expect(warnings).toHaveLength(1);
 	});
 
+	test("should align columns across files", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
+		await writeFile(
+			join(dir, "a.html"),
+			"<html><head></head><body><img src=a></body></html>",
+		);
+		await writeFile(
+			join(dir, "b.html"),
+			"<html><head><title>null</title></head>" +
+				"\n".repeat(120) +
+				"<body><img src=b></body></html>",
+		);
+
+		let output = seolint([".", "-H", "https://example.com"], undefined, dir);
+		let rows = output.stderr.split("\n").filter((x) => x.includes("✘"));
+
+		expect(new Set(rows.map((x) => x.indexOf("✘"))).size).toBe(1);
+		expect(new Set(rows.map((x) => x.lastIndexOf("  ") + 2)).size).toBe(1);
+		expect(rows.length).toBeGreaterThan(5);
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	describe("with a crashing plugin", () => {
 		let tmp: string;
 
@@ -122,12 +154,28 @@ describe("bin", () => {
 			await writeFile(join(tmp, "index.html"), "<html></html>");
 			await writeFile(
 				join(tmp, "seolint.config.mjs"),
-				'export default { plugins: [function boom() { throw new TypeError("nope") }] }',
+				'export default { plugins: [{ name: "boom", rules: {}, run() { throw new TypeError("nope") } }] }',
 			);
 		});
 
 		afterAll(async () => {
 			await rm(tmp, { recursive: true, force: true });
+		});
+
+		test("should reject a plugin that is not an object", async () => {
+			await writeFile(
+				join(tmp, "seolint.config.mjs"),
+				"export default { plugins: [function boom() {}] }",
+			);
+			let output = seolint(["."], undefined, tmp);
+			expect(output.code).toBe(1);
+			expect(output.stderr).toStartWith(
+				'Invalid plugin at plugins[0]: expected an object with "name", "rules", and "run"',
+			);
+			await writeFile(
+				join(tmp, "seolint.config.mjs"),
+				'export default { plugins: [{ name: "boom", rules: {}, run() { throw new TypeError("nope") } }] }',
+			);
 		});
 
 		test("should print the cause and exit with 1", () => {

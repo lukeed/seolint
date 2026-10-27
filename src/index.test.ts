@@ -6,13 +6,32 @@ import { join, resolve } from "node:path";
 import * as conf from "./config";
 import * as seolint from "./index";
 
-import type { Plugin } from "./types";
+import type { Message, Report } from "./types";
 
 const fixtures = resolve(import.meta.dir, "fixtures");
 const site = join(fixtures, "site");
 
 const GOOD = await Bun.file(join(site, "good.html")).text();
 const BAD = await Bun.file(join(site, "sub/bad.html")).text();
+
+type Keyed = Record<string, Omit<Message, "rule">[]>;
+
+/**
+ * Group messages by rule, which keeps expectations readable and ignores
+ * the order of messages across rules.
+ */
+function keyed(list: Message[] | undefined): Keyed | undefined {
+	if (!list) return list;
+	let output: Keyed = {};
+	for (let { rule, ...rest } of list) (output[rule] ||= []).push(rest);
+	return output;
+}
+
+function reported(report: Report): Record<string, Keyed | undefined> {
+	return Object.fromEntries(
+		Object.entries(report).map(([input, list]) => [input, keyed(list)]),
+	);
+}
 
 const BAD_REPORT = {
 	"title.content.null": [
@@ -68,12 +87,12 @@ const BAD_HOST_REPORT = {
 describe("lint()", () => {
 	test("should return `undefined` when valid", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
-		expect(await seolint.lint(GOOD, config)).toBeUndefined();
+		expect(keyed(await seolint.lint(GOOD, config))).toBeUndefined();
 	});
 
 	test("should report every failed rule with its location", async () => {
 		let config = await conf.resolve();
-		expect(await seolint.lint(BAD, config)).toEqual(BAD_REPORT);
+		expect(keyed(await seolint.lint(BAD, config))).toEqual(BAD_REPORT);
 	});
 
 	test("should report each failure of the same rule", async () => {
@@ -83,7 +102,7 @@ describe("lint()", () => {
 			'<img src="a.png" />\n<img src="b.png" />',
 		);
 
-		let output = await seolint.lint(html, config);
+		let output = keyed(await seolint.lint(html, config));
 		expect(output).toEqual({
 			"image.alt.exists": [
 				{ message: "Must have an `alt` attribute", line: 13, col: 30 },
@@ -96,7 +115,7 @@ describe("lint()", () => {
 		let config = await conf.resolve();
 		config.rules = { "image.alt.exists": false, "title.content.null": false };
 
-		let output = await seolint.lint(BAD, config);
+		let output = keyed(await seolint.lint(BAD, config));
 		expect(output).not.toHaveProperty("image.alt.exists");
 		expect(output).not.toHaveProperty("title.content.null");
 	});
@@ -105,7 +124,7 @@ describe("lint()", () => {
 		let config = await conf.resolve({ host: "https://example.com" });
 		config.rules = { "title.content.length": { max: 5 } };
 
-		expect(await seolint.lint(GOOD, config)).toEqual({
+		expect(keyed(await seolint.lint(GOOD, config))).toEqual({
 			"title.content.length": [
 				{ message: "Must not have more than 5 characters", line: 4, col: 3 },
 			],
@@ -121,7 +140,9 @@ describe("lint()", () => {
 			"viewport.exists": false,
 		};
 
-		let output = await seolint.lint("<html><head></head></html>", config);
+		let output = keyed(
+			await seolint.lint("<html><head></head></html>", config),
+		);
 		expect(output).toBeUndefined();
 	});
 
@@ -132,7 +153,7 @@ describe("lint()", () => {
 			'href="https://example.com/About/"',
 		);
 
-		expect(await seolint.lint(html, config)).toEqual({
+		expect(keyed(await seolint.lint(html, config))).toEqual({
 			"link.internal.lowercase": [
 				{
 					message: "Internal links should not include uppercase",
@@ -150,7 +171,7 @@ describe("lint()", () => {
 			'<a href="https://other.com/" target="_blank">other</a>',
 		);
 
-		expect(await seolint.lint(html, config)).toEqual({
+		expect(keyed(await seolint.lint(html, config))).toEqual({
 			"link.blank.noopener": [
 				{
 					message: 'Must include "rel=noopener" when "target=_blank" in use',
@@ -171,7 +192,7 @@ describe("lint()", () => {
 	test("should treat unparsable links as external", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace('href="/about/"', 'href="http://["');
-		expect(await seolint.lint(html, config)).toBeUndefined();
+		expect(keyed(await seolint.lint(html, config))).toBeUndefined();
 	});
 
 	test("should allow entities in the title", async () => {
@@ -180,7 +201,7 @@ describe("lint()", () => {
 			"Hello world, this is a good page",
 			"Hello world &amp; this is a good page",
 		);
-		expect(await seolint.lint(html, config)).toBeUndefined();
+		expect(keyed(await seolint.lint(html, config))).toBeUndefined();
 	});
 
 	test("should report HTML in the title", async () => {
@@ -189,7 +210,7 @@ describe("lint()", () => {
 			"Hello world, this is a good page",
 			"Hello <b>world</b>, this is a good page",
 		);
-		expect(await seolint.lint(html, config)).toEqual({
+		expect(keyed(await seolint.lint(html, config))).toEqual({
 			"title.content.html": [
 				{ message: "Must not include HTML content", line: 4, col: 3 },
 			],
@@ -197,19 +218,32 @@ describe("lint()", () => {
 	});
 
 	test("should run custom plugins", async () => {
-		let output = await seolint.lint(GOOD, {
-			plugins: [
-				(context) => context.assert("custom.rule", false, "custom failure"),
-			],
-		});
+		let output = keyed(
+			await seolint.lint(GOOD, {
+				host: "https://example.com",
+				plugins: [
+					conf.plugin({
+						name: "custom",
+						rules: { "custom.rule": true },
+						run(context) {
+							context.assert("custom.rule", false, "custom failure");
+						},
+					}),
+				],
+			}),
+		);
 
 		expect(output).toEqual({ "custom.rule": [{ message: "custom failure" }] });
 	});
 
 	test("should reject when a plugin throws", async () => {
-		let boom: Plugin = function boom() {
-			throw new TypeError("nope");
-		};
+		let boom = conf.plugin({
+			name: "boom",
+			rules: {},
+			run() {
+				throw new TypeError("nope");
+			},
+		});
 
 		let error = await seolint
 			.lint(GOOD, { plugins: [boom] })
@@ -224,12 +258,110 @@ describe("lint()", () => {
 		let warn = spyOn(console, "warn");
 		let error = spyOn(console, "error");
 
-		await seolint.lint(BAD, await conf.resolve());
+		keyed(await seolint.lint(BAD, await conf.resolve()));
 
 		expect(warn).not.toHaveBeenCalled();
 		expect(error).not.toHaveBeenCalled();
 		warn.mockRestore();
 		error.mockRestore();
+	});
+});
+
+describe("rules", () => {
+	let reporter = conf.plugin({
+		name: "reporter",
+		rules: { "reporter.rule": true },
+		run(context) {
+			context.report("reporter.rule", "reported");
+		},
+	});
+
+	test("should run the built-in plugins without a config", async () => {
+		expect(keyed(await seolint.lint(BAD))).toEqual(BAD_REPORT);
+	});
+
+	test("should skip report() for a disabled rule", async () => {
+		let config = { host: "https://example.com", plugins: [reporter] };
+		expect(keyed(await seolint.lint(GOOD, config))).toEqual({
+			"reporter.rule": [{ message: "reported" }],
+		});
+
+		let off = { ...config, rules: { "reporter.rule": false } };
+		expect(await seolint.lint(GOOD, off)).toBeUndefined();
+	});
+
+	test("should reject a rule that the plugin did not declare", async () => {
+		let sneaky = conf.plugin({
+			name: "sneaky",
+			rules: {},
+			run(context) {
+				// @ts-expect-error report a rule that the plugin did not declare
+				context.report("other.rule", "nope");
+			},
+		});
+
+		let error = await seolint
+			.lint(GOOD, { plugins: [sneaky] })
+			.catch((err: unknown) => err);
+
+		expect(error).toHaveProperty("message", 'Plugin "sneaky" failed');
+		expect(error).toHaveProperty(
+			"cause",
+			new Error('Rule "other.rule" is not declared by any plugin'),
+		);
+	});
+
+	test("should reject unknown rule names and patterns", async () => {
+		let config = { rules: { "title.exist": false, "nope.*": false } };
+		await expect(seolint.lint(GOOD, config)).rejects.toThrow(
+			'Unknown rules in config: "nope.*", "title.exist"',
+		);
+	});
+
+	test("should apply patterns before exact names", async () => {
+		let config = await conf.resolve({ host: "https://example.com" });
+		config.rules = { "link.*": false, "link.blank.noopener": true };
+
+		let output = keyed(await seolint.lint(BAD, config)) ?? {};
+		let links = Object.keys(output).filter((x) => x.startsWith("link."));
+		expect(links).toEqual(["link.blank.noopener"]);
+	});
+
+	test("should replace a built-in plugin with the same name", async () => {
+		let title = conf.plugin({ name: "title", rules: {}, run() {} });
+		let output = keyed(await seolint.lint(BAD, { plugins: [title] })) ?? {};
+		expect(Object.keys(output).some((x) => x.startsWith("title."))).toBe(false);
+
+		let config = { plugins: [title], rules: { "title.exists": false } };
+		await expect(seolint.lint(BAD, config)).rejects.toThrow(
+			'Unknown rule in config: "title.exists"',
+		);
+	});
+
+	test("should merge rule options over the defaults", async () => {
+		let config = { host: "https://example.com" };
+
+		let on = { ...config, rules: { "title.content.length": true } };
+		expect(await seolint.lint(GOOD, on)).toBeUndefined();
+
+		let partial = { ...config, rules: { "title.content.length": { min: 50 } } };
+		expect(keyed(await seolint.lint(GOOD, partial))).toEqual({
+			"title.content.length": [
+				{ message: "Must not have less than 50 characters", line: 4, col: 3 },
+			],
+		});
+	});
+
+	test("should validate rules in resolve()", async () => {
+		let dir = await mkdtemp(join(tmpdir(), "seolint-"));
+		await writeFile(
+			join(dir, "seolint.config.mjs"),
+			'export default { rules: { "title.exist": false } }',
+		);
+		await expect(conf.resolve({ cwd: dir })).rejects.toThrow(
+			'Unknown rule in config: "title.exist"',
+		);
+		await rm(dir, { recursive: true, force: true });
 	});
 });
 
@@ -255,26 +387,28 @@ describe("fs()", () => {
 	test("should lint a file", async () => {
 		let config = await conf.resolve();
 		let file = join(site, "sub/bad.html");
-		expect(await seolint.fs(file, config)).toEqual({ [file]: BAD_REPORT });
+		expect(reported(await seolint.fs(file, config))).toEqual({
+			[file]: BAD_REPORT,
+		});
 	});
 
 	test("should ignore non-HTML files", async () => {
 		let config = await conf.resolve();
 		expect(
-			await seolint.fs(join(fixtures, "seolint.config.js"), config),
+			reported(await seolint.fs(join(fixtures, "seolint.config.js"), config)),
 		).toEqual({});
 	});
 
 	test("should walk a directory", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
-		expect(await seolint.fs(site, config)).toEqual({
+		expect(reported(await seolint.fs(site, config))).toEqual({
 			[join(site, "sub/bad.html")]: BAD_HOST_REPORT,
 		});
 	});
 
 	test("should walk nested and symlinked files, in sorted order", async () => {
 		let config = await conf.resolve();
-		let output = await seolint.fs(tmp, config);
+		let output = reported(await seolint.fs(tmp, config));
 		let keys = Object.keys(output);
 
 		expect(keys).toHaveLength(102);
@@ -317,7 +451,7 @@ describe("url()", () => {
 		let config = await conf.resolve();
 		config.rules = { "canonical.href.match": false };
 		expect(
-			await seolint.url(new URL("/good/", server.url).href, config),
+			reported(await seolint.url(new URL("/good/", server.url).href, config)),
 		).toEqual({});
 	});
 
@@ -355,8 +489,8 @@ describe("run()", () => {
 	});
 
 	test("should resolve inputs from `cwd`", async () => {
-		let config = await conf.resolve({ input: ["site/sub"] });
-		expect(await seolint.run(config, { cwd: fixtures })).toEqual({
+		let config = await conf.resolve({ inputs: ["site/sub"] });
+		expect(reported(await seolint.run(config, { cwd: fixtures }))).toEqual({
 			[join(site, "sub/bad.html")]: BAD_REPORT,
 		});
 	});
@@ -364,14 +498,14 @@ describe("run()", () => {
 	test("should lint overlapping inputs once", async () => {
 		let config = await conf.resolve({
 			host: "https://example.com",
-			input: ["site", "site/sub/bad.html"],
+			inputs: ["site", "site/sub/bad.html"],
 		});
-		let output = await seolint.run(config, { cwd: fixtures });
+		let output = reported(await seolint.run(config, { cwd: fixtures }));
 		expect(Object.keys(output)).toEqual([join(site, "sub/bad.html")]);
 	});
 
 	test("should reject when an input fails", async () => {
-		let config = await conf.resolve({ input: ["site", "missing"] });
+		let config = await conf.resolve({ inputs: ["site", "missing"] });
 		await expect(seolint.run(config, { cwd: fixtures })).rejects.toThrow(
 			"ENOENT",
 		);

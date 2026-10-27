@@ -2,12 +2,33 @@ import { readdir } from "node:fs/promises";
 import { dirname, join, resolve as absolute } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import * as plugins from "./plugins";
 import * as merger from "./merge";
+import * as setup from "./setup";
 
-import type { Argv, Config } from "./types";
+import type * as plugins from "./plugins";
+import type { Argv, Config, Plugin, Rules } from "./types";
 
-export type { Argv, Config } from "./types";
+export { plugin } from "./plugin";
+export type { Argv, Config, Plugin, Rules, Setting } from "./types";
+
+type Builtin = (typeof plugins.builtins)[number];
+type RulesOf<P> = P extends Plugin<infer T> ? T : never;
+type Keys<U> = U extends unknown ? keyof U & string : never;
+type Value<U, K extends string> = U extends unknown
+	? K extends keyof U
+		? U[K]
+		: never
+	: never;
+
+/**
+ * Settings for the rules of plugins `P`: each known rule name takes a boolean
+ * or partial options, and each pattern with `*` takes a boolean.
+ */
+type Settings<U> = {
+	[K in Keys<U>]?: boolean | Partial<Exclude<Value<U, K>, boolean>>;
+} & {
+	[pattern: `${string}*${string}`]: boolean;
+};
 
 const HTTP = /^https?:\/\//;
 
@@ -66,25 +87,21 @@ export async function load(root: string): Promise<Config> {
 		merger.merge(output, config.default || config);
 	}
 
-	// include default plugins
-	output.plugins!.unshift(
-		plugins.title,
-		plugins.canonical,
-		plugins.description,
-		plugins.viewport,
-		plugins.image,
-		plugins.link,
-	);
-
 	return output;
 }
 
 /**
  * Type a config object. Use it as the default export of `seolint.config.ts`.
+ * Rule names and options are checked against the built-in plugins and `plugins`.
  * @example
  * export default define({ host: "https://example.com", inputs: ["public"] });
  */
-export function define(config: Config): Config {
+export function define<const P extends readonly Plugin[] = []>(
+	config: Omit<Config, "plugins" | "rules"> & {
+		plugins?: P;
+		rules?: Settings<RulesOf<P[number] | Builtin>>;
+	},
+): Config {
 	return config;
 }
 
@@ -92,12 +109,13 @@ export function define(config: Config): Config {
  * Load the nearest `seolint.config.*` file from `options.cwd` and apply
  * CLI-style overrides.
  * @example
- * let config = await resolve({ host: "https://example.com", input: ["public"] });
+ * let config = await resolve({ host: "https://example.com", inputs: ["public"] });
  */
 export async function resolve(options: Argv = {}): Promise<Config> {
 	let value = await load(absolute(options.cwd || "."));
 	if (options.host) value.host = options.host;
-	if (options.input && options.input.length > 0) value.inputs = options.input;
+	if (options.inputs && options.inputs.length > 0)
+		value.inputs = options.inputs;
 
 	if (value.host && !HTTP.test(value.host)) {
 		throw new Error(
@@ -105,5 +123,6 @@ export async function resolve(options: Argv = {}): Promise<Config> {
 		);
 	}
 
+	setup.setup(value);
 	return value;
 }

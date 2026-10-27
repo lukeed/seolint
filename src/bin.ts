@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { isAbsolute, relative } from "node:path";
 import { text } from "node:stream/consumers";
 import { parseArgs, styleText } from "node:util";
 
@@ -6,7 +7,7 @@ import * as conf from "./config";
 import * as seolint from "./index";
 import { version } from "../package.json";
 
-import type { Report } from "./types";
+import type { Message, Report } from "./types";
 
 type Format = Parameters<typeof styleText>[0];
 
@@ -82,7 +83,7 @@ if (flags.input && process.stdin.isTTY) {
 }
 
 try {
-	var options = { host: flags.host, input };
+	var options = { host: flags.host, inputs: input };
 	var config = await conf.resolve(options);
 	var report: Report = flags.input
 		? await seolint
@@ -107,9 +108,20 @@ if (!config.host && !remote) {
 	);
 }
 
+const cwd = process.cwd();
+
+let entries = Object.entries(report).map(
+	([item, list]): [string, Message[]] => [
+		isAbsolute(item) ? relative(cwd, item) : item,
+		[...list].sort(
+			(a, b) => (a.line || 0) - (b.line || 0) || (a.col || 0) - (b.col || 0),
+		),
+	],
+);
+
 if (flags.json) {
 	// TODO: remove "message" keys?
-	console.log(JSON.stringify(report));
+	console.log(JSON.stringify(Object.fromEntries(entries)));
 	process.exit(0);
 }
 
@@ -125,32 +137,24 @@ function style(
 	return flags["no-color"] ? input : styleText(format, input, { stream });
 }
 
+function location(message: Message): string {
+	return message.line ? `${message.line}:${message.col}` : "";
+}
+
 const ERR = process.stderr;
 const OUT = process.stdout;
 
-const cwd = process.cwd();
 const SYM = style(ERR, "red", "  ✘  ");
 const FAIL = style(ERR, "bold", style(ERR, "bgRed", " FAIL "));
 
-let total = 0;
+let rows = entries.flatMap(([, list]) => list);
+let total = rows.length;
+let wLoc = Math.max(0, ...rows.map((x) => location(x).length));
+let wMsg = Math.max(0, ...rows.map((x) => x.message.length));
 
-for (let [item, messages] of Object.entries(report)) {
-	let rows = Object.entries(messages)
-		.flatMap(([rule, list]) => list.map((x) => ({ rule, ...x })))
-		.sort(
-			(a, b) => (a.line || 0) - (b.line || 0) || (a.col || 0) - (b.col || 0),
-		);
+for (let [file, list] of entries) {
+	if (list.length === 0) continue;
 
-	if (rows.length === 0) continue;
-	total += rows.length;
-
-	let locations = rows.map((x) => (x.line ? `${x.line}:${x.col}` : ""));
-	let wLoc = Math.max(...locations.map((x) => x.length));
-	let wMsg = Math.max(...rows.map((x) => x.message.length));
-
-	let file = item.startsWith(cwd)
-		? item.substring(cwd.length).replace(/^[\\/]+/, "")
-		: item;
 	let output =
 		"\n" +
 		FAIL +
@@ -161,11 +165,11 @@ for (let [item, messages] of Object.entries(report)) {
 		) +
 		"\n";
 
-	rows.forEach((row, i) => {
-		output += "  " + style(ERR, "dim", locations[i].padStart(wLoc, " ")) + SYM;
+	for (let row of list) {
+		output += "  " + style(ERR, "dim", location(row).padStart(wLoc, " ")) + SYM;
 		output += row.message.padEnd(wMsg, " ");
 		output += "  " + style(ERR, "dim", row.rule) + "\n";
-	});
+	}
 
 	process.stderr.write(output);
 }

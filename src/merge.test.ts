@@ -4,7 +4,9 @@ import * as merger from "./merge";
 
 import type { Config, Plugin } from "./types";
 
-const noop: Plugin = () => {};
+function stub(name: string): Plugin {
+	return { name, rules: {}, run() {} };
+}
 
 describe("merge()", () => {
 	test("should merge two `Config` objects together", () => {
@@ -20,8 +22,8 @@ describe("merge()", () => {
 			host: "https://x.com",
 			inputs: ["foobar"],
 			rules: {
-				"a.b": 123,
-				"a.c": 456,
+				"a.b": { n: 123 },
+				"a.c": { n: 456 },
 			},
 		});
 
@@ -31,14 +33,14 @@ describe("merge()", () => {
 			presets: [],
 			plugins: [],
 			rules: {
-				"a.b": 123,
-				"a.c": 456,
+				"a.b": { n: 123 },
+				"a.c": { n: 456 },
 			},
 		});
 	});
 
 	test("should concatenate `plugins` arrays", () => {
-		let [p1, p2, n1, n2] = [noop, noop, noop, noop].map((fn) => fn.bind(null));
+		let [p1, p2, n1, n2] = ["p1", "p2", "n1", "n2"].map(stub);
 		let input: Config = { plugins: [p1, p2] };
 
 		merger.merge(input, { plugins: [n1, n2] });
@@ -54,21 +56,29 @@ describe("merge()", () => {
 
 	test("should merge `rules` objects", () => {
 		let input: Config = {
-			rules: { foo: 1, bar: 2 },
+			rules: { foo: { n: 1 }, bar: { n: 2 } },
 		};
 
 		merger.merge(input, {
-			rules: { bar: 123, baz: 456 },
+			rules: { bar: { n: 123 }, baz: { n: 456 } },
 		});
 
-		expect(input.rules).toEqual({ foo: 1, bar: 123, baz: 456 });
+		expect(input.rules).toEqual({
+			foo: { n: 1 },
+			bar: { n: 123 },
+			baz: { n: 456 },
+		});
 	});
 
 	test("should merge `presets` recursively", () => {
-		let [bar1, bar2, foo1, foo2, custom1, custom2] = Array.from(
-			{ length: 6 },
-			() => noop.bind(null),
-		);
+		let [bar1, bar2, foo1, foo2, custom1, custom2] = [
+			"bar1",
+			"bar2",
+			"foo1",
+			"foo2",
+			"custom1",
+			"custom2",
+		].map(stub);
 
 		let input: Config = {
 			host: "",
@@ -106,7 +116,7 @@ describe("merge()", () => {
 			rules: {
 				"foo.1": false,
 				"bar.2": false,
-				hello: 123,
+				hello: { n: 123 },
 			},
 		});
 
@@ -119,7 +129,7 @@ describe("merge()", () => {
 				"bar.2": false,
 				"foo.1": false,
 				"foo.2": true,
-				hello: 123,
+				hello: { n: 123 },
 			},
 		});
 	});
