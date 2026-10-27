@@ -1,14 +1,15 @@
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 
+import { detach } from "../detach";
 import { plugin } from "../plugin";
 import * as about from "./meta";
 
 import type { Position } from "../types";
 
 type Link = {
-	/** The absolute URL, without a hash. */
-	target: string;
+	/** The URL path of the target, without the search or hash. */
+	path: string;
 	position: Position;
 };
 
@@ -79,7 +80,9 @@ function duplicates<T extends { text: string }>(
 	for (let item of items) {
 		let key = item.value.text.trim().toLowerCase();
 		if (!key) continue;
-		groups.set(key, [...(groups.get(key) ?? []), item]);
+		let group = groups.get(key);
+		if (group) group.push(item);
+		else groups.set(key, [item]);
 	}
 	return [...groups.values()].filter((x) => x.length > 1);
 }
@@ -110,19 +113,15 @@ export const site = plugin({
 		let links: Link[] = [];
 
 		let host = context.options.host;
-		let origin = host && URL.canParse(host) ? new URL(host).origin : undefined;
-		let base = context.url ?? host;
+		let origin = host ? URL.parse(host)?.origin : undefined;
+		let base = URL.parse(context.url ?? host ?? "")?.href;
 
-		if (origin && base && URL.canParse(base)) {
+		if (origin && base && context.load("site.link.exists")) {
 			for (let node of document.all("a[href]")) {
-				let href = node.getAttr("href") ?? "";
-				if (!URL.canParse(href, base)) continue;
-				let url = new URL(href, base);
-				if (url.origin !== origin) continue;
-				url.hash = "";
-				url.search = "";
+				let url = URL.parse(node.getAttr("href") ?? "", base);
+				if (!url || url.origin !== origin) continue;
 				links.push({
-					target: url.href,
+					path: url.pathname,
 					position: document.position(node.start),
 				});
 			}
@@ -177,7 +176,7 @@ export const site = plugin({
 			let known = new Map<string, boolean>();
 			for (let page of pages) {
 				for (let link of page.data.links) {
-					let path = new URL(link.target).pathname;
+					let path = link.path;
 					let found = known.get(path) ?? (await resolvable(site.roots, path));
 					known.set(path, found);
 					if (!found) {

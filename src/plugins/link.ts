@@ -70,9 +70,8 @@ export const link = plugin({
 		let links = document.all("a");
 
 		let { host } = context.options;
-		let origin = host && URL.canParse(host) ? new URL(host).hostname : "";
-		let base =
-			context.url && URL.canParse(context.url) ? context.url : "http://x.com";
+		let origin = (host && URL.parse(host)?.hostname) || "";
+		let base = URL.parse(context.url ?? "")?.href ?? "http://x.com";
 
 		links.forEach((link) => {
 			let href = link.getAttr("href") || "";
@@ -132,12 +131,9 @@ export const link = plugin({
 				link,
 			);
 
-			let isExternal = true;
-
-			if (origin && URL.canParse(href, base)) {
-				let { hostname } = new URL(href, base);
-				isExternal = hostname !== "x.com" && hostname !== origin;
-			}
+			const url = origin ? URL.parse(href, base) : null;
+			const isExternal =
+				url === null || (url.hostname !== "x.com" && url.hostname !== origin);
 
 			if (isExternal) {
 				externals++;
@@ -158,7 +154,7 @@ export const link = plugin({
 
 				context.assert(
 					"link.internal.trailing",
-					URL.canParse(href, base) && trailing(new URL(href, base).pathname),
+					trailing(url.pathname),
 					"Internal links must end with a trailing slash",
 					link,
 				);
