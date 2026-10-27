@@ -19,7 +19,8 @@ const HELP = `
   Options
     -i, --input    Accept HTML via stdin pipe
     -H, --host     Specify the target hostname
-    -j, --json     Print JSON output to console
+    -f, --format   Output format: pretty, json, or ci (default pretty)
+    -j, --json     Same as --format json
     -q, --quiet    Disable terminal reporting
     --rules        List every rule and its setting
     --no-color     Disable colored output
@@ -59,6 +60,7 @@ try {
 			input: { type: "boolean", short: "i" },
 			host: { type: "string", short: "H" },
 			json: { type: "boolean", short: "j" },
+			format: { type: "string", short: "f" },
 			quiet: { type: "boolean", short: "q" },
 			rules: { type: "boolean" },
 			"no-color": { type: "boolean" },
@@ -68,6 +70,14 @@ try {
 	});
 } catch (err) {
 	bail(err);
+	process.exit();
+}
+
+const FORMATS = ["pretty", "json", "ci"];
+const format = flags.json ? "json" : (flags.format ?? "pretty");
+
+if (!FORMATS.includes(format)) {
+	bail(`Unknown format "${format}"; expected one of: ${FORMATS.join(", ")}`);
 	process.exit();
 }
 
@@ -106,7 +116,7 @@ if (flags.rules) {
 		docs: info.meta?.docs,
 	}));
 
-	if (flags.json) {
+	if (format === "json") {
 		console.log(JSON.stringify(rows));
 		process.exit();
 	}
@@ -163,8 +173,38 @@ let entries = Object.entries(report).map(
 	],
 );
 
-if (flags.json) {
+if (format === "json") {
 	console.log(JSON.stringify(Object.fromEntries(entries)));
+	process.exit(failed ? 1 : 0);
+}
+
+if (format === "ci") {
+	let escape = (input: string) =>
+		input.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+	let property = (input: string) =>
+		escape(input).replace(/:/g, "%3A").replace(/,/g, "%2C");
+
+	let errors = 0;
+	let warnings = 0;
+	for (let [file, list] of entries) {
+		let remote = /^https?:\/\//.test(file);
+		for (let row of list) {
+			let kind = row.severity === "error" ? "error" : "warning";
+			if (kind === "error") errors++;
+			else warnings++;
+
+			let props = remote ? [] : [`file=${property(file)}`];
+			if (row.line) props.push(`line=${row.line}`, `col=${row.col}`);
+			props.push(`title=${property(row.rule)}`);
+
+			let text = remote ? `${file}: ${row.message}` : row.message;
+			console.log(`::${kind} ${props.join(",")}::${escape(text)}`);
+		}
+	}
+
+	console.log(
+		`seolint: ${count(errors, "error")} and ${count(warnings, "warning")}`,
+	);
 	process.exit(failed ? 1 : 0);
 }
 

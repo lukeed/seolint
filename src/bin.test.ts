@@ -222,6 +222,48 @@ describe("bin", () => {
 		});
 	});
 
+	test("should print CI annotations", async () => {
+		let output = seolint([
+			"site",
+			"-H",
+			"https://example.com",
+			"--format",
+			"ci",
+		]);
+		let lines = output.stdout.trimEnd().split("\n");
+		expect(output.code).toBe(1);
+		expect(lines).toContain(
+			"::error file=site/sub/bad.html,line=2,col=1,title=html.lang::The <html> element must have a `lang` attribute",
+		);
+		expect(lines).toContain(
+			'::warning file=site/sub/bad.html,title=og.title::A "og:title" meta tag must exist',
+		);
+		expect(lines.at(-1)).toBe("seolint: 15 errors and 7 warnings");
+	});
+
+	test("should escape CI annotations", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
+		await writeFile(join(dir, "a,b.html"), "<html></html>");
+		await writeFile(
+			join(dir, "seolint.config.mjs"),
+			'export default { rules: { "*": false, "odd.rule": true }, plugins: [{ name: "odd", rules: { "odd.rule": true }, run(c) { c.report("odd.rule", "50% a:b,\\nc") } }] }',
+		);
+
+		let output = seolint(["a,b.html", "--format", "ci"], undefined, dir);
+		expect(output.stdout.split("\n")[0]).toBe(
+			"::error file=a%2Cb.html,title=odd.rule::50%25 a:b,%0Ac",
+		);
+		await rm(dir, { recursive: true, force: true });
+	});
+
+	test("should reject an unknown format", () => {
+		let output = seolint(["site", "--format", "xml"]);
+		expect(output.code).toBe(1);
+		expect(output.stderr).toBe(
+			'Unknown format "xml"; expected one of: pretty, json, ci\n',
+		);
+	});
+
 	describe("with a crashing plugin", () => {
 		let tmp: string;
 
