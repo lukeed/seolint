@@ -585,14 +585,18 @@ describe("site", () => {
 		tmp = await realpath(await mkdtemp(join(tmpdir(), "seolint-site-")));
 		await mkdir(join(tmp, "blog"), { recursive: true });
 		await mkdir(join(tmp, "img"), { recursive: true });
+		await mkdir(join(tmp, "my page"), { recursive: true });
 		await writeFile(
 			join(tmp, "index.html"),
 			html(
 				"Home",
 				"Same",
-				'<a href="/blog/">Blog</a><a href="/missing/">Gone</a>',
+				'<a href="/blog/">Blog</a><a href="/missing/">Gone</a>' +
+					'<a href="/img/">Folder</a><a href="/img">Folder</a>' +
+					'<a href="/my%20page/">Space</a><a href="/blog/../about">Up</a>',
 			),
 		);
+		await writeFile(join(tmp, "my page/index.html"), html("Space", "Space"));
 		await writeFile(
 			join(tmp, "blog/index.html"),
 			html(
@@ -657,6 +661,16 @@ describe("site", () => {
 						line: 1,
 						col: 110,
 					},
+					{
+						message: "Must point to a file that exists, not /img/",
+						line: 1,
+						col: 138,
+					},
+					{
+						message: "Must point to a file that exists, not /img",
+						line: 1,
+						col: 164,
+					},
 				],
 			},
 		});
@@ -701,7 +715,7 @@ describe("site", () => {
 
 		await writeFile(
 			sitemap,
-			"<urlset><url><loc>https://example.com/</loc></url><url><loc>https://example.com/blog/</loc></url></urlset>",
+			"<urlset><url><loc>https://example.com/</loc></url><url><loc>https://example.com/blog/</loc></url><url><loc>https://example.com/my%20page/</loc></url></urlset>",
 		);
 		expect(reported(await seolint.fs(tmp, rules))).toEqual({
 			[join(tmp, "about.html")]: {

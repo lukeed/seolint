@@ -1,5 +1,5 @@
-import { readFile, stat } from "node:fs/promises";
-import { join } from "node:path";
+import { readdir, readFile } from "node:fs/promises";
+import { join, posix, relative, sep } from "node:path";
 
 import { detach } from "../detach";
 import { plugin } from "../plugin";
@@ -20,29 +20,33 @@ type Data = {
 };
 
 /**
- * Whether a file exists at `path`.
+ * Every file in the roots, as a URL path from its root, such as `/blog/index.html`.
  */
-async function exists(path: string): Promise<boolean> {
-	return stat(path).then(
-		(x) => x.isFile(),
-		() => false,
-	);
+async function files(roots: string[]): Promise<Set<string>> {
+	let output = new Set<string>();
+	for (let root of roots) {
+		for (let entry of await readdir(root, {
+			recursive: true,
+			withFileTypes: true,
+		})) {
+			if (!entry.isFile()) continue;
+			let path = relative(root, join(entry.parentPath, entry.name));
+			output.add("/" + path.split(sep).join("/"));
+		}
+	}
+	return output;
 }
 
 /**
- * Whether any root has a file for the URL `path`: the file itself, an
+ * Whether `known` has a file for the URL `path`: the file itself, an
  * `index.html` inside it, or the path with `.html` added.
  */
-async function resolvable(roots: string[], path: string): Promise<boolean> {
-	let clean = decodeURIComponent(path);
-	for (let root of roots) {
-		let base = join(root, clean);
-		let candidates = clean.endsWith("/")
-			? [join(base, "index.html")]
-			: [base, join(base, "index.html"), base + ".html"];
-		for (let file of candidates) if (await exists(file)) return true;
-	}
-	return false;
+function resolvable(known: Set<string>, path: string): boolean {
+	let base = posix.join("/", decodeURIComponent(path));
+	let candidates = path.endsWith("/")
+		? [base + "index.html"]
+		: [base, base + "/index.html", base + ".html"];
+	return candidates.some((x) => known.has(x));
 }
 
 /**
@@ -173,13 +177,11 @@ export const site = plugin({
 		if (site.roots.length === 0) return;
 
 		if (site.load("site.link.exists")) {
-			let known = new Map<string, boolean>();
+			let known = await files(site.roots);
 			for (let page of pages) {
 				for (let link of page.data.links) {
 					let path = link.path;
-					let found = known.get(path) ?? (await resolvable(site.roots, path));
-					known.set(path, found);
-					if (!found) {
+					if (!resolvable(known, path)) {
 						site.report(
 							"site.link.exists",
 							`Must point to a file that exists, not ${path}`,
