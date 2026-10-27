@@ -113,22 +113,19 @@ if (flags.json) {
 }
 
 /**
- * Whether to color output for `stream`. Node 22.0 to 22.12 ignore
- * styleText's stream checks, so the decision is made here.
+ * Style `input` for `stream`. styleText checks the stream and the
+ * NO_COLOR, NODE_DISABLE_COLORS, and FORCE_COLOR variables itself.
  */
-function colors(stream: NodeJS.WriteStream): boolean {
-	if (flags["no-color"]) return false;
-	let force = process.env.FORCE_COLOR;
-	if (force) return force !== "0";
-	return stream.hasColors?.() === true;
+function style(
+	stream: NodeJS.WriteStream,
+	format: Format,
+	input: string,
+): string {
+	return flags["no-color"] ? input : styleText(format, input, { stream });
 }
 
-function style(on: boolean, format: Format, input: string): string {
-	return on ? styleText(format, input, { validateStream: false }) : input;
-}
-
-const ERR = colors(process.stderr);
-const OUT = colors(process.stdout);
+const ERR = process.stderr;
+const OUT = process.stdout;
 
 const cwd = process.cwd();
 const SYM = style(ERR, "red", "  ✘  ");
