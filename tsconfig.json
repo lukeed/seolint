@@ -10,7 +10,10 @@
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "seolint": ["./src/index.ts"]
+    }
   },
-  "include": ["src", "build.ts"]
+  "include": ["src", "build.ts", "example/seolint.config.ts"]
 }

@@ -1,6 +1,6 @@
 # Example
 
-A small [Bongo](https://bongo.build) site with SEO problems on purpose, and a `seolint.config.mjs` that sets rule options and adds custom plugins.
+A small [Bongo](https://bongo.build) site with SEO problems on purpose, and a `seolint.config.ts` that sets rule options and adds custom plugins. A TypeScript config needs Node 22.18 or later, or Bun.
 
 ## Run it
 
@@ -28,7 +28,7 @@ The layout, `layouts/html.hbs`, prints the description, the `og:image`, and a ca
 
 ## Configuration
 
-`seolint.config.mjs` shows the three ways to change what seolint checks:
+`seolint.config.ts` shows the three ways to change what seolint checks:
 
 - **`inputs` and `host`:** the folder to lint, and the site URL that tells internal links from external ones.
 - **`rules`:** turn a rule off with `false`, or give it options. `title.content.length` takes `min` and `max`, and `description.content.title` is turned off.
@@ -37,7 +37,7 @@ The layout, `layouts/html.hbs`, prints the description, the `og:image`, and a ca
   - `heading`: a page needs exactly one `<h1>`.
   - `opengraph`: a page needs `og:title` and `og:image`. Its `og.image` rule takes a `secure` option, which this config turns on, so the image must use `https://`.
 
-A plugin is a function that receives a `context` and the parsed `document`. It checks the document with `context.assert(rule, check, message, node)`. The `check` can be a boolean, or a function that receives the rule's options. Pass the `node` to report its line and column.
+A plugin is a function that receives a `context` and the parsed `document`. It checks the document with `context.assert(rule, check, message, node)`. The `check` can be a boolean, or a function that receives the rule's options. Pass the `node` to report its line and column. Type a plugin as `Plugin<{ rule: options }>`, so `context.assert` checks rule names and option types.
 
 ## Output
 

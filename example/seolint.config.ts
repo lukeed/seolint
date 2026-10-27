@@ -1,8 +1,9 @@
+import type { Config, Plugin } from "seolint";
+
 /**
  * The <html> element must declare the page language.
- * @type {import("seolint").Plugin<{ "lang.exists": boolean }>}
  */
-function lang(context, document) {
+const lang: Plugin<{ "lang.exists": boolean }> = (context, document) => {
 	let html = document.find("html");
 	context.assert(
 		"lang.exists",
@@ -10,13 +11,15 @@ function lang(context, document) {
 		"The <html> element must have a `lang` attribute",
 		html,
 	);
-}
+};
 
 /**
  * Each page needs exactly one <h1>.
- * @type {import("seolint").Plugin<{ "heading.exists": boolean; "heading.single": boolean }>}
  */
-function heading(context, document) {
+const heading: Plugin<{
+	"heading.exists": boolean;
+	"heading.single": boolean;
+}> = (context, document) => {
 	let [first, ...rest] = document.all("h1");
 	context.assert("heading.exists", first != null, "A page must have an <h1>");
 	for (let extra of rest) {
@@ -27,14 +30,16 @@ function heading(context, document) {
 			extra,
 		);
 	}
-}
+};
 
 /**
  * Pages need Open Graph tags for link previews.
  * The `og.image` rule takes a `secure` option, which requires an https:// image.
- * @type {import("seolint").Plugin<{ "og.title": boolean; "og.image": boolean | { secure?: boolean } }>}
  */
-function opengraph(context, document) {
+const opengraph: Plugin<{
+	"og.title": boolean;
+	"og.image": boolean | { secure?: boolean };
+}> = (context, document) => {
 	let title = document.find('meta[property="og:title"]');
 	context.assert(
 		"og.title",
@@ -46,17 +51,15 @@ function opengraph(context, document) {
 	context.assert("og.image", image != null, 'A "og:image" meta tag must exist');
 	if (!image) return;
 
+	let url = image.getAttr("content") ?? "";
 	context.assert(
 		"og.image",
-		(options) =>
-			!options.secure ||
-			(image.getAttr("content") ?? "").startsWith("https://"),
+		(options) => !options.secure || url.startsWith("https://"),
 		'The "og:image" must be an https:// URL',
 		image,
 	);
-}
+};
 
-/** @type {import("seolint").Config} */
 export default {
 	host: "https://example.com",
 	inputs: ["public"],
@@ -66,4 +69,4 @@ export default {
 		"description.content.title": false,
 		"og.image": { secure: true },
 	},
-};
+} satisfies Config;
