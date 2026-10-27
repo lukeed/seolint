@@ -6,7 +6,7 @@ seolint checks the HTML of a built site, or of live URLs, for SEO problems: titl
 
 - **70 rules**, each documented in [`docs/rules.md`](docs/rules.md), with errors and warnings.
 - **Configurable** in `seolint.config.ts`, with type-checked rule names and options.
-- **Extensible** with your own plugins, for one page or for the whole site.
+- **Extensible** with your own plugins and/or presets, for one page or for the whole site.
 - **CI-ready**, with exit codes, JSON output, and inline annotations for GitHub Actions.
 
 ## Install
