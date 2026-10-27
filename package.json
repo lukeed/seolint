@@ -45,7 +45,7 @@
   },
   "keywords": [],
   "dependencies": {
-    "@lukeed/html": "^1.0.0"
+    "@lukeed/html": "^1.0.1"
   },
   "devDependencies": {
     "@types/bun": "1.4.4",

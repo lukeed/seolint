@@ -5,7 +5,7 @@
     "": {
       "name": "seolint",
       "dependencies": {
-        "@lukeed/html": "^1.0.0",
+        "@lukeed/html": "^1.0.1",
       },
       "devDependencies": {
         "@types/bun": "1.4.4",
@@ -32,7 +32,7 @@
   "packages": {
     "@bongo/markdown": ["@bongo/markdown@1.2.0", "", { "dependencies": { "md4x": "^0.0.30" }, "peerDependencies": { "@twinkleplop/markdown-core": ">=0.2.0", "shiki": ">=4.0.0", "sugar-high": ">=2.0.0" }, "optionalPeers": ["@twinkleplop/markdown-core", "shiki", "sugar-high"] }, "sha512-Xb9pka29jKy0tq57H+9cIoIkDpOZEJ7h82eTFyZnkv6UcDckVhwhz8B74JqmvuOzloNykRIFIiziAfi0Z5js1A=="],
 
-    "@lukeed/html": ["@lukeed/html@1.0.0", "", { "dependencies": { "entities": "^8.1.0" } }, "sha512-Ps4RJizc2pFTPKF77+u43esr4O3Of5lIeaPR3y+nE1uytMDDvgaHRyRMPD/EnGW5thFKRrB1ntlY+2g0CIqWmA=="],
+    "@lukeed/html": ["@lukeed/html@1.0.1", "", { "dependencies": { "entities": "^8.1.0" } }, "sha512-TrYirvQ7AcG2wZijZviIcKz8XQ1qtc2WAtwPoy574ouYe4E6edriYcee1MmwqM+tpJHsxDvzEXB3H6oL4Q1pcA=="],
 
     "@oxc-project/types": ["@oxc-project/types@0.155.0", "", {}, "sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q=="],
 
