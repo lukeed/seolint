@@ -39,8 +39,8 @@ describe("presets", () => {
 		expect(rules).not.toContain("html.favicon");
 	});
 
-	test("preview allows noindex and skips production checks", () => {
-		let rules = enabled({ presets: [presets.preview] });
+	test("staging allows noindex and skips production checks", () => {
+		let rules = enabled({ presets: [presets.staging] });
 		for (let rule of [
 			"robots.noindex",
 			"robots.nofollow",

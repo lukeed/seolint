@@ -136,17 +136,17 @@ A preset is a config to merge in first. `seolint/presets` has three:
 | ------------ | --------------------------------------------------------------------------------------------------------------------- |
 | `strict`     | Every rule that defaults to a warning becomes an error.                                                               |
 | `essentials` | Only the rules that directly affect search results. Useful to adopt seolint on a large site.                          |
-| `preview`    | For staging and preview deploys. Allows `noindex`, and skips checks against the production site, such as the sitemap. |
+| `staging`    | For staging and preview deploys. Allows `noindex`, and skips checks against the production site, such as the sitemap. |
 
 ```ts
 import * as config from "seolint/config";
 import * as presets from "seolint/presets";
 
-let preview = process.env.DEPLOY_ENV === "preview";
+let staging = process.env.DEPLOY_ENV === "staging";
 
 export default config.define({
   host: "https://example.com",
-  presets: preview ? [presets.preview] : [presets.strict],
+  presets: staging ? [presets.staging] : [presets.strict],
   rules: { "og.*": false },
 });
 ```
@@ -225,7 +225,7 @@ import * as presets from "seolint/presets";
 
 ### seolint/presets
 
-- **`strict`**, **`essentials`**, and **`preview`**. See [Presets](#presets).
+- **`strict`**, **`essentials`**, and **`staging`**. See [Presets](#presets).
 
 ## Rules
 

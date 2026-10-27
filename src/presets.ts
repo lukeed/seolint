@@ -56,10 +56,10 @@ export const essentials: Config = {
  * turns off checks that compare against the production site, such as
  * `robots.txt`, the sitemap, and canonical links that point to production.
  * @example
- * let preview = process.env.DEPLOY_ENV === "preview";
- * export default define({ presets: preview ? [presets.preview] : [presets.strict] });
+ * let staging = process.env.DEPLOY_ENV === "staging";
+ * export default define({ presets: staging ? [presets.staging] : [presets.strict] });
  */
-export const preview: Config = {
+export const staging: Config = {
 	rules: {
 		"robots.*": false,
 		"site.robots": false,
