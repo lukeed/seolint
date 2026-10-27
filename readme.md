@@ -104,7 +104,7 @@ export default config.define({
 | `ignore`  | Pages to skip, as glob patterns. See [Ignore pages](#ignore-pages). |
 | `rules`   | Rule settings, by name or pattern. See [Rules](#rules).             |
 | `plugins` | Your own plugins. See [Plugins](#plugins).                          |
-| `presets` | Other configs to merge in first. This config's values win.          |
+| `presets` | Other configs to merge in first. See [Presets](#presets).           |
 
 ### Rules
 
@@ -127,6 +127,31 @@ A name with `*`, such as `"og.*"`, sets every rule that matches. Patterns apply 
 - A pattern matches the page's path inside the linted folder, such as `blog/draft/index.html`. For URLs, it matches the URL path, such as `blog/draft/`.
 - `*` matches within one folder, `**` matches across folders, and `?` matches one character.
 - A pattern without `/` matches at any depth, so `404.html` also matches `fr/404.html`.
+
+### Presets
+
+A preset is a config to merge in first. `seolint/presets` has three:
+
+| Preset       | Effect                                                                                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `strict`     | Every rule that defaults to a warning becomes an error.                                                               |
+| `essentials` | Only the rules that directly affect search results. Useful to adopt seolint on a large site.                          |
+| `preview`    | For staging and preview deploys. Allows `noindex`, and skips checks against the production site, such as the sitemap. |
+
+```ts
+import * as config from "seolint/config";
+import * as presets from "seolint/presets";
+
+let preview = process.env.DEPLOY_ENV === "preview";
+
+export default config.define({
+  host: "https://example.com",
+  presets: preview ? [presets.preview] : [presets.strict],
+  rules: { "og.*": false },
+});
+```
+
+Presets merge in order, and the config's own fields win. A rule pattern, such as `"og.*"`, also replaces every earlier setting it matches, so one pattern can undo a preset. A preset can include `plugins` and `ignore` too, so you can share your own as a config made with `define()`.
 
 ## Plugins
 
@@ -179,6 +204,7 @@ See [`example/`](example) for a site with custom plugins.
 ```ts
 import * as seolint from "seolint";
 import * as config from "seolint/config";
+import * as presets from "seolint/presets";
 ```
 
 ### seolint
@@ -196,6 +222,10 @@ import * as config from "seolint/config";
 - **`define(config)`** types a config.
 - **`plugin(definition)`** types a plugin.
 - **`find(root, start)`** and **`load(root)`** find and load a config file.
+
+### seolint/presets
+
+- **`strict`**, **`essentials`**, and **`preview`**. See [Presets](#presets).
 
 ## Rules
 
