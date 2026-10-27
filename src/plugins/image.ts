@@ -1,22 +1,22 @@
-import type { Plugin } from 'seolint';
+import type { Plugin } from "../types";
 
-interface Image {
-	'image.alt.exists': boolean;
-	'image.alt.content.html': boolean;
-	'image.alt.content.undefined': boolean;
-	'image.alt.content.null': boolean;
-}
+type Image = {
+	"image.alt.exists": boolean;
+	"image.alt.content.html": boolean;
+	"image.alt.content.undefined": boolean;
+	"image.alt.content.null": boolean;
+};
 
 export const image: Plugin<Image> = function (context, document) {
-	let images = document.querySelectorAll('img');
+	let images = document.querySelectorAll("img");
 
-	images.forEach(img => {
-		let alt = img.getAttribute('alt') || '';
+	images.forEach((img) => {
+		let alt = img.getAttribute("alt") || "";
 
 		context.assert(
-			'image.alt.exists',
+			"image.alt.exists",
 			alt.trim().length > 0,
-			'Must have an `alt` attribute'
+			"Must have an `alt` attribute",
 		);
 
 		// TODO
@@ -24,15 +24,15 @@ export const image: Plugin<Image> = function (context, document) {
 		// if (toHTML) assert.falsey(alt.inner, 'Must not have HTML content within `alt` value');
 
 		context.assert(
-			'image.alt.content.undefined',
-			alt.indexOf('undefined') === -1,
-			'Must not include "undefined" in `alt` value'
+			"image.alt.content.undefined",
+			alt.indexOf("undefined") === -1,
+			'Must not include "undefined" in `alt` value',
 		);
 
 		context.assert(
-			'image.alt.content.null',
-			alt.indexOf('null') === -1,
-			'Must not include "null" in `alt` value'
+			"image.alt.content.null",
+			alt.indexOf("null") === -1,
+			'Must not include "null" in `alt` value',
 		);
 	});
-}
+};

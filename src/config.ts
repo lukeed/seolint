@@ -1,20 +1,15 @@
-import { dirname, join, resolve } from 'path';
-import { list } from './utils/fs';
+import { readdir } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-// Default plugins
-import { title } from './plugins/title';
-import { canonical } from './plugins/canonical';
-import { description } from './plugins/description';
-import { viewport } from './plugins/viewport';
-import { image } from './plugins/image';
-import { link } from './plugins/link';
+import * as plugins from "./plugins";
 
-import type { Config, Plugin } from 'seolint';
+import type { Config } from "./types";
 
 const priority = [
-	'seolint.config.mjs',
-	'seolint.config.cjs',
-	'seolint.config.js',
+	"seolint.config.mjs",
+	"seolint.config.cjs",
+	"seolint.config.js",
 ];
 
 /**
@@ -22,13 +17,16 @@ const priority = [
  * @NOTE Does not leave `root` directory
  * @see (modified) lukeed/escalade
  */
-export async function find(root: string, start: string): Promise<string|void> {
-	let i=0, dir = resolve(root, start);
-	let files = new Set(await list(dir));
+export async function find(
+	root: string,
+	start: string,
+): Promise<string | undefined> {
+	let dir = resolve(root, start);
+	let files = new Set(await readdir(dir));
 
-	for (; i < priority.length; i++) {
-		if (files.has(priority[i])) {
-			return join(dir, priority[i]);
+	for (let name of priority) {
+		if (files.has(name)) {
+			return join(dir, name);
 		}
 	}
 
@@ -45,8 +43,8 @@ export async function find(root: string, start: string): Promise<string|void> {
  * Priority: rules > plugins
  * @NOTE Mutates `base` object!
  */
-export function merge(base: Config, custom: Config) {
-	(custom.presets || []).forEach(x => merge(base, x));
+export function merge(base: Config, custom: Config): void {
+	(custom.presets || []).forEach((x) => merge(base, x));
 	if (custom.plugins) base.plugins!.push(...custom.plugins);
 	if (custom.rules) Object.assign(base.rules!, custom.rules);
 	base.inputs = custom.inputs || base.inputs;
@@ -55,23 +53,27 @@ export function merge(base: Config, custom: Config) {
 
 export async function load(root: string): Promise<Config> {
 	let output: Config = {
-		host: '',
+		host: "",
 		inputs: [],
 		plugins: [],
 		rules: {},
 	};
 
-	let file = await find(root, '.');
+	let file = await find(root, ".");
 
 	if (file) {
-		let config = await Function('x', 'return import("file:///"+x)')(file);
+		let config = await import(pathToFileURL(file).href);
 		merge(output, config.default || config);
 	}
 
 	// include default plugins
-	(output.plugins as Plugin<any>[]).unshift(
-		title, canonical, description,
-		viewport, image, link,
+	output.plugins!.unshift(
+		plugins.title,
+		plugins.canonical,
+		plugins.description,
+		plugins.viewport,
+		plugins.image,
+		plugins.link,
 	);
 
 	return output;
