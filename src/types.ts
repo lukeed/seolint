@@ -214,6 +214,13 @@ export type Config = {
 	ignore?: string[];
 	/** Other configs to merge in first. This config's values win. */
 	presets?: readonly Config[];
+	/**
+	 * How many threads lint pages at once. By default, seolint uses one worker
+	 * for about every 8 MB of HTML, up to half the CPU cores, and one thread
+	 * for URLs. Custom plugins run in workers only when they come from a
+	 * config file; set `1` to lint on one thread.
+	 */
+	workers?: number;
 	/** Plugins to run after the built-in ones. A plugin replaces a built-in plugin with the same name. */
 	plugins?: readonly Plugin[];
 	/**

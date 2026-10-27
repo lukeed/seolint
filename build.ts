@@ -13,6 +13,7 @@ let result = await Bun.build({
 		"src/index.ts",
 		"src/config.ts",
 		"src/presets.ts",
+		"src/worker.ts",
 		"src/bin.ts",
 	],
 	root: "src",

@@ -3,6 +3,7 @@ import { dirname, join, resolve as absolute } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import * as merger from "./merge";
+import * as origin from "./origin";
 import * as setup from "./setup";
 
 import type * as plugins from "./plugins";
@@ -115,6 +116,7 @@ export async function load(root: string): Promise<Config> {
 			});
 		}
 		merger.merge(output, config.default || config);
+		origin.remember(output, file);
 	}
 
 	return output;

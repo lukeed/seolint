@@ -4,6 +4,8 @@ import { dirname, join, resolve } from "node:path";
 import * as glob from "./glob";
 import { inspect, message, options } from "./inspect";
 import * as merger from "./merge";
+import * as origin from "./origin";
+import * as pool from "./pool";
 import * as setup from "./setup";
 import { local, read, remote } from "./target";
 
@@ -39,6 +41,8 @@ function flatten(config: Config): Config {
 	if (!config.presets || config.presets.length === 0) return config;
 	let output: Config = {};
 	merger.merge(output, config);
+	let file = origin.file(config);
+	if (file) origin.remember(output, file);
 	return output;
 }
 
@@ -176,7 +180,7 @@ async function serial(
 }
 
 /**
- * Lint each target, then run each plugin's
+ * Lint each target, on workers when the plan allows, then run each plugin's
  * `finish` step over the pages. Report keys keep the order of `targets`.
  */
 async function collect(
@@ -188,7 +192,11 @@ async function collect(
 	let targets = all.filter((x) => !ignore.some((re) => re.test(x.path)));
 
 	let state = setup.setup(config);
-	let results = await serial(targets, state);
+	let plan = await pool.plan(config, targets);
+	let results =
+		plan.size > 1
+			? await pool.run(targets, config, plan)
+			: await serial(targets, state);
 
 	let output: Report = {};
 	targets.forEach((target, i) => {

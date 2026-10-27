@@ -37,4 +37,5 @@ export function merge(base: Config, custom: Config): void {
 	if (custom.ignore) base.ignore = [...(base.ignore ?? []), ...custom.ignore];
 	base.inputs = custom.inputs || base.inputs;
 	base.host = custom.host || base.host;
+	if (custom.workers !== undefined) base.workers = custom.workers;
 }

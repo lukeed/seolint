@@ -105,6 +105,7 @@ export default config.define({
 | `rules`   | Rule settings, by name or pattern. See [Rules](#rules).             |
 | `plugins` | Your own plugins. See [Plugins](#plugins).                          |
 | `presets` | Other configs to merge in first. See [Presets](#presets).           |
+| `workers` | How many threads lint pages. See [Workers](#workers).               |
 
 ### Rules
 
@@ -153,6 +154,12 @@ export default config.define({
 
 Presets merge in order, and the config's own fields win. A rule pattern, such as `"og.*"`, also replaces every earlier setting it matches, so one pattern can undo a preset. See [`docs/presets.md`](docs/presets.md) for what each preset sets, and how to write and share your own.
 
+### Workers
+
+seolint lints large sites in worker threads. By default, it uses one worker for about every 8 MB of HTML, up to half the CPU cores. Smaller sites, and URLs, stay on one thread, because a worker takes about 0.1 seconds to start. Set `workers` to choose the count, or set `workers: 1` to lint on one thread.
+
+Each worker loads your plugins from the config file again. So plugins can run in workers only when they come from a config file. Plugins that you pass straight to the API stay on one thread, and `workers` above 1 is then an error.
+
 ## Plugins
 
 A plugin checks each page with its own rules. Create one with `plugin()`. Its `rules` map each rule name to `true`, to `false` for a rule that is off by default, or to the rule's default options. They also type the `context`, so a misspelled rule name, or a wrong option, is a type error.
@@ -196,6 +203,8 @@ export default config.define({
 - **`meta`** is optional. It gives each rule a description, a default severity, and a `docs` link, for messages and `seolint --rules`.
 
 A plugin with the same `name` as a built-in plugin replaces it. Two plugins cannot declare the same rule.
+
+With [workers](#workers), each worker has its own copy of your plugins. Keep the data for `finish` in what `run` returns, not in variables that `run` changes, and return data that can be cloned, such as objects, arrays, and strings, but not functions.
 
 See [`example/`](example) for a site with custom plugins.
 
