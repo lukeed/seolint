@@ -21,6 +21,15 @@ describe("find()", () => {
 });
 
 describe("load()", () => {
+	test("should load a TypeScript config file first", async () => {
+		let dir = resolve(fixtures, "typescript");
+		expect(await config.find(dir, dir)).toBe(resolve(dir, "seolint.config.ts"));
+
+		let output = await config.load(dir);
+		expect(output.host).toBe("https://typescript.dev");
+		expect(output.rules).toEqual({ "title.content.length": { max: 70 } });
+	});
+
 	test("should always return `Config` object", async () => {
 		let output = await config.load(import.meta.dir);
 

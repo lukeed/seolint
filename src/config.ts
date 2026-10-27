@@ -7,6 +7,7 @@ import * as plugins from "./plugins";
 import type { Config } from "./types";
 
 const priority = [
+	"seolint.config.ts",
 	"seolint.config.mjs",
 	"seolint.config.cjs",
 	"seolint.config.js",
@@ -62,7 +63,15 @@ export async function load(root: string): Promise<Config> {
 	let file = await find(root, ".");
 
 	if (file) {
-		let config = await import(pathToFileURL(file).href);
+		try {
+			var config = await import(pathToFileURL(file).href);
+		} catch (err) {
+			let code = err instanceof Error && "code" in err ? err.code : undefined;
+			if (code !== "ERR_UNKNOWN_FILE_EXTENSION") throw err;
+			throw new Error(`Loading "${file}" needs Node 22.18 or later, or Bun`, {
+				cause: err,
+			});
+		}
 		merge(output, config.default || config);
 	}
 
