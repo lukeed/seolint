@@ -446,7 +446,7 @@ describe("rules", () => {
 			rules: { "*": false, "html.lang": true },
 		});
 		expect(output?.[0].docs).toBe(
-			"https://github.com/lukeed/seolint/blob/main/docs/rules.md#htmllang",
+			"https://github.com/lukeed/seolint/blob/main/www/content/docs/rules.md#htmllang",
 		);
 	});
 

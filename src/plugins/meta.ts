@@ -1,11 +1,12 @@
 import type { Meta, Severity } from "../types";
 
-const DOCS = "https://github.com/lukeed/seolint/blob/main/docs/rules.md";
+const DOCS =
+	"https://github.com/lukeed/seolint/blob/main/www/content/docs/rules.md";
 
 /**
- * The link to a built-in rule's section in `docs/rules.md`.
+ * The link to a built-in rule's section in `www/content/docs/rules.md`.
  * @example
- * docs("title.exists"); //=> "https://github.com/lukeed/seolint/blob/main/docs/rules.md#titleexists"
+ * docs("title.exists"); //=> "https://github.com/lukeed/seolint/blob/main/www/content/docs/rules.md#titleexists"
  */
 export function docs(rule: string): string {
 	return `${DOCS}#${rule.replace(/[^\w-]/g, "").toLowerCase()}`;

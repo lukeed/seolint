@@ -76,21 +76,21 @@ Every rule that defaults to `warn` becomes an error. Use it when the site must p
 
 The preset sets these rules to `"error"`:
 
-- [`html.favicon`](rules.md#htmlfavicon)
-- [`description.content.title`](rules.md#descriptioncontenttitle)
-- [`canonical.href.self`](rules.md#canonicalhrefself)
-- [`heading.order`](rules.md#headingorder)
-- [`link.external.limit`](rules.md#linkexternallimit)
-- [`link.text.vague`](rules.md#linktextvague)
-- [`hreflang.default`](rules.md#hreflangdefault)
-- [`og.title`](rules.md#ogtitle)
-- [`og.description`](rules.md#ogdescription)
-- [`og.image`](rules.md#ogimage)
-- [`og.image.secure`](rules.md#ogimagesecure)
-- [`og.url`](rules.md#ogurl)
-- [`twitter.card`](rules.md#twittercard)
-- [`site.robots`](rules.md#siterobots)
-- [`site.sitemap`](rules.md#sitesitemap)
+- [`html.favicon`](/docs/rules/#htmlfavicon)
+- [`description.content.title`](/docs/rules/#descriptioncontenttitle)
+- [`canonical.href.self`](/docs/rules/#canonicalhrefself)
+- [`heading.order`](/docs/rules/#headingorder)
+- [`link.external.limit`](/docs/rules/#linkexternallimit)
+- [`link.text.vague`](/docs/rules/#linktextvague)
+- [`hreflang.default`](/docs/rules/#hreflangdefault)
+- [`og.title`](/docs/rules/#ogtitle)
+- [`og.description`](/docs/rules/#ogdescription)
+- [`og.image`](/docs/rules/#ogimage)
+- [`og.image.secure`](/docs/rules/#ogimagesecure)
+- [`og.url`](/docs/rules/#ogurl)
+- [`twitter.card`](/docs/rules/#twittercard)
+- [`site.robots`](/docs/rules/#siterobots)
+- [`site.sitemap`](/docs/rules/#sitesitemap)
 
 Rules that are off by default, such as `canonical.href.match`, stay off.
 
@@ -122,14 +122,14 @@ Rules from your own `plugins` are also off, because `"*"` matches them. Turn the
 
 For staging and preview deploys. These sites are not for search engines, so they usually have `noindex`, and they are not the production site. The preset turns off these rules:
 
-| Rule                                                  | Why it is off                                          |
-| ----------------------------------------------------- | ------------------------------------------------------ |
-| [`robots.*`](rules.md#robots)                         | A staging site should have `noindex` and `nofollow`.   |
-| [`site.robots`](rules.md#siterobots)                  | A staging site can block all crawlers in `robots.txt`. |
-| [`site.sitemap`](rules.md#sitesitemap)                | The sitemap lists production URLs.                     |
-| [`canonical.href.self`](rules.md#canonicalhrefself)   | Canonical links point to the production page.          |
-| [`canonical.href.match`](rules.md#canonicalhrefmatch) | Canonical links point to the production host.          |
-| [`og.url`](rules.md#ogurl)                            | `og:url` points to the production page.                |
+| Rule                                                      | Why it is off                                          |
+| --------------------------------------------------------- | ------------------------------------------------------ |
+| [`robots.*`](/docs/rules/#robots)                         | A staging site should have `noindex` and `nofollow`.   |
+| [`site.robots`](/docs/rules/#siterobots)                  | A staging site can block all crawlers in `robots.txt`. |
+| [`site.sitemap`](/docs/rules/#sitesitemap)                | The sitemap lists production URLs.                     |
+| [`canonical.href.self`](/docs/rules/#canonicalhrefself)   | Canonical links point to the production page.          |
+| [`canonical.href.match`](/docs/rules/#canonicalhrefmatch) | Canonical links point to the production host.          |
+| [`og.url`](/docs/rules/#ogurl)                            | `og:url` points to the production page.                |
 
 All other rules keep their defaults.
 

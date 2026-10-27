@@ -7,7 +7,7 @@ import * as about from "./meta";
 import type { Meta } from "../types";
 
 const DOCS = await Bun.file(
-	join(import.meta.dir, "../../docs/rules.md"),
+	join(import.meta.dir, "../../www/content/docs/rules.md"),
 ).text();
 
 /**
@@ -24,7 +24,7 @@ function section(rule: string): string | undefined {
 	return DOCS.slice(start, stops.length > 0 ? Math.min(...stops) : undefined);
 }
 
-describe("docs/rules.md", () => {
+describe("www/content/docs/rules.md", () => {
 	for (let plugin of plugins.builtins) {
 		let meta: Record<string, Meta | undefined> = plugin.meta ?? {};
 

@@ -3,7 +3,9 @@ import { join } from "node:path";
 
 import * as presets from "./presets";
 
-const DOCS = await Bun.file(join(import.meta.dir, "../docs/presets.md")).text();
+const DOCS = await Bun.file(
+	join(import.meta.dir, "../www/content/docs/presets.md"),
+).text();
 
 /**
  * The text of the docs section for `name`, up to the next heading.
@@ -24,7 +26,7 @@ function listed(text: string): string[] {
 	return [...rows].map((x) => x[1]);
 }
 
-describe("docs/presets.md", () => {
+describe("www/content/docs/presets.md", () => {
 	test("lists every rule of strict", () => {
 		let rules = Object.keys(presets.strict.rules ?? {});
 		expect(listed(section("strict")).sort()).toEqual(rules.sort());
