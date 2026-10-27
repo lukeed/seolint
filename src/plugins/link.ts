@@ -62,7 +62,7 @@ export const link: Plugin<Link> = function (context, document) {
 
 		if (host) {
 			let { hostname } = new URL(href, "http://x.com");
-			isExternal = hostname !== "x.com" && hostname !== host;
+			isExternal = hostname !== "x.com" && hostname !== new URL(host).hostname;
 		}
 
 		if (isExternal) {
