@@ -861,6 +861,16 @@ describe("run()", () => {
 		});
 	});
 
+	test("should accept absolute inputs", async () => {
+		let config = await conf.resolve({
+			host: "https://example.com",
+			inputs: [site],
+		});
+		expect(reported(await seolint.run(config, { cwd: tmpdir() }))).toEqual({
+			[join(site, "sub/bad.html")]: BAD_SITE_REPORT,
+		});
+	});
+
 	test("should lint overlapping inputs once", async () => {
 		let config = await conf.resolve({
 			host: "https://example.com",

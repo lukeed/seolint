@@ -226,7 +226,7 @@ export async function run(input: Config = {}, options?: Argv): Promise<Report> {
 	let targets = new Map<string, Target>();
 
 	for (let input of inputs) {
-		let path = join(cwd, input);
+		let path = resolve(cwd, input);
 		let single = (await stat(path)).isFile();
 		let root = single ? dirname(path) : path;
 		if (!single) roots.push(root);
