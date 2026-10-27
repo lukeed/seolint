@@ -6,10 +6,21 @@ import * as merger from "./merge";
 import * as setup from "./setup";
 
 import type * as plugins from "./plugins";
-import type { Argv, Config, Plugin, Rules } from "./types";
+import type { Argv, Config, Plugin, Rules, Severity } from "./types";
 
 export { plugin } from "./plugin";
-export type { Argv, Config, Plugin, Rules, Setting } from "./types";
+export type {
+	Argv,
+	Config,
+	Meta,
+	Page,
+	Plugin,
+	Position,
+	Rules,
+	Setting,
+	Severity,
+	Site,
+} from "./types";
 
 type Builtin = (typeof plugins.builtins)[number];
 type RulesOf<P> = P extends Plugin<infer T> ? T : never;
@@ -24,10 +35,18 @@ type Value<U, K extends string> = U extends unknown
  * Settings for the rules of plugins `P`: each known rule name takes a boolean
  * or partial options, and each pattern with `*` takes a boolean.
  */
+type SettingOf<V> =
+	| boolean
+	| Severity
+	| ([Exclude<V, boolean>] extends [never]
+			? never
+			: | Partial<Exclude<V, boolean>>
+				| [Severity, Partial<Exclude<V, boolean>>]);
+
 type Settings<U> = {
-	[K in Keys<U>]?: boolean | Partial<Exclude<Value<U, K>, boolean>>;
+	[K in Keys<U>]?: SettingOf<Value<U, K>>;
 } & {
-	[pattern: `${string}*${string}`]: boolean;
+	[pattern: `${string}*${string}`]: boolean | Severity;
 };
 
 const HTTP = /^https?:\/\//;

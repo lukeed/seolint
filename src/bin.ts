@@ -5,6 +5,7 @@ import { parseArgs, styleText } from "node:util";
 
 import * as conf from "./config";
 import * as seolint from "./index";
+import * as setup from "./setup";
 import { version } from "../package.json";
 
 import type { Message, Report } from "./types";
@@ -20,6 +21,7 @@ const HELP = `
     -H, --host     Specify the target hostname
     -j, --json     Print JSON output to console
     -q, --quiet    Disable terminal reporting
+    --rules        List every rule and its setting
     --no-color     Disable colored output
     -v, --version  Displays current version
     -h, --help     Displays this message
@@ -29,6 +31,7 @@ const HELP = `
     $ seolint public/index.html
     $ seolint dir1 dir2 dir3/file.html
     $ seolint https://example.com https://google.com
+    $ seolint --rules
     $ curl -s https://example.com | seolint -i
     $ find public -type f -exec seolint {} +
 `;
@@ -57,6 +60,7 @@ try {
 			host: { type: "string", short: "H" },
 			json: { type: "boolean", short: "j" },
 			quiet: { type: "boolean", short: "q" },
+			rules: { type: "boolean" },
 			"no-color": { type: "boolean" },
 			version: { type: "boolean", short: "v" },
 			help: { type: "boolean", short: "h" },
@@ -82,6 +86,42 @@ if (flags.input && process.stdin.isTTY) {
 	process.exit();
 }
 
+if (flags.rules) {
+	try {
+		var listing = setup.setup(await conf.resolve({ host: flags.host }));
+	} catch (err) {
+		bail(err);
+		process.exit();
+	}
+
+	let rows = [...listing.rules].map(([rule, info]) => ({
+		rule,
+		plugin: info.plugin,
+		severity: info.state ? info.state.severity : "off",
+		options:
+			info.state && typeof info.state.options === "object"
+				? info.state.options
+				: undefined,
+		description: info.meta?.description ?? "",
+		docs: info.meta?.docs,
+	}));
+
+	if (flags.json) {
+		console.log(JSON.stringify(rows));
+		process.exit();
+	}
+
+	let wRule = Math.max(...rows.map((x) => x.rule.length));
+	let wLevel = Math.max(...rows.map((x) => x.severity.length));
+	for (let row of rows) {
+		let line = row.rule.padEnd(wRule) + "  " + row.severity.padEnd(wLevel);
+		line += "  " + row.description;
+		if (row.options) line += "  " + JSON.stringify(row.options);
+		console.log("  " + line);
+	}
+	process.exit();
+}
+
 try {
 	var options = { host: flags.host, inputs: input };
 	var config = await conf.resolve(options);
@@ -95,8 +135,12 @@ try {
 	process.exit();
 }
 
+let failed = Object.values(report).some((list) =>
+	list.some((x) => x.severity === "error"),
+);
+
 if (flags.quiet) {
-	process.exit(Object.keys(report).length > 0 ? 1 : 0);
+	process.exit(failed ? 1 : 0);
 }
 
 let remote =
@@ -120,9 +164,8 @@ let entries = Object.entries(report).map(
 );
 
 if (flags.json) {
-	// TODO: remove "message" keys?
 	console.log(JSON.stringify(Object.fromEntries(entries)));
-	process.exit(0);
+	process.exit(failed ? 1 : 0);
 }
 
 /**
@@ -144,20 +187,30 @@ function location(message: Message): string {
 const ERR = process.stderr;
 const OUT = process.stdout;
 
-const SYM = style(ERR, "red", "  ✘  ");
+const SYMBOL = {
+	error: style(ERR, "red", "  ✘  "),
+	warn: style(ERR, "yellow", "  ⚠  "),
+};
 const FAIL = style(ERR, "bold", style(ERR, "bgRed", " FAIL "));
+const WARN = style(ERR, "bold", style(ERR, "bgYellow", " WARN "));
+
+function count(total: number, noun: string): string {
+	return `${total} ${noun}${total === 1 ? "" : "s"}`;
+}
 
 let rows = entries.flatMap(([, list]) => list);
-let total = rows.length;
+let errors = rows.filter((x) => x.severity === "error").length;
+let warnings = rows.length - errors;
 let wLoc = Math.max(0, ...rows.map((x) => location(x).length));
 let wMsg = Math.max(0, ...rows.map((x) => x.message.length));
 
 for (let [file, list] of entries) {
 	if (list.length === 0) continue;
 
+	let label = list.some((x) => x.severity === "error") ? FAIL : WARN;
 	let output =
 		"\n" +
-		FAIL +
+		label +
 		style(
 			ERR,
 			"bold",
@@ -166,20 +219,23 @@ for (let [file, list] of entries) {
 		"\n";
 
 	for (let row of list) {
-		output += "  " + style(ERR, "dim", location(row).padStart(wLoc, " ")) + SYM;
-		output += row.message.padEnd(wMsg, " ");
+		output += "  " + style(ERR, "dim", location(row).padStart(wLoc, " "));
+		output += SYMBOL[row.severity] + row.message.padEnd(wMsg, " ");
 		output += "  " + style(ERR, "dim", row.rule) + "\n";
 	}
 
 	process.stderr.write(output);
 }
 
-if (total > 0) {
-	let output =
-		"\n" + FAIL + " Reported " + style(ERR, "red", String(total)) + " error";
-	if (total !== 1) output += "s";
-	console.error(output + "!\n");
+if (errors > 0) {
+	let summary = style(ERR, "red", count(errors, "error"));
+	if (warnings > 0)
+		summary += " and " + style(ERR, "yellow", count(warnings, "warning"));
+	console.error("\n" + FAIL + " Reported " + summary + "!\n");
 	process.exitCode = 1;
+} else if (warnings > 0) {
+	let summary = style(ERR, "yellow", count(warnings, "warning"));
+	console.error("\n" + WARN + " Reported " + summary + "\n");
 } else {
 	console.log(
 		"\n" +

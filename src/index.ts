@@ -1,11 +1,20 @@
 import { readdir, readFile, stat } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { parse } from "@lukeed/html";
 
 import * as setup from "./setup";
 
-import type { Node } from "@lukeed/html";
-import type { Argv, Context, Config, Dict, Message, Report } from "./types";
+import type { Document, Node } from "@lukeed/html";
+import type {
+	Argv,
+	Config,
+	Context,
+	Dict,
+	Message,
+	Position,
+	Report,
+	Site,
+} from "./types";
 
 export type {
 	Argv,
@@ -13,90 +22,148 @@ export type {
 	Context,
 	Dict,
 	Message,
+	Meta,
+	Page,
 	Plugin,
+	Position,
 	Report,
 	Rules,
 	Setting,
+	Severity,
+	Site,
 } from "./types";
 
 const CONCURRENCY = 32;
 const HTTP = /^https?:\/\//;
 const HTML = /\.html?$/;
 
+/** One page to lint. */
+type Target = {
+	input: string;
+	url: string | undefined;
+	host: string | undefined;
+	html(): Promise<string>;
+};
+
+/** The messages of one page, and what each plugin's `run` returned. */
+type Result = {
+	messages: Message[];
+	data: Map<string, unknown>;
+};
+
 /**
- * Lint an HTML string with the built-in plugins and any `config.plugins`.
- * Resolves with `undefined` when every rule passes. Rejects when a plugin
- * throws, or when the config names an unknown rule.
- * @example
- * let messages = await lint("<html>...</html>");
- * let custom = await lint("<html>...</html>", await resolve());
+ * Build a {@link Message}, or `undefined` when the rule is off.
+ * @throws {Error} for a rule that no plugin declares.
  */
-export async function lint(
+function message(
+	state: setup.Setup,
+	rule: string,
+	text: string,
+	position?: Position,
+): Message | undefined {
+	let info = state.rules.get(rule);
+	if (!info) throw new Error(`Rule "${rule}" is not declared by any plugin`);
+	if (info.state === false) return;
+
+	let output: Message = { rule, severity: info.state.severity, message: text };
+	if (position) {
+		output.line = position.line;
+		output.col = position.column;
+	}
+	if (info.meta?.docs) output.docs = info.meta.docs;
+	return output;
+}
+
+function options(state: setup.Setup, rule: string): true | Dict | undefined {
+	let info = state.rules.get(rule);
+	if (!info) throw new Error(`Rule "${rule}" is not declared by any plugin`);
+	return info.state === false ? undefined : info.state.options;
+}
+
+/**
+ * Run every plugin on one page.
+ */
+async function inspect(
 	html: string,
-	config: Config = {},
-): Promise<Message[] | undefined> {
-	let { plugins, rules } = setup.setup(config);
-
-	let document = parse(html);
-	let output: Message[] = [];
-
-	let state = (rule: string): setup.State => {
-		let found = rules.get(rule);
-		if (found === undefined)
-			throw new Error(`Rule "${rule}" is not declared by any plugin`);
-		return found;
-	};
+	state: setup.Setup,
+	host: string | undefined,
+	url: string | undefined,
+): Promise<Result> {
+	let document: Document = parse(html);
+	let messages: Message[] = [];
+	let data = new Map<string, unknown>();
 
 	let context: Context = {
-		options: { host: config.host },
-		load(rule) {
-			let found = state(rule);
-			return found === false ? undefined : found;
-		},
-		report(rule, message, node) {
-			if (state(rule) === false) return;
-			let entry: Message = { rule, message };
-			if (node) {
-				let { line, column } = document.position(node.start);
-				entry.line = line;
-				entry.col = column;
-			}
-			output.push(entry);
+		options: { host },
+		url,
+		load: (rule) => options(state, rule),
+		report(rule, text, node) {
+			let position = node ? document.position(node.start) : undefined;
+			let found = message(state, rule, text, position);
+			if (found) messages.push(found);
 		},
 		assert(
 			rule: string,
 			check: boolean | ((options: Dict) => boolean),
-			message: string,
+			text: string,
 			node?: Node,
 		) {
-			let found = state(rule);
-			if (found === false) return;
+			let found = options(state, rule);
+			if (found === undefined) return;
 			let passed =
 				typeof check === "function"
 					? check(typeof found === "object" ? found : {})
 					: check;
-			passed || context.report(rule, message, node);
+			passed || context.report(rule, text, node);
 		},
 	};
 
-	for (let plugin of plugins) {
+	for (let plugin of state.plugins) {
 		try {
-			await plugin.run(context, document);
+			let value = await plugin.run(context, document);
+			if (value !== undefined) data.set(plugin.name, value);
 		} catch (err) {
 			throw new Error(`Plugin "${plugin.name}" failed`, { cause: err });
 		}
 	}
 
-	if (output.length > 0) return output;
+	return { messages, data };
 }
 
 /**
- * Lint an HTML file, or every HTML file inside a directory.
+ * Lint an HTML string with the built-in plugins and any `config.plugins`.
+ * Resolves with `undefined` when every rule passes. Rejects when a plugin
+ * throws, or when the config names an unknown rule. Checks that span the
+ * whole site, such as `site.title.unique`, need `fs()`, `url()`, or `run()`.
+ * @param url The page's URL, for rules that compare against it, such as `canonical.href.self`.
+ * @example
+ * let messages = await lint("<html>...</html>");
+ * let custom = await lint("<html>...</html>", await resolve(), "https://example.com/");
+ */
+export async function lint(
+	html: string,
+	config: Config = {},
+	url?: string,
+): Promise<Message[] | undefined> {
+	let { messages } = await inspect(html, setup.setup(config), config.host, url);
+	if (messages.length > 0) return messages;
+}
+
+/**
+ * Lint an HTML file, or every HTML file inside a directory. A directory is
+ * treated as the site root, for site checks such as `site.robots`.
  * @example
  * let report = await fs('public', await resolve());
  */
-export async function fs(path: string, config?: Config): Promise<Report> {
-	return collect(await walk(path), (file) => read(file, config));
+export async function fs(path: string, config: Config = {}): Promise<Report> {
+	let single = (await stat(path)).isFile();
+	let root = single ? dirname(path) : path;
+	let files = await walk(path);
+	return collect(
+		files.map((file) => local(root, file, config.host)),
+		config,
+		single ? [] : [root],
+	);
 }
 
 /**
@@ -104,36 +171,97 @@ export async function fs(path: string, config?: Config): Promise<Report> {
  * @example
  * let report = await url('https://example.com', await resolve());
  */
-export async function url(href: string, config?: Config): Promise<Report> {
-	return collect([href], (x) => request(x, config));
+export async function url(href: string, config: Config = {}): Promise<Report> {
+	return collect([remote(href, config.host)], config, []);
 }
 
 /**
  * Lint all `config.inputs`, which must be all URLs or all file-system paths.
  * @example
- * let report = await run(await resolve({ input: ['public'] }));
+ * let report = await run(await resolve({ inputs: ['public'] }));
  */
-export async function run(config?: Config, options?: Argv): Promise<Report> {
+export async function run(
+	config: Config = {},
+	options?: Argv,
+): Promise<Report> {
 	let cwd = resolve((options && options.cwd) || ".");
-	let inputs = (config && config.inputs) || [];
+	let inputs = config.inputs || [];
 	if (inputs.length === 0) throw new Error("Missing inputs to analyze");
 
-	let remote = inputs.filter((x) => HTTP.test(x)).length;
+	let urls = inputs.filter((x) => HTTP.test(x)).length;
 
-	if (remote && remote !== inputs.length) {
+	if (urls && urls !== inputs.length) {
 		throw new Error("Inputs cannot contain both file-system and URL targets");
 	}
 
-	if (remote) return collect(inputs, (x) => request(x, config));
+	if (urls) {
+		return collect(
+			inputs.map((x) => remote(x, config.host)),
+			config,
+			[],
+		);
+	}
 
-	let files = await Promise.all(inputs.map((x) => walk(join(cwd, x))));
-	return collect([...new Set(files.flat())], (x) => read(x, config));
+	let roots: string[] = [];
+	let targets = new Map<string, Target>();
+
+	for (let input of inputs) {
+		let path = join(cwd, input);
+		let single = (await stat(path)).isFile();
+		let root = single ? dirname(path) : path;
+		if (!single) roots.push(root);
+		for (let file of await walk(path)) {
+			if (!targets.has(file)) targets.set(file, local(root, file, config.host));
+		}
+	}
+
+	return collect([...targets.values()], config, [...new Set(roots)]);
 }
 
 /**
- * List the HTML files at `path`, which may be a file or a directory.
- * Symlinked files are included; symlinked directories are not followed.
+ * The URL of `file` on the site at `host`, without `index.html`.
+ * @example
+ * address("public", "public/blog/index.html", "https://example.com"); //=> "https://example.com/blog/"
  */
+function address(
+	root: string,
+	file: string,
+	host: string | undefined,
+): string | undefined {
+	if (!host || !URL.canParse(host)) return;
+	let path = relative(root, file).split(sep).join("/");
+	path = path.replace(/(^|\/)index\.html?$/, "$1");
+	return new URL(path, host.endsWith("/") ? host : host + "/").href;
+}
+
+function local(root: string, file: string, host: string | undefined): Target {
+	return {
+		input: file,
+		url: address(root, file, host),
+		host,
+		html: () => readFile(file, "utf8"),
+	};
+}
+
+function remote(href: string, host: string | undefined): Target {
+	return {
+		input: href,
+		url: href,
+		host: host || new URL(href).origin,
+		async html() {
+			let res = await fetch(href);
+			if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+
+			let type = res.headers.get("content-type") || "";
+			if (!type.includes("text/html")) {
+				throw new Error('Invalid "Content-Type" header');
+			}
+
+			return res.text();
+		},
+	};
+}
+
 async function walk(path: string): Promise<string[]> {
 	let stats = await stat(path);
 	if (stats.isFile()) return HTML.test(path) ? [path] : [];
@@ -152,47 +280,27 @@ async function walk(path: string): Promise<string[]> {
 	return files.sort();
 }
 
-async function read(
-	file: string,
-	config?: Config,
-): Promise<Message[] | undefined> {
-	return lint(await readFile(file, "utf8"), config);
-}
-
-async function request(
-	href: string,
-	config?: Config,
-): Promise<Message[] | undefined> {
-	let res = await fetch(href);
-	if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
-
-	let type = res.headers.get("content-type") || "";
-	if (!type.includes("text/html")) {
-		throw new Error('Invalid "Content-Type" header');
-	}
-
-	let host = (config && config.host) || new URL(href).origin;
-	return lint(await res.text(), { ...config, host });
-}
-
 /**
- * Run `action` on each target with bounded concurrency.
- * Report keys keep the order of `targets`.
+ * Lint each target with bounded concurrency, then run each plugin's
+ * `finish` step over the pages. Report keys keep the order of `targets`.
  */
 async function collect(
-	targets: string[],
-	action: (target: string) => Promise<Message[] | undefined>,
+	targets: Target[],
+	config: Config,
+	roots: string[],
 ): Promise<Report> {
-	let results: (Message[] | undefined)[] = [];
+	let state = setup.setup(config);
+	let results: Result[] = [];
 	let queue = targets.entries();
 
 	await Promise.all(
 		Array.from({ length: Math.min(CONCURRENCY, targets.length) }, async () => {
 			for (let [i, target] of queue) {
 				try {
-					results[i] = await action(target);
+					let html = await target.html();
+					results[i] = await inspect(html, state, target.host, target.url);
 				} catch (err) {
-					throw new Error(`Failed to lint "${target}"`, { cause: err });
+					throw new Error(`Failed to lint "${target.input}"`, { cause: err });
 				}
 			}
 		}),
@@ -200,8 +308,37 @@ async function collect(
 
 	let output: Report = {};
 	targets.forEach((target, i) => {
-		let messages = results[i];
-		if (messages) output[target] = messages;
+		let { messages } = results[i];
+		if (messages.length > 0) output[target.input] = messages;
 	});
+
+	for (let plugin of state.plugins) {
+		if (!plugin.finish) continue;
+
+		let site: Site = {
+			options: { host: config.host },
+			roots,
+			load: (rule) => options(state, rule),
+			report(rule, text, input, position) {
+				let found = message(state, rule, text, position);
+				if (found) (output[input] ||= []).push(found);
+			},
+		};
+
+		let pages = targets.flatMap((target, i) => {
+			let data = results[i].data;
+			if (!data.has(plugin.name)) return [];
+			return [
+				{ input: target.input, url: target.url, data: data.get(plugin.name) },
+			];
+		});
+
+		try {
+			await plugin.finish(site, pages);
+		} catch (err) {
+			throw new Error(`Plugin "${plugin.name}" failed`, { cause: err });
+		}
+	}
+
 	return output;
 }
