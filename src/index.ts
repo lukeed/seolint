@@ -32,7 +32,7 @@ export async function config(options: Argv = {}): Promise<Config> {
 
 	let value = await conf.load(cwd);
 	if (options.host) value.host = options.host;
-	if (options.input) value.inputs = options.input;
+	if (options.input && options.input.length > 0) value.inputs = options.input;
 
 	if (value.host && !HTTP.test(value.host)) {
 		throw new Error(

@@ -109,6 +109,10 @@ describe("config()", () => {
 		expect(output.inputs).toEqual(["public"]);
 		expect(output.rules).toEqual({ "canonical.href.match": false });
 	});
+	test("should keep config file `inputs` when `input` is empty", async () => {
+		let output = await seolint.config({ cwd: fixtures, input: [] });
+		expect(output.inputs).toEqual(["https://hello.com/world/"]);
+	});
 });
 
 describe("lint()", () => {
