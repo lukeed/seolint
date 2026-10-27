@@ -6,12 +6,19 @@
 	<title>{{ $page.title }}</title>
 	{{#if $page.summary}}
 	<meta name="description" content="{{ $page.summary }}"/>
+	<meta property="og:description" content="{{ $page.summary }}"/>
 	{{/if}}
+	{{#if $page.params.noindex}}
+	<meta name="robots" content="noindex"/>
+	{{/if}}
+	<link rel="icon" href="/favicon.svg"/>
 	<link rel="canonical" href="{{ $page.params.canonical || $page.url }}"/>
 	<meta property="og:title" content="{{ $page.title }}"/>
+	<meta property="og:url" content="{{ $page.url }}"/>
 	{{#if $page.params.image}}
 	<meta property="og:image" content="{{ $page.params.image }}"/>
 	{{/if}}
+	<meta name="twitter:card" content="summary_large_image"/>
 </head>
 <body>
 	{{#partial src="nav"}}

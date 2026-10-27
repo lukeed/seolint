@@ -1,66 +1,46 @@
 import * as config from "seolint/config";
 
 /**
- * The <html> element must declare the page language.
+ * Titles name the brand, so search results show who the page is from.
  */
-const lang = config.plugin({
-	name: "lang",
-	rules: { "lang.exists": true },
+const brand = config.plugin({
+	name: "brand",
+	rules: { "brand.title": { name: "" } },
+	meta: {
+		"brand.title": { description: "The title includes the brand name." },
+	},
 	run(context, document) {
-		let html = document.find("html");
+		let title = document.find("title");
 		context.assert(
-			"lang.exists",
-			Boolean(html?.getAttr("lang")),
-			"The <html> element must have a `lang` attribute",
-			html,
+			"brand.title",
+			(options) => !options.name || (title?.text ?? "").includes(options.name),
+			"The title must include the brand name",
+			title,
 		);
 	},
 });
 
 /**
- * Each page needs exactly one <h1>.
+ * Pages need enough text for search engines to understand them.
+ * A warning by default, set in `meta`.
  */
-const heading = config.plugin({
-	name: "heading",
-	rules: { "heading.exists": true, "heading.single": true },
-	run(context, document) {
-		let [first, ...rest] = document.all("h1");
-		context.assert("heading.exists", first != null, "A page must have an <h1>");
-		for (let extra of rest) {
-			context.report("heading.single", "A page must have only one <h1>", extra);
-		}
+const words = config.plugin({
+	name: "words",
+	rules: { "words.min": { min: 20 } },
+	meta: {
+		"words.min": {
+			description: "The <main> element has a minimum number of words.",
+			severity: "warn",
+		},
 	},
-});
-
-/**
- * Pages need Open Graph tags for link previews. With `secure`, the
- * `og.image` rule also requires an https:// image.
- */
-const opengraph = config.plugin({
-	name: "opengraph",
-	rules: { "og.title": true, "og.image": { secure: false } },
 	run(context, document) {
-		let title = document.find('meta[property="og:title"]');
+		let main = document.find("main");
+		let count = (main?.text ?? "").split(/\s+/).filter(Boolean).length;
 		context.assert(
-			"og.title",
-			Boolean(title?.getAttr("content")),
-			'A "og:title" meta tag must exist',
-		);
-
-		let image = document.find('meta[property="og:image"]');
-		context.assert(
-			"og.image",
-			image != null,
-			'A "og:image" meta tag must exist',
-		);
-		if (!image) return;
-
-		let url = image.getAttr("content") ?? "";
-		context.assert(
-			"og.image",
-			(options) => !options.secure || url.startsWith("https://"),
-			'The "og:image" must be an https:// URL',
-			image,
+			"words.min",
+			(options) => count >= options.min,
+			`Must have more words; found ${count}`,
+			main,
 		);
 	},
 });
@@ -68,10 +48,11 @@ const opengraph = config.plugin({
 export default config.define({
 	host: "https://example.com",
 	inputs: ["public"],
-	plugins: [lang, heading, opengraph],
+	plugins: [brand, words],
 	rules: {
-		"title.content.length": { min: 10, max: 60 },
+		"brand.title": { name: "Bongo Bakery" },
 		"description.content.title": false,
-		"og.image": { secure: true },
+		"link.external.limit": ["warn", { max: 10 }],
+		"og.*": "error",
 	},
 });
