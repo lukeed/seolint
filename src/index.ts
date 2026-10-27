@@ -1,23 +1,15 @@
-import { readdir, readFile, stat } from "node:fs/promises";
-import { dirname, join, relative, resolve, sep } from "node:path";
-import { parse } from "@lukeed/html";
+import { readdir, stat } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 
-import { detach } from "./detach";
 import * as glob from "./glob";
+import { inspect, message, options } from "./inspect";
 import * as merger from "./merge";
 import * as setup from "./setup";
+import { local, read, remote } from "./target";
 
-import type { Document, Node } from "@lukeed/html";
-import type {
-	Argv,
-	Config,
-	Context,
-	Dict,
-	Message,
-	Position,
-	Report,
-	Site,
-} from "./types";
+import type { Result } from "./inspect";
+import type { Target } from "./target";
+import type { Argv, Config, Message, Report, Site } from "./types";
 
 export type {
 	Argv,
@@ -40,22 +32,6 @@ const CONCURRENCY = 32;
 const HTTP = /^https?:\/\//;
 const HTML = /\.html?$/;
 
-/** One page to lint. */
-type Target = {
-	input: string;
-	/** The path that `ignore` patterns match: relative to the root, or the URL path. */
-	path: string;
-	url: string | undefined;
-	host: string | undefined;
-	html(): Promise<string>;
-};
-
-/** The messages of one page, and what each plugin's `run` returned. */
-type Result = {
-	messages: Message[];
-	data: Map<string, unknown>;
-};
-
 /**
  * The config with its `presets` merged in, so presets work for every entry point.
  */
@@ -64,89 +40,6 @@ function flatten(config: Config): Config {
 	let output: Config = {};
 	merger.merge(output, config);
 	return output;
-}
-
-/**
- * Build a {@link Message}, or `undefined` when the rule is off.
- * @throws {Error} for a rule that no plugin declares.
- */
-function message(
-	state: setup.Setup,
-	rule: string,
-	text: string,
-	position?: Position,
-): Message | undefined {
-	let info = state.rules.get(rule);
-	if (!info) throw new Error(`Rule "${rule}" is not declared by any plugin`);
-	if (info.state === false) return;
-
-	let output: Message = {
-		rule,
-		severity: info.state.severity,
-		message: detach(text),
-	};
-	if (position) {
-		output.line = position.line;
-		output.col = position.column;
-	}
-	if (info.meta?.docs) output.docs = info.meta.docs;
-	return output;
-}
-
-function options(state: setup.Setup, rule: string): true | Dict | undefined {
-	let info = state.rules.get(rule);
-	if (!info) throw new Error(`Rule "${rule}" is not declared by any plugin`);
-	return info.state === false ? undefined : info.state.options;
-}
-
-/**
- * Run every plugin on one page.
- */
-async function inspect(
-	html: string,
-	state: setup.Setup,
-	host: string | undefined,
-	url: string | undefined,
-): Promise<Result> {
-	let document: Document = parse(html);
-	let messages: Message[] = [];
-	let data = new Map<string, unknown>();
-
-	let context: Context = {
-		options: { host },
-		url,
-		load: (rule) => options(state, rule),
-		report(rule, text, node) {
-			let position = node ? document.position(node.start) : undefined;
-			let found = message(state, rule, text, position);
-			if (found) messages.push(found);
-		},
-		assert(
-			rule: string,
-			check: boolean | ((options: Dict) => boolean),
-			text: string,
-			node?: Node,
-		) {
-			let found = options(state, rule);
-			if (found === undefined) return;
-			let passed =
-				typeof check === "function"
-					? check(typeof found === "object" ? found : {})
-					: check;
-			passed || context.report(rule, text, node);
-		},
-	};
-
-	for (let plugin of state.plugins) {
-		try {
-			let value = await plugin.run(context, document);
-			if (value !== undefined) data.set(plugin.name, value);
-		} catch (err) {
-			throw new Error(`Plugin "${plugin.name}" failed`, { cause: err });
-		}
-	}
-
-	return { messages, data };
 }
 
 /**
@@ -238,52 +131,6 @@ export async function run(input: Config = {}, options?: Argv): Promise<Report> {
 	return collect([...targets.values()], config, [...new Set(roots)]);
 }
 
-/**
- * The URL of `file` on the site at `host`, without `index.html`.
- * @example
- * address("public", "public/blog/index.html", "https://example.com"); //=> "https://example.com/blog/"
- */
-function address(
-	root: string,
-	file: string,
-	host: string | undefined,
-): string | undefined {
-	if (!host || !URL.canParse(host)) return;
-	let path = relative(root, file).split(sep).join("/");
-	path = path.replace(/(^|\/)index\.html?$/, "$1");
-	return new URL(path, host.endsWith("/") ? host : host + "/").href;
-}
-
-function local(root: string, file: string, host: string | undefined): Target {
-	return {
-		input: file,
-		path: relative(root, file).split(sep).join("/"),
-		url: address(root, file, host),
-		host,
-		html: () => readFile(file, "utf8"),
-	};
-}
-
-function remote(href: string, host: string | undefined): Target {
-	return {
-		input: href,
-		path: new URL(href).pathname.replace(/^\//, ""),
-		url: href,
-		host: host || new URL(href).origin,
-		async html() {
-			let res = await fetch(href);
-			if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
-
-			let type = res.headers.get("content-type") || "";
-			if (!type.includes("text/html")) {
-				throw new Error('Invalid "Content-Type" header');
-			}
-
-			return res.text();
-		},
-	};
-}
-
 async function walk(path: string): Promise<string[]> {
 	let stats = await stat(path);
 	if (stats.isFile()) return HTML.test(path) ? [path] : [];
@@ -303,7 +150,33 @@ async function walk(path: string): Promise<string[]> {
 }
 
 /**
- * Lint each target with bounded concurrency, then run each plugin's
+ * Lint each target on this thread, reading up to {@link CONCURRENCY} at once.
+ */
+async function serial(
+	targets: Target[],
+	state: setup.Setup,
+): Promise<Result[]> {
+	let results: Result[] = [];
+	let queue = targets.entries();
+
+	await Promise.all(
+		Array.from({ length: Math.min(CONCURRENCY, targets.length) }, async () => {
+			for (let [i, target] of queue) {
+				try {
+					let html = await read(target);
+					results[i] = await inspect(html, state, target.host, target.url);
+				} catch (err) {
+					throw new Error(`Failed to lint "${target.input}"`, { cause: err });
+				}
+			}
+		}),
+	);
+
+	return results;
+}
+
+/**
+ * Lint each target, then run each plugin's
  * `finish` step over the pages. Report keys keep the order of `targets`.
  */
 async function collect(
@@ -315,21 +188,7 @@ async function collect(
 	let targets = all.filter((x) => !ignore.some((re) => re.test(x.path)));
 
 	let state = setup.setup(config);
-	let results: Result[] = [];
-	let queue = targets.entries();
-
-	await Promise.all(
-		Array.from({ length: Math.min(CONCURRENCY, targets.length) }, async () => {
-			for (let [i, target] of queue) {
-				try {
-					let html = await target.html();
-					results[i] = await inspect(html, state, target.host, target.url);
-				} catch (err) {
-					throw new Error(`Failed to lint "${target.input}"`, { cause: err });
-				}
-			}
-		}),
-	);
+	let results = await serial(targets, state);
 
 	let output: Report = {};
 	targets.forEach((target, i) => {
