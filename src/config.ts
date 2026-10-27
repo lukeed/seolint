@@ -49,6 +49,17 @@ type Settings<U> = {
 	[pattern: `${string}*${string}`]: boolean | Severity;
 };
 
+declare const plugged: unique symbol;
+
+/** A config from {@link define}, which remembers its plugins for the configs that use it as a preset. */
+export type Defined<X extends Plugin = never> = Config & {
+	readonly [plugged]?: X;
+};
+
+type PluginsOf<C> = C extends { readonly [plugged]?: infer X extends Plugin }
+	? X
+	: never;
+
 const HTTP = /^https?:\/\//;
 
 const priority = [
@@ -115,12 +126,16 @@ export async function load(root: string): Promise<Config> {
  * @example
  * export default define({ host: "https://example.com", inputs: ["public"] });
  */
-export function define<const P extends readonly Plugin[] = []>(
-	config: Omit<Config, "plugins" | "rules"> & {
+export function define<
+	const P extends readonly Plugin[] = [],
+	const S extends readonly Config[] = [],
+>(
+	config: Omit<Config, "plugins" | "presets" | "rules"> & {
 		plugins?: P;
-		rules?: Settings<RulesOf<P[number] | Builtin>>;
+		presets?: S;
+		rules?: Settings<RulesOf<P[number] | PluginsOf<S[number]> | Builtin>>;
 	},
-): Config {
+): Defined<P[number] | PluginsOf<S[number]>> {
 	return config;
 }
 

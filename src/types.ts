@@ -213,7 +213,7 @@ export type Config = {
 	 */
 	ignore?: string[];
 	/** Other configs to merge in first. This config's values win. */
-	presets?: Config[];
+	presets?: readonly Config[];
 	/** Plugins to run after the built-in ones. A plugin replaces a built-in plugin with the same name. */
 	plugins?: readonly Plugin[];
 	/**

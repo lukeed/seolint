@@ -133,4 +133,25 @@ describe("define()", () => {
 			rules: { "title.exists": { max: 1 } },
 		});
 	});
+
+	test("should type the rules of plugins from presets", () => {
+		let custom = config.plugin({
+			name: "custom",
+			rules: { "custom.rule": { max: 1 } },
+			run() {},
+		});
+		let base = config.define({ plugins: [custom] });
+		let nested = config.define({ presets: [base] });
+
+		config.define({
+			presets: [nested],
+			rules: { "custom.rule": { max: 2 } },
+		});
+
+		config.define({
+			presets: [nested],
+			// @ts-expect-error wrong option type
+			rules: { "custom.rule": { max: "2" } },
+		});
+	});
 });
