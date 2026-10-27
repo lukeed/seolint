@@ -151,7 +151,7 @@ export default config.define({
 });
 ```
 
-Presets merge in order, and the config's own fields win. A rule pattern, such as `"og.*"`, also replaces every earlier setting it matches, so one pattern can undo a preset. A preset can include `plugins` and `ignore` too, so you can share your own as a config made with `define()`.
+Presets merge in order, and the config's own fields win. A rule pattern, such as `"og.*"`, also replaces every earlier setting it matches, so one pattern can undo a preset. See [`docs/presets.md`](docs/presets.md) for what each preset sets, and how to write and share your own.
 
 ## Plugins
 
@@ -225,7 +225,7 @@ import * as presets from "seolint/presets";
 
 ### seolint/presets
 
-- **`strict`**, **`essentials`**, and **`staging`**. See [Presets](#presets).
+- **`strict`**, **`essentials`**, and **`staging`**. See [`docs/presets.md`](docs/presets.md).
 
 ## Rules
 
