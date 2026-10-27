@@ -13,7 +13,8 @@
     "noEmit": true,
     "paths": {
       "seolint": ["./src/index.ts"],
-      "seolint/config": ["./src/config.ts"]
+      "seolint/config": ["./src/config.ts"],
+      "seolint/presets": ["./src/presets.ts"]
     }
   },
   "include": ["src", "build.ts", "example/seolint.config.ts"]

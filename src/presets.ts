@@ -1,0 +1,71 @@
+import * as plugins from "./plugins";
+
+import type { Config, Meta, Setting } from "./types";
+
+function warnings(): Record<string, Setting> {
+	let output: Record<string, Setting> = {};
+	for (let plugin of plugins.builtins) {
+		let meta: Record<string, Meta | undefined> = plugin.meta ?? {};
+		for (let rule of Object.keys(plugin.rules)) {
+			if (meta[rule]?.severity === "warn") output[rule] = "error";
+		}
+	}
+	return output;
+}
+
+/**
+ * Every built-in rule that defaults to a warning becomes an error, such as
+ * the Open Graph tags, `heading.order`, and the sitemap.
+ * @example
+ * export default define({ presets: [presets.strict] });
+ */
+export const strict: Config = {
+	rules: warnings(),
+};
+
+/**
+ * Only the rules that directly affect search results: the title, the
+ * description, the canonical link, robots, the `<h1>`, the language, image
+ * `alt` text, the mobile viewport, working links, and unique titles and
+ * descriptions. Useful to adopt seolint on a large existing site.
+ * @example
+ * export default define({ presets: [presets.essentials] });
+ */
+export const essentials: Config = {
+	rules: {
+		"*": false,
+		"title.*": true,
+		"description.*": true,
+		"canonical.*": true,
+		"robots.*": true,
+		"heading.exists": true,
+		"heading.single": true,
+		"html.lang": true,
+		"image.alt.exists": true,
+		"viewport.exists": true,
+		"viewport.content.device": true,
+		"link.href.*": true,
+		"site.title.unique": true,
+		"site.description.unique": true,
+		"site.link.exists": true,
+	},
+};
+
+/**
+ * For staging and preview deploys: allows `noindex` and `nofollow`, and
+ * turns off checks that compare against the production site, such as
+ * `robots.txt`, the sitemap, and canonical links that point to production.
+ * @example
+ * let preview = process.env.DEPLOY_ENV === "preview";
+ * export default define({ presets: preview ? [presets.preview] : [presets.strict] });
+ */
+export const preview: Config = {
+	rules: {
+		"robots.*": false,
+		"site.robots": false,
+		"site.sitemap": false,
+		"canonical.href.self": false,
+		"canonical.href.match": false,
+		"og.url": false,
+	},
+};

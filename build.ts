@@ -9,7 +9,12 @@ await rm(OUTDIR, {
 });
 
 let result = await Bun.build({
-	entrypoints: ["src/index.ts", "src/config.ts", "src/bin.ts"],
+	entrypoints: [
+		"src/index.ts",
+		"src/config.ts",
+		"src/presets.ts",
+		"src/bin.ts",
+	],
 	root: "src",
 	outdir: OUTDIR,
 	target: "node",

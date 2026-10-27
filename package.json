@@ -30,6 +30,10 @@
       "types": "./dist/config.d.ts",
       "default": "./dist/config.js"
     },
+    "./presets": {
+      "types": "./dist/presets.d.ts",
+      "default": "./dist/presets.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
