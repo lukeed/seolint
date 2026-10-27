@@ -34,20 +34,6 @@ const BAD_REPORT = {
 	"image.alt.exists": [
 		{ message: "Must have an `alt` attribute", line: 8, col: 46 },
 	],
-};
-
-const BAD_HOST_REPORT = {
-	...BAD_REPORT,
-	"link.internal.lowercase": [
-		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
-	],
-	"link.internal.pretty": [
-		{
-			message: 'Internal links should not include ".html" suffix',
-			line: 8,
-			col: 3,
-		},
-	],
 	"link.blank.noopener": [
 		{
 			message: 'Must include "rel=noopener" when "target=_blank" in use',
@@ -58,6 +44,20 @@ const BAD_HOST_REPORT = {
 	"link.blank.noreferrer": [
 		{
 			message: 'Must include "rel=noreferrer" when "target=_blank" in use',
+			line: 8,
+			col: 3,
+		},
+	],
+};
+
+const BAD_HOST_REPORT = {
+	...BAD_REPORT,
+	"link.internal.lowercase": [
+		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
+	],
+	"link.internal.pretty": [
+		{
+			message: 'Internal links should not include ".html" suffix',
 			line: 8,
 			col: 3,
 		},
@@ -109,6 +109,7 @@ describe("config()", () => {
 		expect(output.inputs).toEqual(["public"]);
 		expect(output.rules).toEqual({ "canonical.href.match": false });
 	});
+
 	test("should keep config file `inputs` when `input` is empty", async () => {
 		let output = await seolint.config({ cwd: fixtures, input: [] });
 		expect(output.inputs).toEqual(["https://hello.com/world/"]);
@@ -186,6 +187,31 @@ describe("lint()", () => {
 			"link.internal.lowercase": [
 				{
 					message: "Internal links should not include uppercase",
+					line: 13,
+					col: 3,
+				},
+			],
+		});
+	});
+
+	test("should require `rel` on external `target=_blank` links", async () => {
+		let config = await seolint.config({ host: "https://example.com" });
+		let html = GOOD.replace(
+			'<a href="/about/">about</a>',
+			'<a href="https://other.com/" target="_blank">other</a>',
+		);
+
+		expect(await seolint.lint(html, config)).toEqual({
+			"link.blank.noopener": [
+				{
+					message: 'Must include "rel=noopener" when "target=_blank" in use',
+					line: 13,
+					col: 3,
+				},
+			],
+			"link.blank.noreferrer": [
+				{
+					message: 'Must include "rel=noreferrer" when "target=_blank" in use',
 					line: 13,
 					col: 3,
 				},

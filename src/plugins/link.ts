@@ -108,24 +108,24 @@ export const link: Plugin<Link> = function (context, document) {
 				'Must include "https://" prefix',
 				link,
 			);
+		}
 
-			if (link.getAttr("target") === "_blank") {
-				let rel = link.getAttr("rel") || "";
+		if (link.getAttr("target") === "_blank") {
+			let rel = link.getAttr("rel") || "";
 
-				context.assert(
-					"link.blank.noopener",
-					rel.includes("noopener"),
-					'Must include "rel=noopener" when "target=_blank" in use',
-					link,
-				);
+			context.assert(
+				"link.blank.noopener",
+				rel.includes("noopener"),
+				'Must include "rel=noopener" when "target=_blank" in use',
+				link,
+			);
 
-				context.assert(
-					"link.blank.noreferrer",
-					rel.includes("noreferrer"),
-					'Must include "rel=noreferrer" when "target=_blank" in use',
-					link,
-				);
-			}
+			context.assert(
+				"link.blank.noreferrer",
+				rel.includes("noreferrer"),
+				'Must include "rel=noreferrer" when "target=_blank" in use',
+				link,
+			);
 		}
 	});
 
