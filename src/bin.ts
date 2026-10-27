@@ -2,6 +2,7 @@
 import { text } from "node:stream/consumers";
 import { parseArgs, styleText } from "node:util";
 
+import * as conf from "./config";
 import * as seolint from "./index";
 import { version } from "../package.json";
 
@@ -82,7 +83,7 @@ if (flags.input && process.stdin.isTTY) {
 
 try {
 	var options = { host: flags.host, input };
-	var config = await seolint.config(options);
+	var config = await conf.resolve(options);
 	var report: Report = flags.input
 		? await seolint
 				.lint(await text(process.stdin), config)

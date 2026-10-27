@@ -1,7 +1,6 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parse } from "@lukeed/html";
-import * as conf from "./config";
 
 import type { Node } from "@lukeed/html";
 import type { Argv, Context, Config, Message, Report, Messages } from "./types";
@@ -23,31 +22,10 @@ const HTTP = /^https?:\/\//;
 const HTML = /\.html?$/;
 
 /**
- * Load the nearest `seolint.config.*` file and apply CLI-style overrides.
- * @example
- * let options = await config({ host: 'https://example.com', input: ['public'] });
- */
-export async function config(options: Argv = {}): Promise<Config> {
-	let cwd = resolve(options.cwd || ".");
-
-	let value = await conf.load(cwd);
-	if (options.host) value.host = options.host;
-	if (options.input && options.input.length > 0) value.inputs = options.input;
-
-	if (value.host && !HTTP.test(value.host)) {
-		throw new Error(
-			'A `host` value must include "http://" or "https://" protocol',
-		);
-	}
-
-	return value;
-}
-
-/**
  * Lint an HTML string. Resolves with `undefined` when every rule passes.
  * Rejects when a plugin throws.
  * @example
- * let messages = await lint('<html>...</html>', await config());
+ * let messages = await lint('<html>...</html>', await resolve());
  */
 export async function lint(
 	html: string,
@@ -113,7 +91,7 @@ export async function lint(
 /**
  * Lint an HTML file, or every HTML file inside a directory.
  * @example
- * let report = await fs('public', await config());
+ * let report = await fs('public', await resolve());
  */
 export async function fs(
 	path: string,
@@ -125,7 +103,7 @@ export async function fs(
 /**
  * Fetch and lint a URL. Uses its origin as `host` unless one is set.
  * @example
- * let report = await url('https://example.com', await config());
+ * let report = await url('https://example.com', await resolve());
  */
 export async function url(
 	href: string,
@@ -137,7 +115,7 @@ export async function url(
 /**
  * Lint all `config.inputs`, which must be all URLs or all file-system paths.
  * @example
- * let report = await run(await config({ input: ['public'] }));
+ * let report = await run(await resolve({ input: ['public'] }));
  */
 export async function run(config?: Config, options?: Argv): Promise<Report> {
 	let cwd = resolve((options && options.cwd) || ".");

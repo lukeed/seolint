@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
+import * as conf from "./config";
 import * as seolint from "./index";
 
 import type { Plugin } from "./types";
@@ -64,71 +65,19 @@ const BAD_HOST_REPORT = {
 	],
 };
 
-describe("config()", () => {
-	test("should resolve with `Config` defaults", async () => {
-		let output = await seolint.config();
-
-		expect(output.host).toBe("");
-		expect(output.inputs).toEqual([]);
-		expect(output.plugins).toHaveLength(6);
-		expect(output.rules).toEqual({});
-	});
-
-	test("should accept `input` option", async () => {
-		let output = await seolint.config({ input: ["foo", "bar"] });
-		expect(output.inputs).toEqual(["foo", "bar"]);
-	});
-
-	test("should accept `host` option :: valid", async () => {
-		let output = await seolint.config({ host: "https://foobar.com" });
-		expect(output.host).toBe("https://foobar.com");
-	});
-
-	test("should accept `host` option :: invalid", async () => {
-		await expect(seolint.config({ host: "foobar.com" })).rejects.toThrow(
-			'A `host` value must include "http://" or "https://" protocol',
-		);
-	});
-
-	test("should accept custom `cwd` option", async () => {
-		let output = await seolint.config({ cwd: fixtures });
-
-		expect(output.host).toBe("https://hello.com");
-		expect(output.inputs).toEqual(["https://hello.com/world/"]);
-		expect(output.rules).toEqual({ "canonical.href.match": false });
-	});
-
-	test("should always prefer `input` and `host` over config file", async () => {
-		let output = await seolint.config({
-			cwd: fixtures,
-			host: "https://x.com",
-			input: ["public"],
-		});
-
-		expect(output.host).toBe("https://x.com");
-		expect(output.inputs).toEqual(["public"]);
-		expect(output.rules).toEqual({ "canonical.href.match": false });
-	});
-
-	test("should keep config file `inputs` when `input` is empty", async () => {
-		let output = await seolint.config({ cwd: fixtures, input: [] });
-		expect(output.inputs).toEqual(["https://hello.com/world/"]);
-	});
-});
-
 describe("lint()", () => {
 	test("should return `undefined` when valid", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		expect(await seolint.lint(GOOD, config)).toBeUndefined();
 	});
 
 	test("should report every failed rule with its location", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		expect(await seolint.lint(BAD, config)).toEqual(BAD_REPORT);
 	});
 
 	test("should report each failure of the same rule", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace(
 			'<img src="x.png" alt="a photo" />',
 			'<img src="a.png" />\n<img src="b.png" />',
@@ -144,7 +93,7 @@ describe("lint()", () => {
 	});
 
 	test("should skip disabled rules", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		config.rules = { "image.alt.exists": false, "title.content.null": false };
 
 		let output = await seolint.lint(BAD, config);
@@ -153,7 +102,7 @@ describe("lint()", () => {
 	});
 
 	test("should pass rule options to checks", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		config.rules = { "title.content.length": { max: 5 } };
 
 		expect(await seolint.lint(GOOD, config)).toEqual({
@@ -164,7 +113,7 @@ describe("lint()", () => {
 	});
 
 	test("should not crash when `exists` rules are disabled", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		config.rules = {
 			"title.exists": false,
 			"canonical.exists": false,
@@ -177,7 +126,7 @@ describe("lint()", () => {
 	});
 
 	test("should treat absolute `host` links as internal", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace(
 			'href="/about/"',
 			'href="https://example.com/About/"',
@@ -195,7 +144,7 @@ describe("lint()", () => {
 	});
 
 	test("should require `rel` on external `target=_blank` links", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace(
 			'<a href="/about/">about</a>',
 			'<a href="https://other.com/" target="_blank">other</a>',
@@ -220,13 +169,13 @@ describe("lint()", () => {
 	});
 
 	test("should treat unparsable links as external", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace('href="/about/"', 'href="http://["');
 		expect(await seolint.lint(html, config)).toBeUndefined();
 	});
 
 	test("should allow entities in the title", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace(
 			"Hello world, this is a good page",
 			"Hello world &amp; this is a good page",
@@ -235,7 +184,7 @@ describe("lint()", () => {
 	});
 
 	test("should report HTML in the title", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace(
 			"Hello world, this is a good page",
 			"Hello <b>world</b>, this is a good page",
@@ -275,7 +224,7 @@ describe("lint()", () => {
 		let warn = spyOn(console, "warn");
 		let error = spyOn(console, "error");
 
-		await seolint.lint(BAD, await seolint.config());
+		await seolint.lint(BAD, await conf.resolve());
 
 		expect(warn).not.toHaveBeenCalled();
 		expect(error).not.toHaveBeenCalled();
@@ -304,27 +253,27 @@ describe("fs()", () => {
 	});
 
 	test("should lint a file", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		let file = join(site, "sub/bad.html");
 		expect(await seolint.fs(file, config)).toEqual({ [file]: BAD_REPORT });
 	});
 
 	test("should ignore non-HTML files", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		expect(
 			await seolint.fs(join(fixtures, "seolint.config.js"), config),
 		).toEqual({});
 	});
 
 	test("should walk a directory", async () => {
-		let config = await seolint.config({ host: "https://example.com" });
+		let config = await conf.resolve({ host: "https://example.com" });
 		expect(await seolint.fs(site, config)).toEqual({
 			[join(site, "sub/bad.html")]: BAD_HOST_REPORT,
 		});
 	});
 
 	test("should walk nested and symlinked files, in sorted order", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		let output = await seolint.fs(tmp, config);
 		let keys = Object.keys(output);
 
@@ -365,7 +314,7 @@ describe("url()", () => {
 	});
 
 	test("should lint a URL with its origin as `host`", async () => {
-		let config = await seolint.config();
+		let config = await conf.resolve();
 		config.rules = { "canonical.href.match": false };
 		expect(
 			await seolint.url(new URL("/good/", server.url).href, config),
@@ -406,14 +355,14 @@ describe("run()", () => {
 	});
 
 	test("should resolve inputs from `cwd`", async () => {
-		let config = await seolint.config({ input: ["site/sub"] });
+		let config = await conf.resolve({ input: ["site/sub"] });
 		expect(await seolint.run(config, { cwd: fixtures })).toEqual({
 			[join(site, "sub/bad.html")]: BAD_REPORT,
 		});
 	});
 
 	test("should lint overlapping inputs once", async () => {
-		let config = await seolint.config({
+		let config = await conf.resolve({
 			host: "https://example.com",
 			input: ["site", "site/sub/bad.html"],
 		});
@@ -422,7 +371,7 @@ describe("run()", () => {
 	});
 
 	test("should reject when an input fails", async () => {
-		let config = await seolint.config({ input: ["site", "missing"] });
+		let config = await conf.resolve({ input: ["site", "missing"] });
 		await expect(seolint.run(config, { cwd: fixtures })).rejects.toThrow(
 			"ENOENT",
 		);

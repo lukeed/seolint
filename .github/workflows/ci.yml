@@ -65,7 +65,7 @@ jobs:
           path: dist
 
       - name: Import
-        run: node --input-type=module -e "import * as m from 'seolint'; if (!await m.lint('<html></html>', await m.config())) process.exit(1)"
+        run: node --input-type=module -e "import * as m from 'seolint'; import { resolve } from 'seolint/config'; if (!await m.lint('<html></html>', await resolve())) process.exit(1)"
 
       - name: CLI
         working-directory: src/fixtures

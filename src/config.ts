@@ -1,10 +1,15 @@
 import { readdir } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve as absolute } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import * as plugins from "./plugins";
+import * as merger from "./merge";
 
-import type { Config } from "./types";
+import type { Argv, Config } from "./types";
+
+export type { Argv, Config } from "./types";
+
+const HTTP = /^https?:\/\//;
 
 const priority = [
 	"seolint.config.ts",
@@ -22,7 +27,7 @@ export async function find(
 	root: string,
 	start: string,
 ): Promise<string | undefined> {
-	let dir = resolve(root, start);
+	let dir = absolute(root, start);
 	let files = new Set(await readdir(dir));
 
 	for (let name of priority) {
@@ -36,20 +41,6 @@ export async function find(
 	if (dir.startsWith(root)) {
 		return find(root, dir);
 	}
-}
-
-/**
- * Merge config objects
- * Overrides default values
- * Priority: rules > plugins
- * @NOTE Mutates `base` object!
- */
-export function merge(base: Config, custom: Config): void {
-	(custom.presets || []).forEach((x) => merge(base, x));
-	if (custom.plugins) base.plugins!.push(...custom.plugins);
-	if (custom.rules) Object.assign(base.rules!, custom.rules);
-	base.inputs = custom.inputs || base.inputs;
-	base.host = custom.host || base.host;
 }
 
 export async function load(root: string): Promise<Config> {
@@ -72,7 +63,7 @@ export async function load(root: string): Promise<Config> {
 				cause: err,
 			});
 		}
-		merge(output, config.default || config);
+		merger.merge(output, config.default || config);
 	}
 
 	// include default plugins
@@ -86,4 +77,33 @@ export async function load(root: string): Promise<Config> {
 	);
 
 	return output;
+}
+
+/**
+ * Type a config object. Use it as the default export of `seolint.config.ts`.
+ * @example
+ * export default define({ host: "https://example.com", inputs: ["public"] });
+ */
+export function define(config: Config): Config {
+	return config;
+}
+
+/**
+ * Load the nearest `seolint.config.*` file from `options.cwd` and apply
+ * CLI-style overrides.
+ * @example
+ * let config = await resolve({ host: "https://example.com", input: ["public"] });
+ */
+export async function resolve(options: Argv = {}): Promise<Config> {
+	let value = await load(absolute(options.cwd || "."));
+	if (options.host) value.host = options.host;
+	if (options.input && options.input.length > 0) value.inputs = options.input;
+
+	if (value.host && !HTTP.test(value.host)) {
+		throw new Error(
+			'A `host` value must include "http://" or "https://" protocol',
+		);
+	}
+
+	return value;
 }
