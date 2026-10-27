@@ -14,7 +14,7 @@ on:
       - 'example/**'
       - '*.md'
     branches:
-      - master
+      - main
 
 jobs:
   test:
