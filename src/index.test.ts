@@ -1,20 +1,27 @@
 import { afterAll, beforeAll, describe, expect, spyOn, test } from "bun:test";
-import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import {
+	mkdir,
+	mkdtemp,
+	realpath,
+	rm,
+	symlink,
+	writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import * as conf from "./config";
 import * as seolint from "./index";
 
-import type { Message, Report } from "./types";
+import type { Message, Report, Setting } from "./types";
 
 const fixtures = resolve(import.meta.dir, "fixtures");
 const site = join(fixtures, "site");
 
-const GOOD = await Bun.file(join(site, "good.html")).text();
+const GOOD = await Bun.file(join(site, "index.html")).text();
 const BAD = await Bun.file(join(site, "sub/bad.html")).text();
 
-type Keyed = Record<string, Omit<Message, "rule">[]>;
+type Keyed = Record<string, Omit<Message, "rule" | "severity" | "docs">[]>;
 
 /**
  * Group messages by rule, which keeps expectations readable and ignores
@@ -23,7 +30,9 @@ type Keyed = Record<string, Omit<Message, "rule">[]>;
 function keyed(list: Message[] | undefined): Keyed | undefined {
 	if (!list) return list;
 	let output: Keyed = {};
-	for (let { rule, ...rest } of list) (output[rule] ||= []).push(rest);
+	for (let { rule, severity, docs, ...rest } of list) {
+		(output[rule] ||= []).push(rest);
+	}
 	return output;
 }
 
@@ -33,13 +42,25 @@ function reported(report: Report): Record<string, Keyed | undefined> {
 	);
 }
 
+const ALT = 'Must have an `alt` attribute; use alt="" for decorative images';
+
 const BAD_REPORT = {
+	"html.lang": [
+		{
+			message: "The <html> element must have a `lang` attribute",
+			line: 2,
+			col: 1,
+		},
+	],
+	"html.charset": [{ message: 'A <meta charset="utf-8"> tag must exist' }],
+	"html.favicon": [{ message: 'A <link rel="icon"> tag must exist' }],
 	"title.content.null": [
 		{ message: 'Must not include "null" in `title` value', line: 4, col: 3 },
 	],
 	"title.content.length": [
 		{ message: "Must not have less than 10 characters", line: 4, col: 3 },
 	],
+	"description.exists": [{ message: 'A "meta[name=description]" must exist' }],
 	"canonical.href.lowercase": [
 		{ message: "Must not include uppercase character(s)", line: 5, col: 3 },
 	],
@@ -49,10 +70,14 @@ const BAD_REPORT = {
 	"canonical.href.match": [
 		{ message: "Must include the provided `hostname` value", line: 5, col: 3 },
 	],
-	"description.exists": [{ message: 'A "meta[name=description]" must exist' }],
 	"viewport.exists": [{ message: 'A "meta[name=viewport]" tag must exist' }],
+	"heading.exists": [{ message: "A page must have an <h1>" }],
 	"image.alt.exists": [
-		{ message: "Must have an `alt` attribute", line: 8, col: 46 },
+		{
+			message: 'Must have an `alt` attribute; use alt="" for decorative images',
+			line: 8,
+			col: 46,
+		},
 	],
 	"link.blank.noopener": [
 		{
@@ -68,6 +93,15 @@ const BAD_REPORT = {
 			col: 3,
 		},
 	],
+	"og.title": [{ message: 'A "og:title" meta tag must exist' }],
+	"og.description": [{ message: 'A "og:description" meta tag must exist' }],
+	"og.image": [{ message: 'A "og:image" meta tag must exist' }],
+	"og.url": [{ message: 'A "og:url" meta tag must exist' }],
+	"twitter.card": [
+		{
+			message: 'A "twitter:card" meta tag must exist',
+		},
+	],
 };
 
 const BAD_HOST_REPORT = {
@@ -78,6 +112,25 @@ const BAD_HOST_REPORT = {
 	"link.internal.pretty": [
 		{
 			message: 'Internal links should not include ".html" suffix',
+			line: 8,
+			col: 3,
+		},
+	],
+};
+
+/** The bad page when the whole fixture site is linted with a host. */
+const BAD_SITE_REPORT = {
+	...BAD_HOST_REPORT,
+	"canonical.href.self": [
+		{
+			message: "Must point to this page, https://example.com/sub/bad.html",
+			line: 5,
+			col: 3,
+		},
+	],
+	"site.link.exists": [
+		{
+			message: "Must point to a file that exists, not /About.html",
 			line: 8,
 			col: 3,
 		},
@@ -105,8 +158,8 @@ describe("lint()", () => {
 		let output = keyed(await seolint.lint(html, config));
 		expect(output).toEqual({
 			"image.alt.exists": [
-				{ message: "Must have an `alt` attribute", line: 13, col: 30 },
-				{ message: "Must have an `alt` attribute", line: 14, col: 1 },
+				{ message: ALT, line: 24, col: 23 },
+				{ message: ALT, line: 25, col: 1 },
 			],
 		});
 	});
@@ -126,7 +179,7 @@ describe("lint()", () => {
 
 		expect(keyed(await seolint.lint(GOOD, config))).toEqual({
 			"title.content.length": [
-				{ message: "Must not have more than 5 characters", line: 4, col: 3 },
+				{ message: "Must not have more than 5 characters", line: 5, col: 3 },
 			],
 		});
 	});
@@ -134,10 +187,11 @@ describe("lint()", () => {
 	test("should not crash when `exists` rules are disabled", async () => {
 		let config = await conf.resolve();
 		config.rules = {
-			"title.exists": false,
-			"canonical.exists": false,
-			"description.exists": false,
-			"viewport.exists": false,
+			"*": false,
+			"title.content.length": true,
+			"canonical.href.https": true,
+			"description.content.empty": true,
+			"viewport.content.empty": true,
 		};
 
 		let output = keyed(
@@ -148,16 +202,13 @@ describe("lint()", () => {
 
 	test("should treat absolute `host` links as internal", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
-		let html = GOOD.replace(
-			'href="/about/"',
-			'href="https://example.com/About/"',
-		);
+		let html = GOOD.replace('href="/"', 'href="https://example.com/About/"');
 
 		expect(keyed(await seolint.lint(html, config))).toEqual({
 			"link.internal.lowercase": [
 				{
 					message: "Internal links should not include uppercase",
-					line: 13,
+					line: 24,
 					col: 3,
 				},
 			],
@@ -167,7 +218,7 @@ describe("lint()", () => {
 	test("should require `rel` on external `target=_blank` links", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
 		let html = GOOD.replace(
-			'<a href="/about/">about</a>',
+			'<a href="/">home</a>',
 			'<a href="https://other.com/" target="_blank">other</a>',
 		);
 
@@ -175,14 +226,14 @@ describe("lint()", () => {
 			"link.blank.noopener": [
 				{
 					message: 'Must include "rel=noopener" when "target=_blank" in use',
-					line: 13,
+					line: 24,
 					col: 3,
 				},
 			],
 			"link.blank.noreferrer": [
 				{
 					message: 'Must include "rel=noreferrer" when "target=_blank" in use',
-					line: 13,
+					line: 24,
 					col: 3,
 				},
 			],
@@ -191,7 +242,7 @@ describe("lint()", () => {
 
 	test("should treat unparsable links as external", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
-		let html = GOOD.replace('href="/about/"', 'href="http://["');
+		let html = GOOD.replace('href="/"', 'href="http://["');
 		expect(keyed(await seolint.lint(html, config))).toBeUndefined();
 	});
 
@@ -212,7 +263,7 @@ describe("lint()", () => {
 		);
 		expect(keyed(await seolint.lint(html, config))).toEqual({
 			"title.content.html": [
-				{ message: "Must not include HTML content", line: 4, col: 3 },
+				{ message: "Must not include HTML content", line: 5, col: 3 },
 			],
 		});
 	});
@@ -347,7 +398,7 @@ describe("rules", () => {
 		let partial = { ...config, rules: { "title.content.length": { min: 50 } } };
 		expect(keyed(await seolint.lint(GOOD, partial))).toEqual({
 			"title.content.length": [
-				{ message: "Must not have less than 50 characters", line: 4, col: 3 },
+				{ message: "Must not have less than 50 characters", line: 5, col: 3 },
 			],
 		});
 	});
@@ -362,6 +413,281 @@ describe("rules", () => {
 			'Unknown rule in config: "title.exist"',
 		);
 		await rm(dir, { recursive: true, force: true });
+	});
+
+	test("should apply severities", async () => {
+		let config = (rules: Record<string, Setting>) => ({
+			host: "https://example.com",
+			rules: { "*": false, ...rules },
+		});
+		let severity = async (setting: Setting) => {
+			let output = await seolint.lint(BAD, config({ "html.lang": setting }));
+			return output?.map((x) => x.severity);
+		};
+
+		expect(await severity(true)).toEqual(["error"]);
+		expect(await severity("warn")).toEqual(["warn"]);
+		expect(await severity(["warn", {}])).toEqual(["warn"]);
+
+		let output = await seolint.lint(BAD, config({ "html.favicon": true }));
+		expect(output?.map((x) => x.severity)).toEqual(["warn"]);
+
+		let lengths = await seolint.lint(
+			BAD,
+			config({ "title.content.length": ["warn", { min: 5 }] }),
+		);
+		expect(lengths?.map((x) => [x.severity, x.message])).toEqual([
+			["warn", "Must not have less than 5 characters"],
+		]);
+	});
+
+	test("should link messages to their docs", async () => {
+		let output = await seolint.lint(BAD, {
+			rules: { "*": false, "html.lang": true },
+		});
+		expect(output?.[0].docs).toBe(
+			"https://github.com/lukeed/seolint/blob/main/docs/rules.md#htmllang",
+		);
+	});
+
+	test("should reject invalid settings", async () => {
+		await expect(
+			// @ts-expect-error not a setting
+			seolint.lint(GOOD, { rules: { "html.lang": "loud" } }),
+		).rejects.toThrow('Invalid setting for rule "html.lang"');
+	});
+
+	test("should reject a rule that two plugins declare", async () => {
+		let copy = conf.plugin({
+			name: "copy",
+			rules: { "html.lang": true },
+			run() {},
+		});
+		await expect(seolint.lint(GOOD, { plugins: [copy] })).rejects.toThrow(
+			'Rule "html.lang" is declared by plugins "html" and "copy"',
+		);
+	});
+
+	test("should turn on a rule that is off by default", async () => {
+		let optin = conf.plugin({
+			name: "optin",
+			rules: { "optin.rule": false },
+			run(context) {
+				context.report("optin.rule", "reported");
+			},
+		});
+		let config = { host: "https://example.com", plugins: [optin] };
+		expect(await seolint.lint(GOOD, config)).toBeUndefined();
+
+		let on = { ...config, rules: { "optin.rule": true } };
+		expect(keyed(await seolint.lint(GOOD, on))).toEqual({
+			"optin.rule": [{ message: "reported" }],
+		});
+	});
+
+	test("should pass the page URL to plugins", async () => {
+		let seen: (string | undefined)[] = [];
+		let spy = conf.plugin({
+			name: "spy",
+			rules: {},
+			run(context) {
+				seen.push(context.url);
+			},
+		});
+		await seolint.lint(GOOD, { plugins: [spy] }, "https://example.com/a/");
+		await seolint.fs(site, { host: "https://example.com", plugins: [spy] });
+		expect(seen.sort()).toEqual([
+			"https://example.com/",
+			"https://example.com/a/",
+			"https://example.com/sub/bad.html",
+		]);
+	});
+
+	test("should run finish() with what run() returned", async () => {
+		let counter = conf.plugin({
+			name: "counter",
+			rules: { "counter.pages": { max: 1 } },
+			run(context) {
+				return context.url ?? "unknown";
+			},
+			finish(site, pages) {
+				let options = site.load("counter.pages");
+				if (options && pages.length > options.max) {
+					site.report(
+						"counter.pages",
+						`Found ${pages.map((x) => x.data).join(", ")}`,
+						"summary",
+					);
+				}
+			},
+		});
+		let config = {
+			host: "https://example.com",
+			plugins: [counter],
+			rules: { "*": false, "counter.pages": true },
+		};
+		expect(reported(await seolint.fs(site, config))).toEqual({
+			summary: {
+				"counter.pages": [
+					{
+						message:
+							"Found https://example.com/, https://example.com/sub/bad.html",
+					},
+				],
+			},
+		});
+	});
+});
+
+describe("site", () => {
+	let tmp: string;
+	let config = (rules: Record<string, Setting> = {}) => ({
+		host: "https://example.com",
+		rules: { "*": false, ...rules },
+	});
+	let html = (title: string, description: string, body = "") =>
+		`<html><head><title>${title}</title><meta name="description" content="${description}"></head><body>${body}</body></html>`;
+
+	beforeAll(async () => {
+		tmp = await realpath(await mkdtemp(join(tmpdir(), "seolint-site-")));
+		await mkdir(join(tmp, "blog"), { recursive: true });
+		await mkdir(join(tmp, "img"), { recursive: true });
+		await writeFile(
+			join(tmp, "index.html"),
+			html(
+				"Home",
+				"Same",
+				'<a href="/blog/">Blog</a><a href="/missing/">Gone</a>',
+			),
+		);
+		await writeFile(
+			join(tmp, "blog/index.html"),
+			html(
+				"Home",
+				"Same",
+				'<a href="/img/a.png">Image</a><a href="https://other.com/x/">Other</a>',
+			),
+		);
+		await writeFile(
+			join(tmp, "about.html"),
+			html(
+				"About",
+				"Unique",
+				'<a href="/about">About</a><a href="/blog/#top">Blog</a>',
+			),
+		);
+		await writeFile(join(tmp, "img/a.png"), "");
+	});
+
+	afterAll(async () => {
+		await rm(tmp, { recursive: true, force: true });
+	});
+
+	test("site.title.unique and site.description.unique", async () => {
+		let output = reported(
+			await seolint.fs(
+				tmp,
+				config({ "site.title.unique": true, "site.description.unique": true }),
+			),
+		);
+		expect(Object.keys(output).sort()).toEqual([
+			join(tmp, "blog/index.html"),
+			join(tmp, "index.html"),
+		]);
+		expect(output[join(tmp, "index.html")]).toEqual({
+			"site.title.unique": [
+				{
+					message: "Must be unique; 1 other page uses the same title",
+					line: 1,
+					col: 13,
+				},
+			],
+			"site.description.unique": [
+				{
+					message: "Must be unique; 1 other page uses the same description",
+					line: 1,
+					col: 32,
+				},
+			],
+		});
+	});
+
+	test("site.link.exists", async () => {
+		let output = reported(
+			await seolint.fs(tmp, config({ "site.link.exists": true })),
+		);
+		expect(output).toEqual({
+			[join(tmp, "index.html")]: {
+				"site.link.exists": [
+					{
+						message: "Must point to a file that exists, not /missing/",
+						line: 1,
+						col: 110,
+					},
+				],
+			},
+		});
+	});
+
+	test("site.robots", async () => {
+		let robots = join(tmp, "robots.txt");
+		let rules = config({ "site.robots": true });
+
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({
+			[robots]: {
+				"site.robots": [{ message: "A robots.txt file must exist" }],
+			},
+		});
+
+		await writeFile(
+			robots,
+			"User-agent: Googlebot\nDisallow: /\n\nUser-agent: *\nAllow: /\n",
+		);
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({});
+
+		await writeFile(robots, "User-agent: *\nDisallow: / # everything\n");
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({
+			[robots]: {
+				"site.robots": [
+					{ message: 'Must not block every crawler with "Disallow: /"' },
+				],
+			},
+		});
+		await rm(robots);
+	});
+
+	test("site.sitemap", async () => {
+		let sitemap = join(tmp, "sitemap.xml");
+		let rules = config({ "site.sitemap": true });
+
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({
+			[sitemap]: {
+				"site.sitemap": [{ message: "A sitemap.xml file must exist" }],
+			},
+		});
+
+		await writeFile(
+			sitemap,
+			"<urlset><url><loc>https://example.com/</loc></url><url><loc>https://example.com/blog/</loc></url></urlset>",
+		);
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({
+			[join(tmp, "about.html")]: {
+				"site.sitemap": [
+					{
+						message:
+							"Must be listed in sitemap.xml, as https://example.com/about.html",
+					},
+				],
+			},
+		});
+		await rm(sitemap);
+	});
+
+	test("should skip site files for single files and URLs", async () => {
+		let rules = config({ "site.robots": true, "site.sitemap": true });
+		expect(reported(await seolint.fs(join(tmp, "index.html"), rules))).toEqual(
+			{},
+		);
 	});
 });
 
@@ -402,12 +728,13 @@ describe("fs()", () => {
 	test("should walk a directory", async () => {
 		let config = await conf.resolve({ host: "https://example.com" });
 		expect(reported(await seolint.fs(site, config))).toEqual({
-			[join(site, "sub/bad.html")]: BAD_HOST_REPORT,
+			[join(site, "sub/bad.html")]: BAD_SITE_REPORT,
 		});
 	});
 
 	test("should walk nested and symlinked files, in sorted order", async () => {
 		let config = await conf.resolve();
+		config.rules = { "site.*": false };
 		let output = reported(await seolint.fs(tmp, config));
 		let keys = Object.keys(output);
 
@@ -449,7 +776,10 @@ describe("url()", () => {
 
 	test("should lint a URL with its origin as `host`", async () => {
 		let config = await conf.resolve();
-		config.rules = { "canonical.href.match": false };
+		config.rules = {
+			"canonical.href.match": false,
+			"canonical.href.self": false,
+		};
 		expect(
 			reported(await seolint.url(new URL("/good/", server.url).href, config)),
 		).toEqual({});
@@ -489,9 +819,12 @@ describe("run()", () => {
 	});
 
 	test("should resolve inputs from `cwd`", async () => {
-		let config = await conf.resolve({ inputs: ["site/sub"] });
+		let config = await conf.resolve({
+			host: "https://example.com",
+			inputs: ["site"],
+		});
 		expect(reported(await seolint.run(config, { cwd: fixtures }))).toEqual({
-			[join(site, "sub/bad.html")]: BAD_REPORT,
+			[join(site, "sub/bad.html")]: BAD_SITE_REPORT,
 		});
 	});
 
