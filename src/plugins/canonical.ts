@@ -15,7 +15,7 @@ type Canonical = {
 };
 
 export const canonical: Plugin<Canonical> = function (context, document) {
-	let [elem, ...rest] = document.querySelectorAll("link[rel=canonical]");
+	let [elem, ...rest] = document.all("link[rel=canonical]");
 
 	context.assert(
 		"canonical.exists",
@@ -30,7 +30,7 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 	);
 	if (!elem) return;
 
-	let target = elem.getAttribute("href") || "";
+	let target = elem.getAttr("href") || "";
 
 	context.assert(
 		"canonical.href.exists",

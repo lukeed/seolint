@@ -1,9 +1,9 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { parse } from "node-html-parser";
+import { parse } from "@lukeed/html";
 import * as conf from "./config";
 
-import type { Node } from "node-html-parser";
+import type { Node } from "@lukeed/html";
 import type { Argv, Context, Config, Message, Report, Messages } from "./types";
 
 export type {
@@ -59,11 +59,6 @@ export async function lint(
 	let output: Messages = {};
 	let invalid = false;
 
-	let breaks: number[] = [];
-	for (let i = html.indexOf("\n"); i !== -1; i = html.indexOf("\n", i + 1)) {
-		breaks.push(i);
-	}
-
 	let context: Context = {
 		get options() {
 			return rest;
@@ -76,16 +71,9 @@ export async function lint(
 			let entry: Message = { message };
 
 			if (node) {
-				let offset = node.range[0];
-				let lo = 0;
-				let hi = breaks.length;
-				while (lo < hi) {
-					let mid = (lo + hi) >>> 1;
-					if (breaks[mid] < offset) lo = mid + 1;
-					else hi = mid;
-				}
-				entry.line = lo + 1;
-				entry.col = offset - (lo > 0 ? breaks[lo - 1] + 1 : 0) + 1;
+				let { line, column } = document.position(node.start);
+				entry.line = line;
+				entry.col = column;
 			}
 
 			(output[title] ||= []).push(entry);

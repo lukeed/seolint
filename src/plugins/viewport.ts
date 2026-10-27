@@ -9,7 +9,7 @@ type Viewport = {
 };
 
 export const viewport: Plugin<Viewport> = function (context, document) {
-	let [elem, ...rest] = document.querySelectorAll("meta[name=viewport]");
+	let [elem, ...rest] = document.all("meta[name=viewport]");
 
 	context.assert(
 		"viewport.exists",
@@ -26,7 +26,7 @@ export const viewport: Plugin<Viewport> = function (context, document) {
 
 	if (!elem) return;
 
-	let content = elem.getAttribute("content") || "";
+	let content = elem.getAttr("content") || "";
 
 	context.assert(
 		"viewport.content.empty",

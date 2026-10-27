@@ -24,17 +24,17 @@ type Link = {
 export const link: Plugin<Link> = function (context, document) {
 	let externals = 0;
 	let seen: Set<string> = new Set();
-	let links = document.querySelectorAll("a");
+	let links = document.all("a");
 
 	let { host } = context.options;
 	let origin = host && URL.canParse(host) ? new URL(host).hostname : "";
 
 	links.forEach((link) => {
-		let href = link.getAttribute("href") || "";
+		let href = link.getAttr("href") || "";
 
 		context.assert(
 			"link.href.exists",
-			link.hasAttribute("href"),
+			link.hasAttr("href"),
 			"Must have an `href` attribute",
 			link,
 		);
@@ -69,7 +69,7 @@ export const link: Plugin<Link> = function (context, document) {
 		} else {
 			context.assert(
 				"link.internal.nofollow",
-				link.getAttribute("rel") !== "nofollow",
+				link.getAttr("rel") !== "nofollow",
 				"Internal links must not include `rel=nofollow`",
 				link,
 			);
@@ -109,8 +109,8 @@ export const link: Plugin<Link> = function (context, document) {
 				link,
 			);
 
-			if (link.getAttribute("target") === "_blank") {
-				let rel = link.getAttribute("rel") || "";
+			if (link.getAttr("target") === "_blank") {
+				let rel = link.getAttr("rel") || "";
 
 				context.assert(
 					"link.blank.noopener",

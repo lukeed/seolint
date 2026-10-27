@@ -16,7 +16,7 @@ type Title = {
 
 // TODO: stop words
 export const title: Plugin<Title> = function (context, document) {
-	let [elem, ...rest] = document.querySelectorAll("head>title");
+	let [elem, ...rest] = document.all("head>title");
 
 	context.assert("title.exists", elem != null, "A title tag must exist");
 	context.assert(
@@ -26,11 +26,11 @@ export const title: Plugin<Title> = function (context, document) {
 	);
 	if (!elem) return;
 
-	let text = elem.innerText;
+	let text = elem.text;
 
 	context.assert(
 		"title.content.html",
-		text === elem.innerHTML,
+		!/<[a-z/!?]/i.test(text),
 		"Must not include HTML content",
 		elem,
 	);

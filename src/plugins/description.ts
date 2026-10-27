@@ -17,7 +17,7 @@ type Description = {
 };
 
 export const description: Plugin<Description> = function (context, document) {
-	let [elem, ...rest] = document.querySelectorAll("meta[name=description]");
+	let [elem, ...rest] = document.all("meta[name=description]");
 
 	context.assert(
 		"description.exists",
@@ -32,7 +32,7 @@ export const description: Plugin<Description> = function (context, document) {
 	);
 	if (!elem) return;
 
-	let content = (elem.getAttribute("content") || "").trim();
+	let content = (elem.getAttr("content") || "").trim();
 
 	context.assert(
 		"description.content.empty",
@@ -44,7 +44,7 @@ export const description: Plugin<Description> = function (context, document) {
 	// TODO: html chars
 	context.assert(
 		"description.content.html",
-		!elem.innerHTML,
+		!elem.html,
 		"Must not include HTML content",
 		elem,
 	);
@@ -85,7 +85,7 @@ export const description: Plugin<Description> = function (context, document) {
 			);
 	}
 
-	let title = document.querySelector("title");
+	let title = document.find("title");
 
 	if (title)
 		context.assert(
@@ -93,7 +93,7 @@ export const description: Plugin<Description> = function (context, document) {
 			() => {
 				let words1 = new Set(content.toLowerCase().split(/[^\w]+/g));
 				let words2 = new Set(
-					title.innerText
+					title.text
 						.trim()
 						.toLowerCase()
 						.split(/[^\w]+/g),

@@ -8,10 +8,10 @@ type Image = {
 };
 
 export const image: Plugin<Image> = function (context, document) {
-	let images = document.querySelectorAll("img");
+	let images = document.all("img");
 
 	images.forEach((img) => {
-		let alt = img.getAttribute("alt") || "";
+		let alt = img.getAttr("alt") || "";
 
 		context.assert(
 			"image.alt.exists",

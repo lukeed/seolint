@@ -195,6 +195,28 @@ describe("lint()", () => {
 		expect(await seolint.lint(html, config)).toBeUndefined();
 	});
 
+	test("should allow entities in the title", async () => {
+		let config = await seolint.config({ host: "https://example.com" });
+		let html = GOOD.replace(
+			"Hello world, this is a good page",
+			"Hello world &amp; this is a good page",
+		);
+		expect(await seolint.lint(html, config)).toBeUndefined();
+	});
+
+	test("should report HTML in the title", async () => {
+		let config = await seolint.config({ host: "https://example.com" });
+		let html = GOOD.replace(
+			"Hello world, this is a good page",
+			"Hello <b>world</b>, this is a good page",
+		);
+		expect(await seolint.lint(html, config)).toEqual({
+			"title.content.html": [
+				{ message: "Must not include HTML content", line: 4, col: 3 },
+			],
+		});
+	});
+
 	test("should run custom plugins", async () => {
 		let output = await seolint.lint(GOOD, {
 			plugins: [

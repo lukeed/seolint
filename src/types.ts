@@ -1,4 +1,4 @@
-import type { HTMLElement, Node } from "node-html-parser";
+import type { Document, Node } from "@lukeed/html";
 
 export type Dict = Record<string, unknown>;
 export type Promisable<T> = Promise<T> | T;
@@ -33,7 +33,7 @@ export type Context<T extends Dict = Rules> = {
 
 export type Plugin<R extends Rules = Rules> = (
 	context: Context<R>,
-	document: HTMLElement,
+	document: Document,
 ) => Promisable<void>;
 
 export type Argv = {
