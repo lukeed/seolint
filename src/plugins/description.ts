@@ -29,6 +29,8 @@ export const description: Plugin<Description> = function (context, document) {
 		rest.length === 0,
 		"Must have only one description meta tag",
 	);
+	if (!elem) return;
+
 	let content = (elem.getAttribute("content") || "").trim();
 
 	context.assert(

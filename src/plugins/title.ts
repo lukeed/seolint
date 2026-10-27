@@ -24,6 +24,8 @@ export const title: Plugin<Title> = function (context, document) {
 		rest.length === 0,
 		"Must have only one title tag",
 	);
+	if (!elem) return;
+
 	let text = elem.innerText;
 
 	context.assert(

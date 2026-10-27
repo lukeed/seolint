@@ -27,6 +27,8 @@ export const canonical: Plugin<Canonical> = function (context, document) {
 		rest.length === 0,
 		"Must have only one canonical link",
 	);
+	if (!elem) return;
+
 	let target = elem.getAttribute("href") || "";
 
 	context.assert(

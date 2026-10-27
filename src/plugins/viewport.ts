@@ -23,6 +23,8 @@ export const viewport: Plugin<Viewport> = function (context, document) {
 		'Must have only one "viewport" meta tag',
 	);
 
+	if (!elem) return;
+
 	let content = elem.getAttribute("content") || "";
 
 	context.assert(
