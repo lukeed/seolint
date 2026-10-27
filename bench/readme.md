@@ -8,8 +8,8 @@ Bun 1.4.4 and Node v26.12.1 on Apple M1 Max, 2026-10-27.
 
 | Workload | Bun | Node |
 | --- | --- | --- |
-| `lint()`, 12 pages | 22.3ms | 30.8ms |
-| `fs()`, a site of 1200 pages | 3.06s / 381MB | 4.01s / 870MB |
+| `lint()`, 12 pages | 22.4ms | 31.3ms |
+| `fs()`, a site of 1200 pages | 2.73s / 441MB | 3.75s / 832MB |
 
 ## Running
 
