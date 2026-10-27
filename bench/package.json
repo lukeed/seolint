@@ -1,0 +1,16 @@
+{
+  "name": "bench",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "bun": "bun scripts/run.ts",
+    "node": "node scripts/run.ts",
+    "report": "bun scripts/report.ts",
+    "all": "bun run build && bun run bun && bun run node && bun run report"
+  },
+  "devDependencies": {
+    "mitata": "1.0.34",
+    "seolint": "workspace:*"
+  }
+}

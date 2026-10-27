@@ -13,6 +13,13 @@
         "typescript": "7.0.2",
       },
     },
+    "bench": {
+      "name": "bench",
+      "devDependencies": {
+        "mitata": "1.0.34",
+        "seolint": "workspace:*",
+      },
+    },
     "example": {
       "name": "example",
       "devDependencies": {
@@ -107,6 +114,8 @@
 
     "baseline-browser-mapping": ["baseline-browser-mapping@2.11.33", "", { "bin": { "baseline-browser-mapping": "dist/cli.cjs" } }, "sha512-yiVKDX+qCMRKBE084lXvq9EcwFUhKZ2nU8TK1EQQuOgPNR/lmbGxXOeDdlGUqC2Zz11Cs9rk1d/8NfgBmlkt0w=="],
 
+    "bench": ["bench@workspace:bench"],
+
     "bongo": ["@bongo/bongo@1.2.0", "", { "dependencies": { "browserslist": "^4.29.3", "kleur": "^4.1.5", "lightningcss": "^1.33.0", "mrmime": "^2.0.1", "resolve.exports": "^2.0.4", "rolldown": "^1.2.14", "tempura": "^1.0.1" }, "peerDependencies": { "@resvg/resvg-js": "^2.6.0", "satori": ">=0.57.0" }, "optionalPeers": ["@resvg/resvg-js", "satori"], "bin": { "bongo": "bin.js" } }, "sha512-chZtndwk5Or5PpocaxWVVKI+p/rfzohjBdrFX3N9II1fNKXfxtsVfZ50Q1O5x3QUcRAgskWadIV0+jiICmARfw=="],
 
     "browserslist": ["browserslist@4.29.5", "", { "dependencies": { "baseline-browser-mapping": "^2.11.33", "caniuse-lite": "^1.0.30001819", "electron-to-chromium": "^1.5.464", "node-releases": "^2.0.60", "update-browserslist-db": "^1.3.4" }, "bin": { "browserslist": "cli.js" } }, "sha512-khTmKu5NGYTotqcYo8Bew2k4RAE9PuXRSFRXG2lQBrCEQHyeQ/vX6gKMxfokwywBsLiXZMnHsmWMG1pnO8J7uQ=="],
@@ -152,6 +161,8 @@
     "lightningcss-win32-x64-msvc": ["lightningcss-win32-x64-msvc@1.33.0", "", { "os": "win32", "cpu": "x64" }, "sha512-OlEICDx/Xl0FqSp4bry8zFnCvGpig3Gl4gCquvYwHuqJKEC1+n9NgDniFvqHGmMv1ZkqDJrDqKKSykTDX+ehuA=="],
 
     "md4x": ["md4x@0.0.30", "", { "bin": { "md4x": "lib/cli.mjs" } }, "sha512-N3Fab3VlK1Pvv62DABS3h8Eg9HN2JDVMrFra207GE89+RCj+egn20/rx6eMKgVrKwPPxCbKP0YYSoM5NblgwdA=="],
+
+    "mitata": ["mitata@1.0.34", "", {}, "sha512-Mc3zrtNBKIMeHSCQ0XqRLo1vbdIx1wvFV9c8NJAiyho6AjNfMY8bVhbS12bwciUdd1t4rj8099CH3N3NFahaUA=="],
 
     "mrmime": ["mrmime@2.0.1", "", {}, "sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ=="],
 

@@ -15,7 +15,8 @@
       "seolint": ["./src/index.ts"],
       "seolint/config": ["./src/config.ts"],
       "seolint/presets": ["./src/presets.ts"]
-    }
+    },
+    "allowImportingTsExtensions": true
   },
-  "include": ["src", "build.ts", "example/seolint.config.ts"]
+  "include": ["src", "build.ts", "example/seolint.config.ts", "bench"]
 }

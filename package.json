@@ -18,7 +18,8 @@
   ],
   "scripts": {
     "build": "bun build.ts",
-    "example": "bun run --cwd example"
+    "example": "bun run --cwd example",
+    "bench": "bun run --cwd bench"
   },
   "bin": "dist/bin.js",
   "exports": {
@@ -52,6 +53,7 @@
     "typescript": "7.0.2"
   },
   "workspaces": [
+    "bench",
     "example"
   ]
 }
