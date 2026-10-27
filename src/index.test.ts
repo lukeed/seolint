@@ -676,6 +676,24 @@ describe("site", () => {
 		});
 	});
 
+	test("site.link.exists with a malformed escape", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
+		await writeFile(join(dir, "index.html"), '<a href="/bad%zz/">x</a>');
+		let output = reported(
+			await seolint.fs(dir, config({ "site.link.exists": true })),
+		);
+		expect(output[join(dir, "index.html")]).toEqual({
+			"site.link.exists": [
+				{
+					message: "Must point to a file that exists, not /bad%zz/",
+					line: 1,
+					col: 1,
+				},
+			],
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.robots", async () => {
 		let robots = join(tmp, "robots.txt");
 		let rules = config({ "site.robots": true });

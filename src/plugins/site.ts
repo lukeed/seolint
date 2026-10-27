@@ -38,11 +38,22 @@ async function files(roots: string[]): Promise<Set<string>> {
 }
 
 /**
+ * The URL `path` without percent escapes, or as is when an escape is malformed.
+ */
+function decode(path: string): string {
+	try {
+		return decodeURIComponent(path);
+	} catch {
+		return path;
+	}
+}
+
+/**
  * Whether `known` has a file for the URL `path`: the file itself, an
  * `index.html` inside it, or the path with `.html` added.
  */
 function resolvable(known: Set<string>, path: string): boolean {
-	let base = posix.join("/", decodeURIComponent(path));
+	let base = posix.join("/", decode(path));
 	let candidates = path.endsWith("/")
 		? [base + "index.html"]
 		: [base, base + "/index.html", base + ".html"];
