@@ -896,6 +896,8 @@ details.sidebar > summary {
 
 .prose .pager a {
 	display: flex;
+	flex: 0 1 280px;
+	min-width: 0;
 	flex-direction: column;
 	text-decoration: none;
 	border: 1px solid var(--line);
@@ -905,6 +907,10 @@ details.sidebar > summary {
 
 .prose .pager a:hover {
 	border-color: var(--accent);
+}
+
+.prose .pager code {
+	overflow-wrap: normal;
 }
 
 .pager .next {

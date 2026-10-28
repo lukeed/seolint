@@ -14,6 +14,6 @@
 </dl>
 {{{ $page.content }}}
 <nav class="pager" aria-label="Rules">
-	{{#if prev}}<a class="prev" href="/docs/rules/{{ prev.name }}/"><span>Previous</span><code>{{ prev.name }}</code></a>{{#else}}<span></span>{{/if}}
-	{{#if next}}<a class="next" href="/docs/rules/{{ next.name }}/"><span>Next</span><code>{{ next.name }}</code></a>{{/if}}
+	{{#if prev}}<a class="prev" href="/docs/rules/{{ prev.name }}/"><span>Previous</span><code>{{{ prev.name.replaceAll(".", ".<wbr>") }}}</code></a>{{#else}}<span></span>{{/if}}
+	{{#if next}}<a class="next" href="/docs/rules/{{ next.name }}/"><span>Next</span><code>{{{ next.name.replaceAll(".", ".<wbr>") }}}</code></a>{{/if}}
 </nav>
