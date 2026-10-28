@@ -36,6 +36,7 @@ Without inputs, seolint uses the `inputs` of your [config file](/docs/config/).
 | `-j`, `--json`    | The same as `--format json`.                                              |
 | `-q`, `--quiet`   | Print nothing. Only set the exit code.                                    |
 | `-i`, `--input`   | Read HTML from stdin.                                                     |
+| `--workers`       | How many threads lint pages. See [Workers](/docs/config/#workers).        |
 | `--rules`         | List every rule, with its setting and description.                        |
 | `--no-color`      | Print without colors. seolint also respects `NO_COLOR` and `FORCE_COLOR`. |
 | `-v`, `--version` | Print the version.                                                        |

@@ -257,6 +257,22 @@ describe("bin", () => {
 		await rm(dir, { recursive: true, force: true });
 	});
 
+	test("should lint with `--workers`", () => {
+		let args = ["site", "-H", "https://example.com", "--json"];
+		let one = seolint([...args, "--workers", "1"]);
+		let two = seolint([...args, "--workers", "2"]);
+		expect(two.code).toBe(1);
+		expect(JSON.parse(two.stdout)).toEqual(JSON.parse(one.stdout));
+	});
+
+	test("should reject an invalid `--workers` value", () => {
+		let output = seolint(["site", "--workers", "many"]);
+		expect(output.code).toBe(1);
+		expect(output.stderr).toContain(
+			"Invalid `workers` value: expected a positive integer",
+		);
+	});
+
 	test("should reject an unknown format", () => {
 		let output = seolint(["site", "--format", "xml"]);
 		expect(output.code).toBe(1);

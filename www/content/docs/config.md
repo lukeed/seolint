@@ -111,4 +111,6 @@ workers: 4, // four threads
 workers: 1, // one thread
 ```
 
+The `--workers` option overrides it for one run, such as `seolint --workers 1`.
+
 Each worker loads your plugins from the config file again. Plugins that you pass straight to the [API](/docs/api/) stay on one thread, and `workers` above 1 is then an error.

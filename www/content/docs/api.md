@@ -52,7 +52,7 @@ let report = await seolint.run(await config.resolve(options), options);
 
 ## `seolint/config`
 
-- **`resolve(argv?)`** loads the config file from `argv.cwd`, and applies `argv.host` and `argv.inputs` over it. It rejects for an invalid config.
+- **`resolve(argv?)`** loads the config file from `argv.cwd`, and applies `argv.host`, `argv.inputs`, and `argv.workers` over it. It rejects for an invalid config.
 - **`define(config)`** types a config. See [Configuration](/docs/config/).
 - **`plugin(definition)`** types a plugin. See [Plugins](/docs/plugins/).
 - **`find(root, start)`** and **`load(root)`** find and load a config file.

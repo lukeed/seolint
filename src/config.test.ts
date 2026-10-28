@@ -97,6 +97,19 @@ describe("resolve()", () => {
 		let output = await config.resolve({ cwd: fixtures, inputs: [] });
 		expect(output.inputs).toEqual(["https://hello.com/world/"]);
 	});
+
+	test("should apply `workers`", async () => {
+		let output = await config.resolve({ cwd: fixtures, workers: 3 });
+		expect(output.workers).toBe(3);
+	});
+
+	test("should reject an invalid `workers` value", async () => {
+		for (let workers of [0, 1.5, Number.NaN]) {
+			await expect(config.resolve({ cwd: fixtures, workers })).rejects.toThrow(
+				"Invalid `workers` value: expected a positive integer",
+			);
+		}
+	});
 });
 
 describe("define()", () => {

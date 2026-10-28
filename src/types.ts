@@ -192,6 +192,8 @@ export type Argv = {
 	host?: string;
 	/** Files, folders, or URLs to lint. An empty list keeps the config file's `inputs`. */
 	inputs?: string[];
+	/** How many threads lint pages. Overrides the config file's `workers`. */
+	workers?: number;
 };
 
 /**

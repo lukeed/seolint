@@ -83,6 +83,11 @@ function apply(
  * declare, or a rule name or pattern that no plugin declares.
  */
 export function setup(config: Config): Setup {
+	let { workers } = config;
+	if (workers !== undefined && !(Number.isInteger(workers) && workers > 0)) {
+		throw new Error("Invalid `workers` value: expected a positive integer");
+	}
+
 	let named = new Map<string, Plugin>();
 	for (let x of plugins.builtins) named.set(x.name, x);
 

@@ -79,9 +79,6 @@ async function auto(targets: Target[]): Promise<number> {
  */
 export async function plan(config: Config, targets: Target[]): Promise<Plan> {
 	let wanted = config.workers;
-	if (wanted !== undefined && !(Number.isInteger(wanted) && wanted > 0)) {
-		throw new Error("Invalid `workers` value: expected a positive integer");
-	}
 
 	let size = Math.min(targets.length, wanted ?? (await auto(targets)));
 	if (size <= 1) return { size: 1, file: undefined };

@@ -152,6 +152,7 @@ export async function resolve(options: Argv = {}): Promise<Config> {
 	if (options.host) value.host = options.host;
 	if (options.inputs && options.inputs.length > 0)
 		value.inputs = options.inputs;
+	if (options.workers !== undefined) value.workers = options.workers;
 
 	if (value.host && !HTTP.test(value.host)) {
 		throw new Error(

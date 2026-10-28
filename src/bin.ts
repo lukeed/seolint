@@ -22,6 +22,7 @@ const HELP = `
     -j, --json     The same as --format json
     -q, --quiet    Print nothing; only set the exit code
     -i, --input    Read HTML from stdin
+    --workers      How many threads lint pages (default: auto)
     --rules        List every rule, with its setting and description
     --no-color     Print without colors
     -v, --version  Print the version
@@ -65,6 +66,7 @@ try {
 			quiet: { type: "boolean", short: "q" },
 			rules: { type: "boolean" },
 			"no-color": { type: "boolean" },
+			workers: { type: "string" },
 			version: { type: "boolean", short: "v" },
 			help: { type: "boolean", short: "h" },
 		},
@@ -134,7 +136,11 @@ if (flags.rules) {
 }
 
 try {
-	var options = { host: flags.host, inputs: input };
+	var options = {
+		host: flags.host,
+		inputs: input,
+		workers: flags.workers === undefined ? undefined : Number(flags.workers),
+	};
 	var config = await conf.resolve(options);
 	var report: Report = flags.input
 		? await seolint
