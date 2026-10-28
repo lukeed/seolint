@@ -4,7 +4,7 @@
 
 seolint checks the HTML of a built site, or of live URLs, for SEO problems: titles, descriptions, canonical links, headings, links, images, social tags, and more. Some checks span the whole site, such as duplicate titles, broken links, and pages missing from the sitemap.
 
-- **70 rules**, each documented in [`docs/rules`](www/content/docs/rules.md), with errors and warnings.
+- **70 rules**, each documented in [the rules reference](https://seolint.io/docs/rules/), with errors and warnings.
 - **Configurable** in `seolint.config.ts`, with type-checked rule names and options.
 - **Extensible** with your own plugins and/or presets, for one page or for the whole site.
 - **CI-ready**, with exit codes, JSON output, and inline annotations for GitHub Actions.
@@ -109,7 +109,7 @@ export default config.define({
 
 ### Rules
 
-Each rule has a default severity, and some have options. See [`docs/rules`](www/content/docs/rules.md) for every rule, or run `seolint --rules`.
+Each rule has a default severity, and some have options. See [the rules reference](https://seolint.io/docs/rules/) for every rule, or run `seolint --rules`.
 
 | Setting               | Effect                                                    |
 | --------------------- | --------------------------------------------------------- |
@@ -152,7 +152,7 @@ export default config.define({
 });
 ```
 
-Presets merge in order, and the config's own fields win. A rule pattern, such as `"og.*"`, also replaces every earlier setting it matches, so one pattern can undo a preset. See [`docs/presets`](www/content/docs/presets.md) for what each preset sets, and how to write and share your own.
+Presets merge in order, and the config's own fields win. A rule pattern, such as `"og.*"`, also replaces every earlier setting it matches, so one pattern can undo a preset. See [the presets guide](https://seolint.io/docs/presets/) for what each preset sets, and how to write and share your own.
 
 ### Workers
 
@@ -234,11 +234,11 @@ import * as presets from "seolint/presets";
 
 ### seolint/presets
 
-- **`strict`**, **`essentials`**, and **`staging`**. See [`docs/presets`](www/content/docs/presets.md).
+- **`strict`**, **`essentials`**, and **`staging`**. See [the presets guide](https://seolint.io/docs/presets/).
 
 ## Rules
 
-See [`docs/rules`](www/content/docs/rules.md) for every built-in rule: what it checks, why it matters, its default, and how to configure it.
+See [the rules reference](https://seolint.io/docs/rules/) for every built-in rule: what it checks, why it matters, its default, and how to configure it.
 
 ## Credits
 

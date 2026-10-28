@@ -445,9 +445,7 @@ describe("rules", () => {
 		let output = await seolint.lint(BAD, {
 			rules: { "*": false, "html.lang": true },
 		});
-		expect(output?.[0].docs).toBe(
-			"https://github.com/lukeed/seolint/blob/main/www/content/docs/rules.md#htmllang",
-		);
+		expect(output?.[0].docs).toBe("https://seolint.io/docs/rules/#htmllang");
 	});
 
 	test("should reject invalid settings", async () => {

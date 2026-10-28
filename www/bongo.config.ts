@@ -35,7 +35,7 @@ export default define({
 		title: "seolint",
 		description:
 			"A robust and configurable SEO linter for the HTML your site generator builds.",
-		url: "https://seolint.dev/",
+		url: "https://seolint.io/",
 		lang: "en",
 		repo: "https://github.com/lukeed/seolint",
 	},

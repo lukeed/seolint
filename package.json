@@ -3,6 +3,7 @@
   "version": "1.0.0-next.1",
   "name": "seolint",
   "repository": "lukeed/seolint",
+  "homepage": "https://seolint.io",
   "description": "A robust and configurable SEO linter",
   "license": "MIT",
   "author": {
