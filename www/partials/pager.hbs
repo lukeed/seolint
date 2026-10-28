@@ -1,0 +1,10 @@
+{{#var order = $data.docs.flatMap(x => x.pages)}}
+{{#var index = order.findIndex(x => x.path === $page.path)}}
+{{#if index !== -1}}
+{{#var prev = order[index - 1]}}
+{{#var next = order[index + 1]}}
+<nav class="pager" aria-label="Docs">
+	{{#if prev}}<a class="prev" href="{{ prev.path }}"><span>Previous</span>{{ prev.title }}</a>{{#else}}<span></span>{{/if}}
+	{{#if next}}<a class="next" href="{{ next.path }}"><span>Next</span>{{ next.title }}</a>{{/if}}
+</nav>
+{{/if}}

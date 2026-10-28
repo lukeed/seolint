@@ -1,6 +1,12 @@
 {{#var presets = ["strict", "essentials", "staging"]}}
 <details class="sidebar" open>
 	<summary>Docs menu</summary>
+	{{#each $data.docs.slice(0, -1) as section}}
+	<p class="group">{{ section.group }}</p>
+	{{#each section.pages as page}}
+	<a href="{{ page.path }}"{{#if $page.path === page.path}} aria-current="page"{{/if}}>{{ page.title }}</a>
+	{{/each}}
+	{{/each}}
 	<p class="group">Rules</p>
 	<a href="/docs/rules/"{{#if $page.path === "/docs/rules/"}} aria-current="page"{{/if}}>Overview</a>
 	{{#each $data.rules as plugin}}

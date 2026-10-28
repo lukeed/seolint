@@ -3,12 +3,13 @@
 <head>
 	{{#partial src="head"}}
 </head>
-<body>
+<body class="docs-page">
 	{{#partial src="nav"}}
 	<div class="wrap docs">
 		{{#partial src="sidebar"}}
 		<article class="prose">
 			{{{ $page.content }}}
+			{{#partial src="pager"}}
 		</article>
 		{{#partial src="toc"}}
 	</div>

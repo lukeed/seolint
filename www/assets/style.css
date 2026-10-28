@@ -620,6 +620,10 @@ a.panel:hover {
 
 /* docs */
 
+.docs-page .wrap {
+	max-width: 1240px;
+}
+
 .docs {
 	display: grid;
 	grid-template-columns: 220px minmax(0, 1fr) 190px;
@@ -803,7 +807,7 @@ details.sidebar > summary {
 	border: 1px solid var(--line);
 	border-radius: 10px;
 	padding: 14px 16px;
-	font-size: 13.5px;
+	font-size: 13px;
 	line-height: 1.65;
 	overflow-x: auto;
 	color: var(--code-fg);
