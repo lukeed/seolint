@@ -104,9 +104,29 @@ jobs:
           echo "exit=$code errors=$errors warnings=$warnings"
           test "$code" = 1 && test "$errors" = 22 && test "$warnings" = 5
 
+  www:
+    name: Site
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bun run www build
+      - run: bun run www lint --format ci
+
   publish:
     name: Publish to npm
-    needs: [check, node, example]
+    needs: [check, node, example, www]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     permissions:
