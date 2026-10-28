@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://seolint.dev/sitemap.xml
