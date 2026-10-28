@@ -680,6 +680,12 @@ details.sidebar > summary {
 	padding-left: 11px;
 }
 
+.sidebar a.sub {
+	padding-left: 23px;
+	font-family: var(--mono);
+	font-size: 13px;
+}
+
 .toc {
 	font-size: 13.5px;
 }

@@ -3,7 +3,10 @@
 	{{#each $data.docs as section}}
 	<p class="group">{{ section.group }}</p>
 	{{#each section.pages as page}}
-	<a href="{{ page.path }}"{{#if $page.path === page.path}} aria-current="page"{{#elif page.path !== "/docs/" && $page.path.startsWith(page.path)}} aria-current="true"{{/if}}>{{ page.title }}</a>
+	<a href="{{ page.path }}"{{#if $page.path === page.path}} aria-current="page"{{/if}}>{{ page.title }}</a>
+	{{#if page.path !== "/docs/" && page.path !== $page.path && $page.path.startsWith(page.path)}}
+	<a class="sub" href="{{ $page.path }}" aria-current="page">{{ $page.title }}</a>
+	{{/if}}
 	{{/each}}
 	{{/each}}
 </details>
