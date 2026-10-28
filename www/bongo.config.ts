@@ -39,5 +39,10 @@ export default define({
 		lang: "en",
 		repo: "https://github.com/lukeed/seolint",
 	},
+	$build: {
+		define: {
+			__CROWNE_SITE__: JSON.stringify(process.env.CROWNE_SITE ?? ""),
+		},
+	},
 	plugins: [markdown({ headingIds: true, highlighter: highlight })],
 });

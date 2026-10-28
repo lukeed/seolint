@@ -1,3 +1,10 @@
+import { crowne } from "crowne/browser";
+
+/** The crowne.io site ID, from the CROWNE_SITE variable at build time. */
+declare const __CROWNE_SITE__: string;
+
+if (import.meta.env.PROD && __CROWNE_SITE__) crowne(__CROWNE_SITE__);
+
 let button = document.querySelector<HTMLButtonElement>(".theme");
 
 button?.addEventListener("click", () => {

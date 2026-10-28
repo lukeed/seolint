@@ -7,5 +7,10 @@
 		"html_handling": "auto-trailing-slash",
 		"not_found_handling": "404-page",
 	},
-	"routes": [{ "pattern": "seolint.io", "custom_domain": true }],
+	"routes": [
+		{
+			"pattern": "seolint.io",
+			"custom_domain": true,
+		},
+	],
 }

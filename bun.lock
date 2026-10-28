@@ -33,6 +33,7 @@
       "devDependencies": {
         "@bongo/markdown": "^1.2.0",
         "bongo": "npm:@bongo/bongo@^1.2.0",
+        "crowne": "^0.3.0",
         "seolint": "workspace:*",
         "shiki": "^4.0.2",
         "wrangler": "^4.151.0",
@@ -309,6 +310,8 @@
     "comma-separated-tokens": ["comma-separated-tokens@2.0.3", "", {}, "sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg=="],
 
     "cookie": ["cookie@1.1.1", "", {}, "sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ=="],
+
+    "crowne": ["crowne@0.3.0", "", {}, "sha512-DctLEYLavLh5Rt61ScoghGDyWAZ7DnW+s2jD7FalZEvA3BGA6uMQSOLLMOBiaT8Des4EIVPlLD+FWRD1WKkePg=="],
 
     "dequal": ["dequal@2.0.3", "", {}, "sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA=="],
 

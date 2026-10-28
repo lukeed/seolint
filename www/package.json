@@ -14,6 +14,7 @@
     "bongo": "npm:@bongo/bongo@^1.2.0",
     "seolint": "workspace:*",
     "shiki": "^4.0.2",
-    "wrangler": "^4.151.0"
+    "wrangler": "^4.151.0",
+    "crowne": "^0.3.0"
   }
 }

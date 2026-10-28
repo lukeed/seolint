@@ -154,6 +154,8 @@ jobs:
       - run: bun run build
       - run: bun run example build
       - run: bun run www build
+        env:
+          CROWNE_SITE: ${{ vars.CROWNE_SITE }}
 
       - run: bun run www deploy
         env:
