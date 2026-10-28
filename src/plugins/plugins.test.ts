@@ -74,6 +74,25 @@ describe("html", () => {
 });
 
 describe("title", () => {
+	test("title.content.null and title.content.undefined match whole words", async () => {
+		let title = (text: string) => page(`<title>${text}</title>`);
+		expect(
+			await check("title.content.null", title("Products | null")),
+		).toHaveLength(1);
+		expect(
+			await check("title.content.null", title("Nullify a contract")),
+		).toEqual([]);
+		expect(
+			await check("title.content.null", title("An annulled contract")),
+		).toEqual([]);
+		expect(
+			await check("title.content.undefined", title("undefined · Shop")),
+		).toHaveLength(1);
+		expect(
+			await check("title.content.undefined", title("Undefinedness, explained")),
+		).toEqual([]);
+	});
+
 	test("title.content.length defaults to 10 to 60", async () => {
 		expect(
 			await check(
@@ -93,6 +112,30 @@ describe("title", () => {
 describe("description", () => {
 	let meta = (content: string) =>
 		`<meta name="description" content="${content}">`;
+
+	test("description.content.null and description.content.undefined match whole words", async () => {
+		expect(
+			await check("description.content.null", page(meta("Prices from null"))),
+		).toHaveLength(1);
+		expect(
+			await check(
+				"description.content.null",
+				page(meta("How to annul a contract, or nullify it")),
+			),
+		).toEqual([]);
+		expect(
+			await check(
+				"description.content.undefined",
+				page(meta("Shipping: undefined")),
+			),
+		).toHaveLength(1);
+		expect(
+			await check(
+				"description.content.undefined",
+				page(meta("The undefinedness of it all")),
+			),
+		).toEqual([]);
+	});
 
 	test("description.content.length defaults to 50 to 160", async () => {
 		expect(
@@ -234,6 +277,20 @@ describe("robots", () => {
 });
 
 describe("image", () => {
+	test("image.alt.content.null and image.alt.content.undefined match whole words", async () => {
+		let img = (alt: string) => page("", `<img src="a.png" alt="${alt}">`);
+		expect(await check("image.alt.content.null", img("null"))).toHaveLength(1);
+		expect(
+			await check("image.alt.content.null", img("An annulled ticket")),
+		).toEqual([]);
+		expect(
+			await check("image.alt.content.undefined", img("undefined")),
+		).toHaveLength(1);
+		expect(
+			await check("image.alt.content.undefined", img("Undefinedness")),
+		).toEqual([]);
+	});
+
 	test("image.alt.exists allows decorative images", async () => {
 		expect(
 			await check("image.alt.exists", page("", '<img src="a.png" alt="">')),

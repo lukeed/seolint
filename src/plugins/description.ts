@@ -43,9 +43,9 @@ export const description = plugin({
 			"The description shares at least one meaningful word with the title.",
 		],
 		"description.content.undefined":
-			'The description does not include the text "undefined".',
+			'The description does not include the word "undefined".',
 		"description.content.null":
-			'The description does not include the text "null".',
+			'The description does not include the word "null".',
 		"description.content.length":
 			"The description length is within a range of characters.",
 	}),
@@ -84,14 +84,14 @@ export const description = plugin({
 
 		context.assert(
 			"description.content.undefined",
-			content.indexOf("undefined") === -1,
+			!/\bundefined\b/.test(content),
 			'Must not include "undefined" in value',
 			elem,
 		);
 
 		context.assert(
 			"description.content.null",
-			content.indexOf("null") === -1,
+			!/\bnull\b/.test(content),
 			'Must not include "null" in value',
 			elem,
 		);

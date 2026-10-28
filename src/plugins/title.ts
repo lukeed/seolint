@@ -17,8 +17,8 @@ export const title = plugin({
 		"title.single": "A page has only one <title> element.",
 		"title.content.html": "The title has no HTML tags in its text.",
 		"title.content.undefined":
-			'The title does not include the text "undefined".',
-		"title.content.null": 'The title does not include the text "null".',
+			'The title does not include the word "undefined".',
+		"title.content.null": 'The title does not include the word "null".',
 		"title.content.length": "The title length is within a range of characters.",
 	}),
 	run(context, document) {
@@ -43,14 +43,14 @@ export const title = plugin({
 
 		context.assert(
 			"title.content.undefined",
-			text.indexOf("undefined") === -1,
+			!/\bundefined\b/.test(text),
 			'Must not include "undefined" in `title` value',
 			elem,
 		);
 
 		context.assert(
 			"title.content.null",
-			text.indexOf("null") === -1,
+			!/\bnull\b/.test(text),
 			'Must not include "null" in `title` value',
 			elem,
 		);

@@ -14,8 +14,8 @@ export const image = plugin({
 			'An <img> has an alt attribute. alt="" is allowed, for decorative images.',
 		"image.alt.content.html": "The alt text has no HTML tags.",
 		"image.alt.content.undefined":
-			'The alt text does not include the text "undefined".',
-		"image.alt.content.null": 'The alt text does not include the text "null".',
+			'The alt text does not include the word "undefined".',
+		"image.alt.content.null": 'The alt text does not include the word "null".',
 	}),
 	run(context, document) {
 		let images = document.all("img");
@@ -42,14 +42,14 @@ export const image = plugin({
 
 			context.assert(
 				"image.alt.content.undefined",
-				alt.indexOf("undefined") === -1,
+				!/\bundefined\b/.test(alt),
 				'Must not include "undefined" in `alt` value',
 				img,
 			);
 
 			context.assert(
 				"image.alt.content.null",
-				alt.indexOf("null") === -1,
+				!/\bnull\b/.test(alt),
 				'Must not include "null" in `alt` value',
 				img,
 			);
