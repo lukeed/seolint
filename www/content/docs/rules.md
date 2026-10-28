@@ -928,7 +928,7 @@ The `alt` text does not include the text `null`.
 
 ## link
 
-Rules about `<a>` elements. A link is internal when its hostname matches the `host`, or when it is relative. Without a `host`, every link counts as external, so the `link.internal.*` rules are skipped. Except for `link.href.exists` and the `link.text.*` rules, links to `#`, `mailto:`, and `javascript:` are skipped, and each `href` is checked once per page.
+Rules about `<a>` elements. A link is internal when its hostname matches the `host`, or when it is relative. Without a `host`, every link counts as external, so the `link.internal.*` rules are skipped. Except for `link.href.exists` and `link.text.exists`, links to a section of the same page, such as `#install`, and links to `mailto:` and `javascript:` are skipped, and each `href` is checked once per page. Links to a section of the same page also skip `link.text.vague`.
 
 ### `link.href.exists`
 

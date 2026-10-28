@@ -100,11 +100,12 @@ export const link = plugin({
 				link,
 			);
 
+			let section = href.startsWith("#");
 			let phrase = text
 				.toLowerCase()
 				.replace(/[^\w\s]/g, "")
 				.replace(/\s+/g, " ");
-			if (phrase) {
+			if (phrase && !section) {
 				context.assert(
 					"link.text.vague",
 					(options) => !options.words.includes(phrase),
@@ -113,7 +114,7 @@ export const link = plugin({
 				);
 			}
 
-			if (href === "#") return;
+			if (section) return;
 			if (/^(mailto|javascript)[:]/.test(href)) return;
 
 			let index = href.indexOf("#");

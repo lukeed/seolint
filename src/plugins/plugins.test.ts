@@ -336,6 +336,23 @@ describe("link", () => {
 			}),
 		).toEqual([]);
 	});
+
+	test("links to a section of the same page", async () => {
+		let section = link("#configure-a-rule", "link");
+		for (let rule of [
+			"link.href.empty",
+			"link.internal.absolute",
+			"link.internal.https",
+			"link.internal.trailing",
+			"link.text.vague",
+		]) {
+			expect(await check(rule, section)).toEqual([]);
+		}
+		expect(await check("link.text.vague", link("/a/#b", "link"))).toHaveLength(
+			1,
+		);
+		expect(await check("link.text.exists", link("#top", " "))).toHaveLength(1);
+	});
 });
 
 describe("mixed", () => {
