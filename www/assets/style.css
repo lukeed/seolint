@@ -686,7 +686,8 @@ details.sidebar > summary {
 	transform: rotate(90deg);
 }
 
-.sidebar details a {
+.sidebar details a,
+.sidebar a.sub {
 	padding-left: 26px;
 	font-family: var(--mono);
 	font-size: 13px;
@@ -705,8 +706,13 @@ details.sidebar > summary {
 	padding-left: 11px;
 }
 
-.sidebar details a[aria-current="page"] {
+.sidebar details a[aria-current="page"],
+.sidebar a.sub[aria-current="page"] {
 	padding-left: 25px;
+}
+
+.sidebar a.next-group {
+	padding-top: 9px;
 }
 
 .toc {
