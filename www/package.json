@@ -1,0 +1,16 @@
+{
+  "name": "www",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bongo dev",
+    "build": "bongo build",
+    "lint": "node node_modules/seolint/dist/bin.js"
+  },
+  "devDependencies": {
+    "@bongo/markdown": "^1.2.0",
+    "bongo": "npm:@bongo/bongo@^1.2.0",
+    "seolint": "workspace:*",
+    "shiki": "^4.0.2"
+  }
+}

@@ -1,3 +1,8 @@
+---
+title: Presets
+summary: The built-in seolint presets, how presets merge with your config, and how to write and share your own.
+---
+
 # Presets
 
 A preset is a config that your config merges in first. Use a preset to share one set of rules across sites, or to switch rules for one environment, such as a staging deploy.

@@ -1,3 +1,8 @@
+---
+title: Rules
+summary: Every built-in seolint rule, with what it checks, why it matters, its default severity, and how to configure it.
+---
+
 # Rules
 
 seolint checks every page with the rules below. Each rule belongs to a built-in plugin, and runs unless your config turns it off.

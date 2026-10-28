@@ -1,0 +1,78 @@
+---
+title: Home
+headline: seolint · Your HTML, linted for search
+summary: seolint checks the HTML your site generator builds, or live URLs, for SEO problems, and points to the exact line of each one.
+---
+{{#var total = $data.rules.reduce((sum, x) => sum + x.count, 0)}}
+<main>
+<section class="wrap hero">
+	<h1>Your HTML, <span class="sq">linted</span> for search.</h1>
+	<p class="lede">seolint reads the pages your site generator builds, and points to the exact line where search engines will stumble.</p>
+	<div class="cta">
+		<code class="cmd"><span>$</span> npx seolint public</code>
+		<a class="btn" href="{{ $site.repo }}#install">Get started</a>
+	</div>
+
+	<figure class="editor" aria-label="seolint messages on a page of the example site">
+		<figcaption class="tabs"><b>public/blog/launch/index.html</b><span class="count"><i class="err">✘ 9</i><i class="warn">⚠ 1</i></span></figcaption>
+		<div class="lines">
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">6</span><span>  <span class="t">&lt;title&gt;</span><span class="u">Our new sourdough is here</span><span class="t">&lt;/title&gt;</span><span class="msg">The title must include the brand name</span></span></div>
+<div class="ln"><span class="g"></span><span class="n">7</span><span>  <span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"description"</span> <span class="a">content</span>=<span class="s">"Our new sourdough loaf is here…"</span><span class="t">/&gt;</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">13</span><span>  <span class="t">&lt;meta</span> <span class="a">property</span>=<span class="s">"og:image"</span> <span class="a">content</span>=<span class="s u">"http://example.com/og/sourdough.png"</span><span class="t">/&gt;</span><span class="msg">Must be an absolute https:// URL</span></span></div>
+<div class="ln"><span class="g"></span><span class="n">23</span><span>  <span class="t">&lt;h1&gt;</span>Our new sourdough is here<span class="t">&lt;/h1&gt;</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">24</span><span>  <span class="u"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s">"/sourdough.jpg"</span><span class="t">/&gt;</span></span><span class="msg">Must have an `alt` attribute</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">25</span><span>  …or see the <span class="u"><span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"/Menu.html"</span><span class="t">&gt;</span></span>full menu<span class="t">&lt;/a&gt;</span><span class="msg">Must point to a file that exists, not /Menu.html</span></span></div>
+<div class="ln warn"><span class="g"><i class="w"></i></span><span class="n">26</span><span>  <span class="uw"><span class="t">&lt;h3&gt;</span>Ingredients<span class="t">&lt;/h3&gt;</span></span><span class="msg wm">Must not skip from &lt;h1&gt; to &lt;h3&gt;</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">28</span><span>  <span class="t">&lt;img</span> <span class="a">src</span>=<span class="s u">"http://example.com/oven.jpg"</span> <span class="a">alt</span>=<span class="s">"Our stone oven"</span><span class="t">/&gt;</span><span class="msg">Must load "src" over https://</span></span></div>
+		</div>
+	</figure>
+</section>
+
+<section class="wrap block">
+	<div class="head">
+		<h2>{{ total }} rules, from &lt;title&gt; to the sitemap.</h2>
+		<p class="sub">Each rule has a section in the <a href="/docs/rules/">rules reference</a> that says what it checks, why it matters, and how to change it.</p>
+	</div>
+	<div class="rules">
+		{{#each $data.rules as plugin}}
+		<a class="rule" href="/docs/rules/#{{ plugin.name }}"><b>{{ plugin.name }}</b><span>{{ plugin.count }} {{ plugin.count === 1 ? "rule" : "rules" }}</span></a>
+		{{/each}}
+	</div>
+</section>
+
+<section class="wrap block two">
+	<div class="panel">
+		<h2>Typed config, your own rules.</h2>
+		<p>Rule names and options are type-checked. Plugins use the same API as the built-in rules, and <a href="/docs/presets/">presets</a> share one setup across sites.</p>
+<pre class="code"><span class="a">import</span> * <span class="a">as</span> config <span class="a">from</span> <span class="s">"seolint/config"</span>;
+<span class="a">import</span> * <span class="a">as</span> presets <span class="a">from</span> <span class="s">"seolint/presets"</span>;
+
+<span class="a">export default</span> config.define({
+  host: <span class="s">"https://example.com"</span>,
+  presets: [presets.strict],
+  rules: { <span class="s">"og.*"</span>: <span class="s">"warn"</span> },
+});</pre>
+	</div>
+	<div class="panel">
+		<h2>Comments on the pull request.</h2>
+		<p>With <code>--format ci</code>, each failure shows on its file and line in GitHub, Gitea, and Forgejo Actions.</p>
+		<div class="pr">
+			<div class="file">public/blog/launch/index.html</div>
+			<div class="code-line"><span class="n">25</span>  &lt;a href="/Menu.html"&gt;full menu&lt;/a&gt;</div>
+			<div class="note"><b>site.link.exists</b><span>Must point to a file that exists, not /Menu.html</span></div>
+		</div>
+	</div>
+</section>
+
+<section class="wrap block">
+	<div class="head">
+		<h2>Fast enough to run on every push.</h2>
+		<p class="sub">{{ $data.bench.pages.toLocaleString("en") }} real pages, {{ $data.bench.megabytes }} MB of HTML, on an {{ $data.bench.cpu }}. Large sites lint in worker threads.</p>
+	</div>
+	<div class="big">
+		<div><b>{{ $data.bench.bun.site }}</b><span>{{ $data.bench.bun.runtime }}, whole site</span></div>
+		<div><b>{{ $data.bench.node.site }}</b><span>{{ $data.bench.node.runtime }}, whole site</span></div>
+		<div><b>5</b><span>site-wide checks, such as broken links and the sitemap</span></div>
+	</div>
+</section>
+</main>

@@ -19,7 +19,8 @@
   "scripts": {
     "build": "bun build.ts",
     "example": "bun run --cwd example",
-    "bench": "bun run --cwd bench"
+    "bench": "bun run --cwd bench",
+    "www": "bun run --cwd www"
   },
   "bin": "dist/bin.js",
   "exports": {
@@ -54,6 +55,7 @@
   },
   "workspaces": [
     "bench",
-    "example"
+    "example",
+    "www"
   ]
 }

@@ -18,5 +18,13 @@
     },
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "build.ts", "example/seolint.config.ts", "bench"]
+  "include": [
+    "src",
+    "build.ts",
+    "example/seolint.config.ts",
+    "bench",
+    "www/bongo.config.ts",
+    "www/seolint.config.ts",
+    "www/data"
+  ]
 }

@@ -1,3 +1,4 @@
 # tempura templates, which the formatter parses as Handlebars
 example/**/*.hbs
 bench/readme.md
+www/**/*.hbs
