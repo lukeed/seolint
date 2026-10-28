@@ -601,6 +601,7 @@ a.panel:hover {
 }
 
 .panel {
+	min-width: 0;
 	background: var(--panel);
 	border: 1px solid var(--line);
 	border-radius: 16px;
