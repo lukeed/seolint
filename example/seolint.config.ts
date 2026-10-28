@@ -10,13 +10,12 @@ const brand = config.plugin({
 		"brand.title": { description: "The title includes the brand name." },
 	},
 	run(context, document) {
+		let options = context.load("brand.title");
 		let title = document.find("title");
-		context.assert(
-			"brand.title",
-			(options) => !options.name || (title?.text ?? "").includes(options.name),
-			"The title must include the brand name",
-			title,
-		);
+		if (options?.name && !title?.text.includes(options.name)) {
+			let message = "The title must include the brand name";
+			context.report("brand.title", message, title);
+		}
 	},
 });
 
@@ -34,14 +33,13 @@ const words = config.plugin({
 		},
 	},
 	run(context, document) {
+		let options = context.load("words.min");
 		let main = document.find("main");
 		let count = (main?.text ?? "").split(/\s+/).filter(Boolean).length;
-		context.assert(
-			"words.min",
-			(options) => count >= options.min,
-			`Must have more words; found ${count}`,
-			main,
-		);
+		if (options && count < options.min) {
+			let message = `Must have more words; found ${count}`;
+			context.report("words.min", message, main);
+		}
 	},
 });
 

@@ -14,6 +14,8 @@ Create a plugin with `plugin()`, and add it to the `plugins` of your config:
 ```ts
 import * as config from "seolint/config";
 
+const MESSAGE = "The title must include the brand name";
+
 const brand = config.plugin({
   name: "brand",
   rules: { "brand.title": { name: "" } },
@@ -24,13 +26,11 @@ const brand = config.plugin({
     },
   },
   run(context, document) {
+    let options = context.load("brand.title");
     let title = document.find("title");
-    context.assert(
-      "brand.title",
-      (options) => !options.name || (title?.text ?? "").includes(options.name),
-      "The title must include the brand name",
-      title,
-    );
+    if (options?.name && !title?.text.includes(options.name)) {
+      context.report("brand.title", MESSAGE, title);
+    }
   },
 });
 
@@ -94,14 +94,14 @@ const unique = config.plugin({
     for (let page of pages) {
       let h1 = page.data.h1;
       if (!h1) continue;
-      let other = seen.get(h1);
-      if (other)
-        site.report(
-          "unique.h1",
-          `Must be unique; ${other} has the same <h1>`,
-          page.input,
-        );
-      else seen.set(h1, page.input);
+
+      let first = seen.get(h1);
+      if (first) {
+        let message = `Must be unique; ${first} has the same <h1>`;
+        site.report("unique.h1", message, page.input);
+      } else {
+        seen.set(h1, page.input);
+      }
     }
   },
 });
