@@ -148,6 +148,10 @@ h1 {
 	display: block;
 }
 
+p {
+	text-wrap: pretty;
+}
+
 .lede {
 	color: var(--muted);
 	font-size: 19px;
@@ -363,8 +367,11 @@ h2 {
 }
 
 .demo {
-	overflow-x: auto;
 	border-radius: 14px;
+}
+
+.term.narrow {
+	display: none;
 }
 
 .term {
@@ -1031,8 +1038,12 @@ details.sidebar > summary {
 		grid-template-columns: 1fr;
 	}
 
-	.term {
-		width: auto;
+	.term.wide {
+		display: none;
+	}
+
+	.term.narrow {
+		display: block;
 	}
 
 	.presetrules {
@@ -1047,10 +1058,49 @@ details.sidebar > summary {
 		display: none;
 	}
 
+	.hero {
+		padding-top: 40px;
+		text-align: left;
+	}
+
+	.lede {
+		font-size: 17px;
+		margin-left: 0;
+	}
+
+	.cta {
+		justify-content: flex-start;
+	}
+
+	.lines-code {
+		font-size: 12px;
+		line-height: 1.7;
+		overflow-x: visible;
+	}
+
+	.ln {
+		grid-template-columns: 18px 30px minmax(0, 1fr);
+		padding: 3px 12px 3px 0;
+		white-space: normal;
+	}
+
+	.ln > span:last-child {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
+	.ln .g {
+		align-items: flex-start;
+		padding-top: 7px;
+	}
+
 	.msg {
 		display: block;
-		margin: 0 0 4px 72px;
-		width: max-content;
+		width: fit-content;
+		margin: 4px 0 2px;
+		padding: 2px 8px;
+		white-space: normal;
+		line-height: 1.5;
 	}
 
 	.big b {
