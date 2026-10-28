@@ -3,19 +3,24 @@ title: Home
 headline: seolint · Your HTML, linted for search
 summary: seolint checks the HTML your site generator builds, or live URLs, for SEO problems, and points to the exact line of each one.
 ---
-{{#var total = $data.rules.reduce((sum, x) => sum + x.count, 0)}}
+{{#var plugins = [...$data.rules].sort((a, b) => b.rules.length - a.rules.length || a.name.localeCompare(b.name))}}
+{{#var total = plugins.reduce((sum, x) => sum + x.rules.length, 0)}}
+{{#var site = $data.rules.find(x => x.name === "site")}}
 <main>
 <section class="wrap hero">
 	<h1>Your HTML, <span class="sq">linted</span> for search.</h1>
-	<p class="lede">seolint reads the pages your site generator builds, and points to the exact line where search engines will stumble.</p>
+	<p class="lede lines">
+		<span>seolint reads the pages that your site generator builds.</span>
+		<span>It points to the exact line where search engines will stumble.</span>
+	</p>
 	<div class="cta">
 		<code class="cmd"><span>$</span> npx seolint public</code>
-		<a class="btn" href="{{ $site.repo }}#install">Get started</a>
+		<a class="btn" href="#start">Get started</a>
 	</div>
 
 	<figure class="editor" aria-label="seolint messages on a page of the example site">
 		<figcaption class="tabs"><b>public/blog/launch/index.html</b><span class="count"><i class="err">✘ 9</i><i class="warn">⚠ 1</i></span></figcaption>
-		<div class="lines">
+		<div class="lines-code">
 <div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">6</span><span>  <span class="t">&lt;title&gt;</span><span class="u">Our new sourdough is here</span><span class="t">&lt;/title&gt;</span><span class="msg">The title must include the brand name</span></span></div>
 <div class="ln"><span class="g"></span><span class="n">7</span><span>  <span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"description"</span> <span class="a">content</span>=<span class="s">"Our new sourdough loaf is here…"</span><span class="t">/&gt;</span></span></div>
 <div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">13</span><span>  <span class="t">&lt;meta</span> <span class="a">property</span>=<span class="s">"og:image"</span> <span class="a">content</span>=<span class="s u">"http://example.com/og/sourdough.png"</span><span class="t">/&gt;</span><span class="msg">Must be an absolute https:// URL</span></span></div>
@@ -30,12 +35,40 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 
 <section class="wrap block">
 	<div class="head">
+		<h2>One command, every page.</h2>
+		<p class="sub lines">
+			<span>Point seolint at the folder that your site generator writes.</span>
+			<span>It lints each page, then checks the site as a whole.</span>
+			<span>Errors fail the run, and warnings do not.</span>
+		</p>
+	</div>
+	<div class="demo">
+		{{#partial src="terminal" command=$data.demo.command lines=$data.demo.lines}}
+	</div>
+	<p class="note">This is the real output for the <a href="{{ $site.repo }}/tree/main/example">example site</a> in the seolint repository.</p>
+</section>
+
+<section class="wrap block">
+	<div class="head">
 		<h2>{{ total }} rules, from &lt;title&gt; to the sitemap.</h2>
-		<p class="sub">Each rule has a section in the <a href="/docs/rules/">rules reference</a> that says what it checks, why it matters, and how to change it.</p>
+		<p class="sub lines">
+			<span>Each rule has its own page in the <a href="/docs/rules/">rules reference</a>.</span>
+			<span>The page says what the rule checks, why it matters, and how to change it.</span>
+		</p>
+	</div>
+	<div class="checks">
+		<div class="panel">
+			<h3>On every page</h3>
+			<p class="lines"><span>Titles, descriptions, and canonical links.</span><span>The viewport, headings, robots, and images.</span><span>Links, mixed content, hreflang, Open Graph, and Twitter cards.</span></p>
+		</div>
+		<div class="panel">
+			<h3>Across the whole site</h3>
+			<p class="lines"><span>Titles and descriptions that two pages share.</span><span>Links to files that do not exist.</span><span>A robots.txt that blocks every crawler, and pages missing from sitemap.xml.</span></p>
+		</div>
 	</div>
 	<div class="rules">
-		{{#each $data.rules as plugin}}
-		<a class="rule" href="/docs/rules/#{{ plugin.name }}"><b>{{ plugin.name }}</b><span>{{ plugin.count }} {{ plugin.count === 1 ? "rule" : "rules" }}</span></a>
+		{{#each plugins as plugin}}
+		<a class="rule" href="/docs/rules/#{{ plugin.name }}"><b>{{ plugin.name }}</b><span>{{ plugin.rules.length }} {{ plugin.rules.length === 1 ? "rule" : "rules" }}</span></a>
 		{{/each}}
 	</div>
 </section>
@@ -43,7 +76,10 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 <section class="wrap block two">
 	<div class="panel">
 		<h2>Typed config, your own rules.</h2>
-		<p>Rule names and options are type-checked. Plugins use the same API as the built-in rules, and <a href="/docs/presets/">presets</a> share one setup across sites.</p>
+		<p class="lines">
+			<span>Rule names and options are type-checked.</span>
+			<span>Plugins use the same API as the built-in rules.</span>
+		</p>
 <pre class="code"><span class="a">import</span> * <span class="a">as</span> config <span class="a">from</span> <span class="s">"seolint/config"</span>;
 <span class="a">import</span> * <span class="a">as</span> presets <span class="a">from</span> <span class="s">"seolint/presets"</span>;
 
@@ -55,7 +91,10 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 	</div>
 	<div class="panel">
 		<h2>Comments on the pull request.</h2>
-		<p>With <code>--format ci</code>, each failure shows on its file and line in GitHub, Gitea, and Forgejo Actions.</p>
+		<p class="lines">
+			<span>Run it with <code>--format ci</code> in GitHub, Gitea, or Forgejo Actions.</span>
+			<span>Each failure shows on its file and line.</span>
+		</p>
 		<div class="pr">
 			<div class="file">public/blog/launch/index.html</div>
 			<div class="code-line"><span class="n">25</span>  &lt;a href="/Menu.html"&gt;full menu&lt;/a&gt;</div>
@@ -66,13 +105,46 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 
 <section class="wrap block">
 	<div class="head">
+		<h2>Start strict, or start small.</h2>
+		<p class="sub lines">
+			<span>A preset is a config that yours merges in first.</span>
+			<span>You can also share your own across sites.</span>
+		</p>
+	</div>
+	<div class="presets">
+		<a class="panel" href="/docs/presets/strict/"><h3><code>strict</code></h3><p>Every rule that defaults to a warning becomes an error.</p></a>
+		<a class="panel" href="/docs/presets/essentials/"><h3><code>essentials</code></h3><p>Only the rules that directly affect search results.</p></a>
+		<a class="panel" href="/docs/presets/staging/"><h3><code>staging</code></h3><p>Allows <code>noindex</code> on staging and preview deploys.</p></a>
+	</div>
+</section>
+
+<section class="wrap block">
+	<div class="head">
 		<h2>Fast enough to run on every push.</h2>
-		<p class="sub">{{ $data.bench.pages.toLocaleString("en") }} real pages, {{ $data.bench.megabytes }} MB of HTML, on an {{ $data.bench.cpu }}. Large sites lint in worker threads.</p>
+		<p class="sub lines">
+			<span>Measured on {{ $data.bench.pages.toLocaleString("en") }} real pages, {{ $data.bench.megabytes }} MB of HTML, on an {{ $data.bench.cpu }}.</span>
+			<span>Large sites lint in worker threads.</span>
+		</p>
 	</div>
 	<div class="big">
 		<div><b>{{ $data.bench.bun.site }}</b><span>{{ $data.bench.bun.runtime }}, whole site</span></div>
 		<div><b>{{ $data.bench.node.site }}</b><span>{{ $data.bench.node.runtime }}, whole site</span></div>
-		<div><b>5</b><span>site-wide checks, such as broken links and the sitemap</span></div>
+		<div><b>{{ site.rules.length }}</b><span>site-wide checks</span></div>
 	</div>
+</section>
+
+<section class="wrap block" id="start">
+	<div class="head">
+		<h2>Get started.</h2>
+		<p class="sub lines">
+			<span>seolint needs Node 22.8 or later, or Bun.</span>
+		</p>
+	</div>
+	<ol class="steps">
+		<li><b>Install it.</b><pre class="code">npm install --save-dev seolint</pre></li>
+		<li><b>Lint your build.</b><pre class="code">npx seolint public --host https://example.com</pre></li>
+		<li><b>Add it to CI.</b><pre class="code">- run: npx seolint public --format ci</pre></li>
+	</ol>
+	<p class="note">Read the <a href="/docs/rules/">rules reference</a>, the <a href="/docs/presets/">presets guide</a>, or the <a href="{{ $site.repo }}#readme">readme</a> for the config and plugin API.</p>
 </section>
 </main>
