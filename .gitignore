@@ -6,3 +6,5 @@ dist
 
 example/public
 bench/corpus
+
+.env*
