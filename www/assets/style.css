@@ -668,51 +668,16 @@ details.sidebar > summary {
 	border-left: 1px solid var(--line);
 }
 
-.sidebar details > summary {
-	cursor: pointer;
-	list-style: none;
-	font-family: var(--mono);
-	font-size: 13.5px;
-}
-
-.sidebar details > summary::before {
-	content: "›";
-	display: inline-block;
-	width: 12px;
-	transition: transform 0.15s;
-}
-
-.sidebar details[open] > summary::before {
-	transform: rotate(90deg);
-}
-
-.sidebar details a,
-.sidebar a.sub {
-	padding-left: 26px;
-	font-family: var(--mono);
-	font-size: 13px;
-}
-
 .sidebar a:hover,
-.sidebar summary:hover,
 .toc a:hover {
 	color: var(--fg);
 }
 
-.sidebar a[aria-current="page"],
+.sidebar a[aria-current],
 .toc a[aria-current="true"] {
 	color: var(--fg);
 	border-left: 2px solid var(--accent);
 	padding-left: 11px;
-}
-
-.sidebar details a[aria-current="page"],
-.sidebar a.sub[aria-current="page"] {
-	padding-left: 25px;
-}
-
-.sidebar a.next-group {
-	padding-top: 9px;
 }
 
 .toc {
@@ -837,10 +802,6 @@ details.sidebar > summary {
 
 .prose th {
 	font-weight: 600;
-}
-
-.prose .ruletable a {
-	text-decoration: none;
 }
 
 .prose .ruletable td:first-child {

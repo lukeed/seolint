@@ -1,24 +1,9 @@
-{{#var presets = ["strict", "essentials", "staging"]}}
 <details class="sidebar" open>
 	<summary>Docs menu</summary>
-	{{#each $data.docs.slice(0, -1) as section}}
+	{{#each $data.docs as section}}
 	<p class="group">{{ section.group }}</p>
 	{{#each section.pages as page}}
-	<a href="{{ page.path }}"{{#if $page.path === page.path}} aria-current="page"{{/if}}>{{ page.title }}</a>
+	<a href="{{ page.path }}"{{#if $page.path === page.path}} aria-current="page"{{#elif page.path !== "/docs/" && $page.path.startsWith(page.path)}} aria-current="true"{{/if}}>{{ page.title }}</a>
 	{{/each}}
-	{{/each}}
-	<p class="group">Reference</p>
-	<a href="/docs/rules/"{{#if $page.path === "/docs/rules/"}} aria-current="page"{{/if}}>Rules</a>
-	{{#each $data.rules as plugin}}
-	<details{{#if plugin.rules.some(x => $page.path === "/docs/rules/" + x.name + "/")}} open{{/if}}>
-		<summary>{{ plugin.name }}</summary>
-		{{#each plugin.rules as rule}}
-		<a href="/docs/rules/{{ rule.name }}/"{{#if $page.path === "/docs/rules/" + rule.name + "/"}} aria-current="page"{{/if}}>{{ rule.name.slice(plugin.name.length + 1) }}</a>
-		{{/each}}
-	</details>
-	{{/each}}
-	<a class="next-group" href="/docs/presets/"{{#if $page.path === "/docs/presets/"}} aria-current="page"{{/if}}>Presets</a>
-	{{#each presets as name}}
-	<a class="sub" href="/docs/presets/{{ name }}/"{{#if $page.path === "/docs/presets/" + name + "/"}} aria-current="page"{{/if}}>{{ name }}</a>
 	{{/each}}
 </details>
