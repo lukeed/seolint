@@ -1084,9 +1084,20 @@ details.sidebar > summary {
 		white-space: normal;
 	}
 
+	.ln:not(.bad, .warn) {
+		display: none;
+	}
+
 	.ln > span:last-child {
-		white-space: pre-wrap;
-		overflow-wrap: anywhere;
+		min-width: 0;
+	}
+
+	.ln .src {
+		display: block;
+		white-space: pre;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		padding-bottom: 6px;
 	}
 
 	.ln .g {

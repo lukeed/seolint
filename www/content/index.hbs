@@ -6,12 +6,13 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 {{#var plugins = [...$data.rules].sort((a, b) => b.rules.length - a.rules.length || a.name.localeCompare(b.name))}}
 {{#var total = plugins.reduce((sum, x) => sum + x.rules.length, 0)}}
 {{#var site = $data.rules.find(x => x.name === "site")}}
+{{#var launch = $data.demo.pages["public/blog/launch/index.html"]}}
 <main>
 <section class="wrap hero">
 	<h1>Your HTML, <span class="sq">linted</span> for search.</h1>
 	<p class="lede lines">
-		<span>seolint reads the pages that your site generator builds.</span>
-		<span>It points to the exact line where search engines will stumble.</span>
+		<span>seolint lints the HTML you build.</span>
+		<span>It finds what search engines trip on.</span>
 	</p>
 	<div class="cta">
 		<code class="cmd"><span>$</span> npx seolint public</code>
@@ -19,16 +20,16 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 	</div>
 
 	<figure class="editor" aria-label="seolint messages on a page of the example site">
-		<figcaption class="tabs"><b>public/blog/launch/index.html</b><span class="count"><i class="err">✘ 9</i><i class="warn">⚠ 1</i></span></figcaption>
+		<figcaption class="tabs"><b>public/blog/launch/index.html</b><span class="count"><i class="err">✘ {{ launch.errors }}</i><i class="warn">⚠ {{ launch.warnings }}</i></span></figcaption>
 		<div class="lines-code">
-<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">6</span><span><span class="t">&lt;title&gt;</span><span class="u">Our new sourdough is here</span><span class="t">&lt;/title&gt;</span><span class="msg">The title must include the brand name</span></span></div>
-<div class="ln"><span class="g"></span><span class="n">7</span><span><span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"description"</span> <span class="a">content</span>=<span class="s">"Our new sourdough loaf is here…"</span><span class="t">/&gt;</span></span></div>
-<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">13</span><span><span class="t">&lt;meta</span> <span class="a">property</span>=<span class="s">"og:image"</span> <span class="a">content</span>=<span class="s u">"http://example.com/og/sourdough.png"</span><span class="t">/&gt;</span><span class="msg">Must be an absolute https:// URL</span></span></div>
-<div class="ln"><span class="g"></span><span class="n">23</span><span><span class="t">&lt;h1&gt;</span>Our new sourdough is here<span class="t">&lt;/h1&gt;</span></span></div>
-<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">24</span><span><span class="u"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s">"/sourdough.jpg"</span><span class="t">/&gt;</span></span><span class="msg">Must have an `alt` attribute</span></span></div>
-<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">25</span><span>…or see the <span class="u"><span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"/Menu.html"</span><span class="t">&gt;</span></span>full menu<span class="t">&lt;/a&gt;</span><span class="msg">Must point to a file that exists, not /Menu.html</span></span></div>
-<div class="ln warn"><span class="g"><i class="w"></i></span><span class="n">26</span><span><span class="uw"><span class="t">&lt;h3&gt;</span>Ingredients<span class="t">&lt;/h3&gt;</span></span><span class="msg wm">Must not skip from &lt;h1&gt; to &lt;h3&gt;</span></span></div>
-<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">28</span><span><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s u">"http://example.com/oven.jpg"</span> <span class="a">alt</span>=<span class="s">"Our stone oven"</span><span class="t">/&gt;</span><span class="msg">Must load "src" over https://</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">6</span><span><span class="src"><span class="t">&lt;title&gt;</span><span class="u">Our new sourdough is here</span><span class="t">&lt;/title&gt;</span></span><span class="msg">The title must include the brand name</span></span></div>
+<div class="ln"><span class="g"></span><span class="n">7</span><span><span class="src"><span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"description"</span> <span class="a">content</span>=<span class="s">"Our new sourdough loaf is here…"</span><span class="t">/&gt;</span></span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">13</span><span><span class="src"><span class="t">&lt;meta</span> <span class="a">property</span>=<span class="s">"og:image"</span> <span class="a">content</span>=<span class="s u">"http://example.com/og/sourdough.png"</span><span class="t">/&gt;</span></span><span class="msg">Must be an absolute https:// URL</span></span></div>
+<div class="ln"><span class="g"></span><span class="n">23</span><span><span class="src"><span class="t">&lt;h1&gt;</span>Our new sourdough is here<span class="t">&lt;/h1&gt;</span></span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">24</span><span><span class="src"><span class="u"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s">"/sourdough.jpg"</span><span class="t">/&gt;</span></span></span><span class="msg">Must have an `alt` attribute</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">25</span><span><span class="src">…or see the <span class="u"><span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"/Menu.html"</span><span class="t">&gt;</span></span>full menu<span class="t">&lt;/a&gt;</span></span><span class="msg">Must point to a file that exists, not /Menu.html</span></span></div>
+<div class="ln warn"><span class="g"><i class="w"></i></span><span class="n">26</span><span><span class="src"><span class="uw"><span class="t">&lt;h3&gt;</span>Ingredients<span class="t">&lt;/h3&gt;</span></span></span><span class="msg wm">Must not skip from &lt;h1&gt; to &lt;h3&gt;</span></span></div>
+<div class="ln bad"><span class="g"><i class="e"></i></span><span class="n">28</span><span><span class="src"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s u">"http://example.com/oven.jpg"</span> <span class="a">alt</span>=<span class="s">"Our stone oven"</span><span class="t">/&gt;</span></span><span class="msg">Must load "src" over https://</span></span></div>
 		</div>
 	</figure>
 </section>
@@ -37,13 +38,13 @@ summary: seolint checks the HTML your site generator builds, or live URLs, for S
 	<div class="head">
 		<h2>One command, every page.</h2>
 		<p class="sub lines">
-			<span>Point seolint at the folder that your site generator writes.</span>
-			<span>It lints each page, then checks the site as a whole.</span>
-			<span>Errors fail the run, and warnings do not.</span>
+			<span>Point it at your build folder.</span>
+			<span>It lints each page, then the whole site.</span>
+			<span>Errors fail the run. Warnings do not.</span>
 		</p>
 	</div>
 	<div class="demo">
-		{{#partial src="terminal" command=$data.demo.command lines=$data.demo.lines}}
+		{{#partial src="terminal" command=$data.demo.command lines=$data.demo.lines phone=$data.demo.phone}}
 	</div>
 	<p class="note">This is the real output for the <a href="{{ $site.repo }}/tree/main/example">example site</a> in the seolint repository.</p>
 </section>

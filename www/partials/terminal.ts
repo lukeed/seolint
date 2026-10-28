@@ -1,4 +1,9 @@
-type Args = { command: string; lines: string[] };
+type Args = {
+	command: string;
+	lines: string[];
+	/** A shorter output for the narrow terminal, which phones show. */
+	phone?: string[];
+};
 
 /** A run of text and its color class. */
 type Segment = [text: string, kind?: string];
@@ -218,9 +223,10 @@ ${shown.join("\n")}
  */
 export default function (args: Args): string {
 	let lines = args.lines.map(parse);
+	let phone = (args.phone ?? args.lines).map(parse);
 	let count = lines.filter((x) => x.type === "message").length;
 	let svgs = LAYOUTS.map((layout) =>
-		terminal(args.command, rows(lines, layout), layout),
+		terminal(args.command, rows(layout.wide ? lines : phone, layout), layout),
 	);
 	return `<div class="terminal" role="img" aria-label="seolint run on the example site, printing ${count} messages">${svgs.join("")}</div>`;
 }
