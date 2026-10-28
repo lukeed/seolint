@@ -3,12 +3,12 @@ import type { Meta, Severity } from "../types";
 const DOCS = "https://seolint.io/docs/rules/";
 
 /**
- * The link to a built-in rule's section of the rules reference on seolint.io.
+ * The link to a built-in rule's page on seolint.io.
  * @example
- * docs("title.exists"); //=> "https://seolint.io/docs/rules/#titleexists"
+ * docs("title.exists"); //=> "https://seolint.io/docs/rules/title.exists/"
  */
 export function docs(rule: string): string {
-	return `${DOCS}#${rule.replace(/[^\w-]/g, "").toLowerCase()}`;
+	return `${DOCS}${rule}/`;
 }
 
 /**

@@ -1,0 +1,19 @@
+{{#var all = $data.rules.flatMap(x => x.rules)}}
+{{#var index = all.findIndex(x => x.name === $page.title)}}
+{{#var rule = all[index]}}
+{{#var prev = all[index - 1]}}
+{{#var next = all[index + 1]}}
+<p class="crumb"><a href="/docs/rules/">Rules</a> / <a href="/docs/rules/#{{ rule.plugin }}">{{ rule.plugin }} rules</a></p>
+<h1><code>{{ rule.name }}</code></h1>
+<dl class="facts">
+	<div><dt>Default</dt><dd>{{#partial src="severity" rule=rule}}</dd></div>
+	{{#if rule.options}}
+	<div><dt>Options</dt><dd><code>{{ JSON.stringify(rule.options) }}</code></dd></div>
+	{{/if}}
+	<div><dt>Plugin</dt><dd><code>{{ rule.plugin }}</code></dd></div>
+</dl>
+{{{ $page.content }}}
+<nav class="pager" aria-label="Rules">
+	{{#if prev}}<a class="prev" href="/docs/rules/{{ prev.name }}/"><span>Previous</span><code>{{ prev.name }}</code></a>{{#else}}<span></span>{{/if}}
+	{{#if next}}<a class="next" href="/docs/rules/{{ next.name }}/"><span>Next</span><code>{{ next.name }}</code></a>{{/if}}
+</nav>

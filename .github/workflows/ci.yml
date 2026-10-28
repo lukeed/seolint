@@ -121,14 +121,14 @@ jobs:
 
       - run: bun install --frozen-lockfile
       - run: bun run build
+      - run: bun run example build
       - run: bun run www build
       - run: bun run www lint --format ci
 
       - name: Rule links
         run: |
-          page=www/public/docs/rules/index.html
-          node dist/bin.js --rules --json | jq -r '.[].docs | split("#")[1]' | while read -r id; do
-            grep -q "id=\"$id\"" "$page" || { echo "::error::$page has no #$id"; exit 1; }
+          node dist/bin.js --rules --json | jq -r '.[].docs | sub("^https://seolint.io"; "")' | while read -r path; do
+            test -f "www/public${path}index.html" || { echo "::error::no page for $path"; exit 1; }
           done
 
   deploy:
@@ -152,6 +152,7 @@ jobs:
 
       - run: bun install --frozen-lockfile
       - run: bun run build
+      - run: bun run example build
       - run: bun run www build
 
       - run: bun run www deploy

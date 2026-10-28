@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="{{ $site.lang }}">
+<head>
+	{{#partial src="head"}}
+</head>
+<body>
+	{{#partial src="nav"}}
+	<div class="wrap docs">
+		{{#partial src="sidebar"}}
+		<article class="prose">
+			{{{ $page.content }}}
+		</article>
+		{{#partial src="toc"}}
+	</div>
+	{{#partial src="footer"}}
+	<bongo:script src="main.ts" />
+</body>
+</html>

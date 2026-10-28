@@ -3,42 +3,30 @@ import { join } from "node:path";
 
 import * as presets from "./presets";
 
-const DOCS = await Bun.file(
-	join(import.meta.dir, "../www/content/docs/presets.md"),
-).text();
+const DIR = join(import.meta.dir, "../www/content/docs/presets");
 
 /**
- * The text of the docs section for `name`, up to the next heading.
+ * The rule names or patterns in the first column of each table row.
  */
-function section(name: string): string {
-	let heading = `### \`${name}\`\n`;
-	let start = DOCS.indexOf(heading);
-	expect(start).not.toBe(-1);
-	let end = DOCS.indexOf("\n#", start + heading.length);
-	return DOCS.slice(start, end === -1 ? undefined : end);
+async function listed(name: string): Promise<string[]> {
+	let text = await Bun.file(join(DIR, `${name}.md`)).text();
+	let rows = text.matchAll(/^\| \[?`"?([\w.*]+)"?(?:": \w+)?`/gm);
+	return [...rows].map((x) => x[1]).sort();
 }
 
-/**
- * The rule names or patterns in the first column of each list item or table row.
- */
-function listed(text: string): string[] {
-	let rows = text.matchAll(/^(?:- |\| )\[?`"?([\w.*]+)"?(?:": \w+)?`/gm);
-	return [...rows].map((x) => x[1]);
-}
-
-describe("www/content/docs/presets.md", () => {
-	test("lists every rule of strict", () => {
-		let rules = Object.keys(presets.strict.rules ?? {});
-		expect(listed(section("strict")).sort()).toEqual(rules.sort());
+describe("www/content/docs/presets", () => {
+	test("strict lists its rules from the code", async () => {
+		let text = await Bun.file(join(DIR, "strict.md")).text();
+		expect(text).toContain('<bongo:presetrules preset="strict" />');
 	});
 
-	test("lists every setting of essentials", () => {
+	test("lists every setting of essentials", async () => {
 		let rules = Object.keys(presets.essentials.rules ?? {});
-		expect(listed(section("essentials")).sort()).toEqual(rules.sort());
+		expect(await listed("essentials")).toEqual(rules.sort());
 	});
 
-	test("lists every rule of staging", () => {
+	test("lists every rule of staging", async () => {
 		let rules = Object.keys(presets.staging.rules ?? {});
-		expect(listed(section("staging")).sort()).toEqual(rules.sort());
+		expect(await listed("staging")).toEqual(rules.sort());
 	});
 });

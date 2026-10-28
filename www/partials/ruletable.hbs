@@ -1,0 +1,14 @@
+{{#expect plugin}}
+{{#var group = $data.rules.find(x => x.name === plugin)}}
+<table class="ruletable">
+	<thead><tr><th>Rule</th><th>Default</th><th>Checks</th></tr></thead>
+	<tbody>
+	{{#each group.rules as rule}}
+		<tr>
+			<td><a href="/docs/rules/{{ rule.name }}/"><code>{{ rule.name }}</code></a></td>
+			<td>{{#partial src="severity" rule=rule}}</td>
+			<td>{{ rule.description }}</td>
+		</tr>
+	{{/each}}
+	</tbody>
+</table>

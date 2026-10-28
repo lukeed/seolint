@@ -93,7 +93,7 @@ describe("bin", () => {
 			message: 'Must not include "null" in `title` value',
 			line: 4,
 			col: 3,
-			docs: "https://seolint.io/docs/rules/#titlecontentnull",
+			docs: "https://seolint.io/docs/rules/title.content.null/",
 		});
 	});
 
@@ -218,7 +218,7 @@ describe("bin", () => {
 				],
 			},
 			description: 'A link text describes its target, unlike "click here".',
-			docs: "https://seolint.io/docs/rules/#linktextvague",
+			docs: "https://seolint.io/docs/rules/link.text.vague/",
 		});
 	});
 

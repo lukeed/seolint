@@ -1,0 +1,10 @@
+<p class="crumb"><a href="/docs/presets/">Presets</a></p>
+<h1><code>{{ $page.title }}</code> preset</h1>
+{{{ $page.content }}}
+<h2 id="use-it">Use it</h2>
+<pre class="code"><span class="a">import</span> * <span class="a">as</span> config <span class="a">from</span> <span class="s">"seolint/config"</span>;
+<span class="a">import</span> * <span class="a">as</span> presets <span class="a">from</span> <span class="s">"seolint/presets"</span>;
+
+<span class="a">export default</span> config.define({
+  presets: [presets.{{ $page.title }}],
+});</pre>

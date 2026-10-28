@@ -1,0 +1,17 @@
+<meta charset="utf-8"/>
+<script>document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")</script>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+{{#var title = $page.params.headline || $page.title + " · seolint"}}
+<title>{{ title }}</title>
+<meta name="description" content="{{ $page.summary }}"/>
+<link rel="canonical" href="{{ $page.url }}"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="{{ title }}"/>
+<meta property="og:description" content="{{ $page.summary }}"/>
+<meta property="og:url" content="{{ $page.url }}"/>
+<meta property="og:image" content="{{ $site.url }}og.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<bongo:asset preload src="fonts/space-grotesk.woff2" />
+<bongo:asset preload src="fonts/jetbrains-mono.woff2" />
+<bongo:style src="style.css" />

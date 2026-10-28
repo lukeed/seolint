@@ -1,0 +1,6 @@
+{{#expect preset}}
+<ul class="presetrules">
+{{#each $data.presets[preset] as name}}
+	<li><a href="/docs/rules/{{ name }}/"><code>{{ name }}</code></a></li>
+{{/each}}
+</ul>

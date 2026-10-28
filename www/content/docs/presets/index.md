@@ -1,23 +1,11 @@
 ---
 title: Presets
-summary: The built-in seolint presets, how presets merge with your config, and how to write and share your own.
+summary: How seolint presets work, how they merge with your config, the built-in presets, and how to write and share your own.
 ---
 
 # Presets
 
 A preset is a config that your config merges in first. Use a preset to share one set of rules across sites, or to switch rules for one environment, such as a staging deploy.
-
-## Contents
-
-- [Use a preset](#use-a-preset)
-- [How presets merge](#how-presets-merge)
-- [Built-in presets](#built-in-presets)
-  - [`strict`](#strict)
-  - [`essentials`](#essentials)
-  - [`staging`](#staging)
-- [Write your own](#write-your-own)
-  - [Share a preset](#share-a-preset)
-  - [Add plugins](#add-plugins)
 
 ## Use a preset
 
@@ -73,70 +61,11 @@ Inside one `rules` object, patterns apply first, then exact names. So `{ "og.*":
 
 ## Built-in presets
 
-Import the built-in presets from `seolint/presets`.
+Import the built-in presets from `seolint/presets`:
 
-### `strict`
-
-Every rule that defaults to `warn` becomes an error. Use it when the site must pass every check, such as in CI for a new site.
-
-The preset sets these rules to `"error"`:
-
-- [`html.favicon`](/docs/rules/#htmlfavicon)
-- [`description.content.title`](/docs/rules/#descriptioncontenttitle)
-- [`canonical.href.self`](/docs/rules/#canonicalhrefself)
-- [`heading.order`](/docs/rules/#headingorder)
-- [`link.external.limit`](/docs/rules/#linkexternallimit)
-- [`link.text.vague`](/docs/rules/#linktextvague)
-- [`hreflang.default`](/docs/rules/#hreflangdefault)
-- [`og.title`](/docs/rules/#ogtitle)
-- [`og.description`](/docs/rules/#ogdescription)
-- [`og.image`](/docs/rules/#ogimage)
-- [`og.image.secure`](/docs/rules/#ogimagesecure)
-- [`og.url`](/docs/rules/#ogurl)
-- [`twitter.card`](/docs/rules/#twittercard)
-- [`site.robots`](/docs/rules/#siterobots)
-- [`site.sitemap`](/docs/rules/#sitesitemap)
-
-Rules that are off by default, such as `canonical.href.match`, stay off.
-
-### `essentials`
-
-Only the rules that directly affect search results. All other rules are off. Use it to adopt seolint on a large site: fix these first, then turn on more rules.
-
-| Setting                     | Checks                                      |
-| --------------------------- | ------------------------------------------- |
-| `"*": false`                | Turns off all rules, before the ones below. |
-| `"title.*"`                 | The page title.                             |
-| `"description.*"`           | The meta description.                       |
-| `"canonical.*"`             | The canonical link.                         |
-| `"robots.*"`                | The robots meta tag.                        |
-| `"heading.exists"`          | The page has an `<h1>`.                     |
-| `"heading.single"`          | The page has only one `<h1>`.               |
-| `"html.lang"`               | The page language.                          |
-| `"image.alt.exists"`        | Images have `alt` text.                     |
-| `"viewport.exists"`         | The mobile viewport.                        |
-| `"viewport.content.device"` | The viewport uses the device width.         |
-| `"link.href.*"`             | Links have a valid `href`.                  |
-| `"site.title.unique"`       | Titles are unique across the site.          |
-| `"site.description.unique"` | Descriptions are unique across the site.    |
-| `"site.link.exists"`        | Internal links point to pages that exist.   |
-
-Rules from your own `plugins` are also off, because `"*"` matches them. Turn them on in your config.
-
-### `staging`
-
-For staging and preview deploys. These sites are not for search engines, so they usually have `noindex`, and they are not the production site. The preset turns off these rules:
-
-| Rule                                                      | Why it is off                                          |
-| --------------------------------------------------------- | ------------------------------------------------------ |
-| [`robots.*`](/docs/rules/#robots)                         | A staging site should have `noindex` and `nofollow`.   |
-| [`site.robots`](/docs/rules/#siterobots)                  | A staging site can block all crawlers in `robots.txt`. |
-| [`site.sitemap`](/docs/rules/#sitesitemap)                | The sitemap lists production URLs.                     |
-| [`canonical.href.self`](/docs/rules/#canonicalhrefself)   | Canonical links point to the production page.          |
-| [`canonical.href.match`](/docs/rules/#canonicalhrefmatch) | Canonical links point to the production host.          |
-| [`og.url`](/docs/rules/#ogurl)                            | `og:url` points to the production page.                |
-
-All other rules keep their defaults.
+- [`strict`](/docs/presets/strict/) turns every rule that defaults to a warning into an error.
+- [`essentials`](/docs/presets/essentials/) keeps only the rules that directly affect search results.
+- [`staging`](/docs/presets/staging/) allows `noindex` on staging and preview deploys.
 
 ## Write your own
 
