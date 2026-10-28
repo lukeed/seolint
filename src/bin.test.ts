@@ -29,6 +29,7 @@ describe("bin", () => {
 		let output = seolint(["--help"]);
 		expect(output.code).toBe(0);
 		expect(output.stdout).toContain("$ seolint [inputs] [options]");
+		expect(output.stdout).toContain("Docs: https://seolint.io/docs/cli/");
 	});
 
 	test("should print version", () => {

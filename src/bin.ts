@@ -17,24 +17,25 @@ const HELP = `
     $ seolint [inputs] [options]
 
   Options
-    -i, --input    Accept HTML via stdin pipe
-    -H, --host     Specify the target hostname
-    -f, --format   Output format: pretty, json, or ci (default pretty)
-    -j, --json     Same as --format json
-    -q, --quiet    Disable terminal reporting
-    --rules        List every rule and its setting
-    --no-color     Disable colored output
-    -v, --version  Displays current version
-    -h, --help     Displays this message
+    -H, --host     The site URL, such as https://example.com
+    -f, --format   The output format: pretty, json, or ci (default pretty)
+    -j, --json     The same as --format json
+    -q, --quiet    Print nothing; only set the exit code
+    -i, --input    Read HTML from stdin
+    --rules        List every rule, with its setting and description
+    --no-color     Print without colors
+    -v, --version  Print the version
+    -h, --help     Print this help
 
   Examples
-    $ seolint public
+    $ seolint public --host https://example.com
     $ seolint public/index.html
-    $ seolint dir1 dir2 dir3/file.html
-    $ seolint https://example.com https://google.com
+    $ seolint public docs/index.html
+    $ seolint https://example.com/
     $ seolint --rules
     $ curl -s https://example.com | seolint -i
-    $ find public -type f -exec seolint {} +
+
+  Docs: https://seolint.io/docs/cli/
 `;
 
 function bail(err: unknown): void {
