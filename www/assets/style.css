@@ -86,7 +86,7 @@ a {
 
 /* nav */
 
-.nav {
+.nav > .wrap {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -126,6 +126,87 @@ a {
 	border: 1px solid var(--line);
 	border-radius: 99px;
 	padding: 6px 14px;
+}
+
+.menu-open,
+.menu-close {
+	display: none;
+	align-items: center;
+	gap: 8px;
+	border: 1px solid var(--line);
+	border-radius: 99px;
+	background: none;
+	color: var(--fg);
+	font: inherit;
+	font-size: 15px;
+	padding: 6px 14px;
+	cursor: pointer;
+}
+
+.menu-close {
+	display: inline-flex;
+	padding: 8px;
+}
+
+.menu {
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	max-height: none;
+	margin: 0;
+	padding: 0 24px 40px;
+	border: 0;
+	background: var(--bg);
+	color: var(--fg);
+	overflow-y: auto;
+}
+
+.menu-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 68px;
+}
+
+.menu-main {
+	display: flex;
+	flex-direction: column;
+	padding: 12px 0 20px;
+	border-bottom: 1px solid var(--line);
+}
+
+.menu-main a {
+	font-size: 26px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	padding: 6px 0;
+}
+
+.menu-main a:not([aria-current]) {
+	color: var(--muted);
+}
+
+.menu-docs {
+	display: flex;
+	flex-direction: column;
+	padding-top: 24px;
+	font-size: 17px;
+}
+
+.menu-docs a {
+	color: var(--muted);
+	padding: 7px 0 7px 14px;
+	border-left: 1px solid var(--line);
+}
+
+.menu-docs a[aria-current] {
+	color: var(--fg);
+	border-left: 2px solid var(--accent);
+	padding-left: 13px;
+}
+
+:root:has(.menu[open]) {
+	overflow: hidden;
 }
 
 /* landing */
@@ -643,10 +724,6 @@ a.panel:hover {
 	font-size: 14.5px;
 }
 
-details.sidebar > summary {
-	display: none;
-}
-
 .group {
 	margin: 22px 0 8px;
 	font: 600 12px var(--mono);
@@ -660,7 +737,6 @@ details.sidebar > summary {
 }
 
 .sidebar a,
-.sidebar summary,
 .toc a {
 	display: block;
 	color: var(--muted);
@@ -972,24 +1048,28 @@ details.sidebar > summary {
 	}
 
 	.sidebar {
-		position: static;
-		max-height: none;
-		border: 1px solid var(--line);
-		border-radius: 10px;
-		padding: 10px 14px;
+		display: none;
 	}
 
-	details.sidebar > summary {
-		display: block;
-		cursor: pointer;
-		font-weight: 600;
-		color: var(--fg);
-		border: 0;
-		padding: 0;
+	.nav {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		background: color-mix(in srgb, var(--bg) 92%, transparent);
+		backdrop-filter: blur(8px);
+		border-bottom: 1px solid var(--line);
 	}
 
-	.sidebar[open] > summary {
-		margin-bottom: 8px;
+	.nav nav > a {
+		display: none;
+	}
+
+	.menu-open {
+		display: inline-flex;
+	}
+
+	.prose :is(h2, h3)[id] {
+		scroll-margin-top: 84px;
 	}
 
 	.presets,
@@ -1062,10 +1142,6 @@ details.sidebar > summary {
 
 	.rules {
 		grid-template-columns: repeat(2, 1fr);
-	}
-
-	.nav nav > a:not(.gh) {
-		display: none;
 	}
 
 	.hero {

@@ -14,8 +14,13 @@ button?.addEventListener("click", () => {
 	localStorage.setItem("theme", next);
 });
 
-let sidebar = document.querySelector<HTMLDetailsElement>(".sidebar");
-if (sidebar && matchMedia("(max-width: 980px)").matches) sidebar.open = false;
+let menu = document.querySelector<HTMLDialogElement>("#menu");
+let opener = document.querySelector<HTMLButtonElement>(".menu-open");
+
+opener?.addEventListener("click", () => menu?.showModal());
+menu
+	?.querySelector(".menu-close")
+	?.addEventListener("click", () => menu.close());
 
 let links = [...document.querySelectorAll<HTMLAnchorElement>(".toc a")];
 let headings = links.flatMap((link) => {

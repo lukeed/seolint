@@ -1,5 +1,4 @@
-<details class="sidebar" open>
-	<summary>Docs menu</summary>
+<nav class="sidebar" aria-label="Docs">
 	{{#each $data.docs as section}}
 	<p class="group">{{ section.group }}</p>
 	{{#each section.pages as page}}
@@ -9,4 +8,4 @@
 	{{/if}}
 	{{/each}}
 	{{/each}}
-</details>
+</nav>

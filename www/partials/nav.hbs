@@ -1,18 +1,18 @@
-<header class="wrap nav">
-	<a class="brand" href="/"><span class="sq">seo</span>lint</a>
-	<nav aria-label="Main">
-		<a href="/docs/">Docs</a>
-		<a href="/docs/rules/">Rules</a>
-		<button
-			class="theme"
-			type="button"
-			aria-label="Switch between light and dark"
-		>
-			<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path
-					d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"
-					fill="currentColor"
-				/></svg>
-		</button>
-		<a class="gh" href="{{$site.repo}}">GitHub</a>
-	</nav>
+<header class="nav">
+	<div class="wrap">
+		<a class="brand" href="/"><span class="sq">seo</span>lint</a>
+		<nav aria-label="Main">
+			<a href="/docs/">Docs</a>
+			<a href="/docs/rules/">Rules</a>
+			<button class="theme" type="button" aria-label="Switch between light and dark">
+				<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="currentColor"/></svg>
+			</button>
+			<a class="gh" href="{{ $site.repo }}">GitHub</a>
+			<button class="menu-open" type="button" aria-haspopup="dialog" aria-controls="menu">
+				<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+				Menu
+			</button>
+		</nav>
+	</div>
 </header>
+{{#partial src="menu"}}

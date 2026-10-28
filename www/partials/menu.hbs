@@ -1,0 +1,21 @@
+<dialog id="menu" class="menu" aria-label="Menu">
+	<div class="menu-head">
+		<a class="brand" href="/"><span class="sq">seo</span>lint</a>
+		<button class="menu-close" type="button" aria-label="Close the menu" autofocus>
+			<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+		</button>
+	</div>
+	<nav class="menu-main" aria-label="Main">
+		<a href="/"{{#if $page.path === "/"}} aria-current="page"{{/if}}>Home</a>
+		<a href="/docs/"{{#if $page.path.startsWith("/docs/")}} aria-current="true"{{/if}}>Docs</a>
+		<a href="{{ $site.repo }}">GitHub</a>
+	</nav>
+	<nav class="menu-docs" aria-label="Docs">
+		{{#each $data.docs as section}}
+		<p class="group">{{ section.group }}</p>
+		{{#each section.pages as page}}
+		<a href="{{ page.path }}"{{#if $page.path === page.path}} aria-current="page"{{#elif page.path !== "/docs/" && $page.path.startsWith(page.path)}} aria-current="true"{{/if}}>{{ page.title }}</a>
+		{{/each}}
+		{{/each}}
+	</nav>
+</dialog>
