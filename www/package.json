@@ -5,12 +5,15 @@
   "scripts": {
     "dev": "bongo dev",
     "build": "bongo build",
-    "lint": "node node_modules/seolint/dist/bin.js"
+    "lint": "node node_modules/seolint/dist/bin.js",
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "@bongo/markdown": "^1.2.0",
     "bongo": "npm:@bongo/bongo@^1.2.0",
     "seolint": "workspace:*",
-    "shiki": "^4.0.2"
+    "shiki": "^4.0.2",
+    "wrangler": "^4.151.0"
   }
 }

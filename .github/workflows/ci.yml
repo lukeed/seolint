@@ -124,6 +124,41 @@ jobs:
       - run: bun run www build
       - run: bun run www lint --format ci
 
+      - name: Rule links
+        run: |
+          page=www/public/docs/rules/index.html
+          node dist/bin.js --rules --json | jq -r '.[].docs | split("#")[1]' | while read -r id; do
+            grep -q "id=\"$id\"" "$page" || { echo "::error::$page has no #$id"; exit 1; }
+          done
+
+  deploy:
+    name: Deploy site
+    needs: [check, node, example, www]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: deploy-www
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bun run www build
+
+      - run: bun run www deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
   publish:
     name: Publish to npm
     needs: [check, node, example, www]
