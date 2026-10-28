@@ -48,4 +48,4 @@ npx seolint public --host https://example.com
 
 ## Next steps
 
-Follow the [quickstart](/docs/quickstart/) to lint your first build.
+See the [CLI](/docs/cli/) for every option, or set up your [config file](/docs/config/).

@@ -34,6 +34,6 @@ seolint does not read your templates or your framework. It reads the HTML that y
 
 ## Next steps
 
-- [Install](/docs/install/) seolint in your project.
 - Follow the [quickstart](/docs/quickstart/) to lint your first build.
+- [Install](/docs/install/) seolint in your project.
 - Read the [rules reference](/docs/rules/) to see what each rule checks.

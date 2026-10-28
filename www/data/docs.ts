@@ -4,8 +4,8 @@ export default [
 		group: "Get started",
 		pages: [
 			{ title: "Introduction", path: "/docs/" },
-			{ title: "Install", path: "/docs/install/" },
 			{ title: "Quickstart", path: "/docs/quickstart/" },
+			{ title: "Install", path: "/docs/install/" },
 		],
 	},
 	{
