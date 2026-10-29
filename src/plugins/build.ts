@@ -22,6 +22,22 @@ export async function files(roots: string[]): Promise<Set<string>> {
 }
 
 /**
+ * Wrap `fn` so that it runs once for each path, since many links share one.
+ * @example
+ * let exists = build.memo((path) => build.resolvable(known, path));
+ */
+export function memo<T>(fn: (path: string) => T): (path: string) => T {
+	let cache = new Map<string, { value: T }>();
+	return (path) => {
+		let hit = cache.get(path);
+		if (hit) return hit.value;
+		let value = fn(path);
+		cache.set(path, { value });
+		return value;
+	};
+}
+
+/**
  * The URL `path` without percent escapes, or as is when an escape is malformed.
  */
 function decode(path: string): string {

@@ -237,18 +237,19 @@ export const link = plugin({
 	async finish(site, pages) {
 		if (site.roots.length === 0 || !site.load("link.internal.trailing")) return;
 		let known = await build.files(site.roots);
+		let shape = build.memo((path) => build.shape(known, path));
 		for (let page of pages) {
 			for (let { path, position } of page.data) {
-				let shape = build.shape(known, path);
+				let kind = shape(path);
 				let slash = path.endsWith("/");
-				if (shape === "folder" && !slash) {
+				if (kind === "folder" && !slash) {
 					site.report(
 						"link.internal.trailing",
 						`Must end with a slash, as ${path}/, because the page is a folder`,
 						page.input,
 						position,
 					);
-				} else if (shape === "file" && slash) {
+				} else if (kind === "file" && slash) {
 					site.report(
 						"link.internal.trailing",
 						`Must not end with a slash, as ${path.slice(0, -1)}, because the page is a file`,

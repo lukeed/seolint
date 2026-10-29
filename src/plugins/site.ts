@@ -97,9 +97,10 @@ function unique(
 async function links(site: Context, pages: Page<Data>[]): Promise<void> {
 	if (!site.load("site.link.exists")) return;
 	let known = await build.files(site.roots);
+	let exists = build.memo((path) => build.resolvable(known, path));
 	for (let page of pages) {
 		for (let link of page.data.links) {
-			if (build.resolvable(known, link.path)) continue;
+			if (exists(link.path)) continue;
 			site.report(
 				"site.link.exists",
 				`Must point to a file that exists, not ${link.path}`,
@@ -131,21 +132,25 @@ async function canonicals(site: Context, pages: Page<Data>[]): Promise<void> {
  */
 function linked(site: Context, pages: Page<Data>[]): void {
 	if (!site.load("site.page.linked") || !site.options.host) return;
-	let origin = URL.parse(site.options.host)?.origin;
-	if (!origin) return;
+
+	let path = build.memo(address.path);
+	let own = (page: Page<Data>) => {
+		let url = page.url && URL.parse(page.url);
+		return url ? path(url.pathname) : undefined;
+	};
 
 	let incoming = new Set<string>();
 	for (let page of pages) {
-		let self = page.url && address.normalize(page.url);
+		let self = own(page);
 		for (let link of page.data.links) {
-			let url = address.normalize(origin + link.path);
-			if (url && url !== self) incoming.add(url);
+			let target = path(link.path);
+			if (target !== self) incoming.add(target);
 		}
 	}
 
 	for (let page of pages.filter(primary)) {
-		let url = page.url && address.normalize(page.url);
-		if (!url || url === origin + "/" || incoming.has(url)) continue;
+		let self = own(page);
+		if (!self || self === "/" || incoming.has(self)) continue;
 		site.report(
 			"site.page.linked",
 			"Must have a link from another page",
