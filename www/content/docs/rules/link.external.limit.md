@@ -18,3 +18,7 @@ The rule is off by default. Google says there is no ideal number of links on a p
 ```ts
 rules: { "link.external.limit": { max: 20 } }
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): "There's no magical ideal number of links", so the rule is off by default.

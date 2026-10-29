@@ -16,3 +16,7 @@ An `hreflang` link uses an absolute URL.
 <!-- ✓ Passes -->
 <link rel="alternate" hreflang="en" href="https://example.com/en/" />
 ```
+
+## References
+
+- [Google: Localized versions of your pages](https://developers.google.com/search/docs/specialty/international/localized-versions): Alternate URLs must be fully qualified.

@@ -21,3 +21,8 @@ A page starts with `<!doctype html>`.
   ...
 </html>
 ```
+
+## References
+
+- [HTML spec: The DOCTYPE](https://html.spec.whatwg.org/multipage/syntax.html#the-doctype): A document must start with a DOCTYPE.
+- [MDN: Quirks mode and standards mode](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Quirks_mode_and_standards_mode): Without `<!doctype html>`, browsers render the page in quirks mode.

@@ -16,3 +16,8 @@ A page has a valid `twitter:card`.
 <!-- ✓ Passes -->
 <meta name="twitter:card" content="summary_large_image" />
 ```
+
+## References
+
+- [X: Cards markup](https://developer.x.com/en/docs/x-for-websites/cards/overview/markup): `twitter:card` sets the card type, from a fixed list.
+- [Patrick Stox: Twitter cards](https://patrickstox.com/technical-seo/on-page/meta-tags/twitter-cards/): X falls back to the Open Graph tags for the title, description, and image, but not for the card type. The rule warns.

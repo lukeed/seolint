@@ -43,6 +43,9 @@ describe("www/content/docs/rules", () => {
 				let fields = frontmatter(page);
 				expect(fields.title).toBe(rule);
 				expect(fields.summary.length).toBeWithin(50, 161);
+
+				let references = page.split("\n## References\n")[1] ?? "";
+				expect(references).toMatch(/^- \[[^\]]+\]\(https:\/\/[^)]+\): \S/m);
 			});
 		}
 	}

@@ -16,3 +16,7 @@ The `alt` text does not include the word `null`.
 <!-- ✓ Passes -->
 <img src="/bread.jpg" alt="Bread" />
 ```
+
+## References
+
+- [Google: Image SEO best practices](https://developers.google.com/search/docs/appearance/google-images): Alt text should describe the image, so a template value such as "null" is a bug.

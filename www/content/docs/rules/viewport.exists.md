@@ -20,3 +20,8 @@ A page has a `<meta name="viewport">` tag.
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 ```
+
+## References
+
+- [MDN: The viewport meta element](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Viewport_meta_element): The viewport tag makes a page fit mobile screens.
+- [Google: Mobile-first indexing](https://developers.google.com/search/docs/crawling-indexing/mobile/mobile-sites-mobile-first-indexing): Google indexes the mobile version of each page.

@@ -21,3 +21,7 @@ A page declares the `utf-8` encoding near the top.
   <title>Home</title>
 </head>
 ```
+
+## References
+
+- [HTML spec: Specifying the document's character encoding](https://html.spec.whatwg.org/multipage/semantics.html#charset): The declaration must be `utf-8`, and within the first 1024 bytes.

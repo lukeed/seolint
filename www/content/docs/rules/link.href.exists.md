@@ -16,3 +16,7 @@ A link has an `href` attribute.
 <!-- ✓ Passes -->
 <a href="/menu/">Menu</a>
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): Google can only reliably crawl `<a>` elements with an `href`.

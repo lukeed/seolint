@@ -23,3 +23,8 @@ A page has a `<meta name="description">` tag.
   />
 </head>
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): Google recommends a description at least for important pages, and uses it for snippets.
+- [Google: SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide): A good description is short, unique, and relevant.

@@ -20,3 +20,7 @@ A page has an `og:description`.
   <meta property="og:description" content="Who we are, and how we bake." />
 </head>
 ```
+
+## References
+
+- [The Open Graph protocol](https://ogp.me/): `og:description` describes the page in link previews. The rule warns.

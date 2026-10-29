@@ -24,3 +24,8 @@ Pages with `noindex`, or with a canonical link to another URL, are left out, bec
 <!-- about/index.html -->
 <title>About Bongo Bakery</title>
 ```
+
+## References
+
+- [Google: Title links](https://developers.google.com/search/docs/appearance/title-link): Google asks for distinct titles, and calls repeated or boilerplate titles bad.
+- [Google: SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide): A good title is unique to the page.

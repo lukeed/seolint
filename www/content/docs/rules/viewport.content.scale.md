@@ -16,3 +16,7 @@ The viewport `content` includes `initial-scale=1`.
 <!-- ✓ Passes -->
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ```
+
+## References
+
+- [MDN: The viewport meta element](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Viewport_meta_element): `initial-scale=1` sets the zoom when the page loads.

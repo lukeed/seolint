@@ -18,3 +18,7 @@ The rule warns, and does not fail. Google asks for one case, not for lowercase.
 <!-- ✓ Passes -->
 <link rel="canonical" href="https://example.com/about/" />
 ```
+
+## References
+
+- [Google: URL structure](https://developers.google.com/search/docs/crawling-indexing/url-structure): URLs are case-sensitive. Google asks for one case, not for lowercase, so the rule warns.

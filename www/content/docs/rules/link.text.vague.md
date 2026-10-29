@@ -24,3 +24,8 @@ A link text describes its target, unlike "click here".
 ```ts
 rules: { "link.text.vague": { words: ["click here", "here", "go"] } }
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): Google calls "click here" and "read more" too generic.
+- [WCAG 2.2: Understanding Link Purpose (In Context)](https://www.w3.org/WAI/WCAG22/Understanding/link-purpose-in-context.html): Link text should make sense on its own. Short links like "more" can be fine in context, so the rule warns.

@@ -16,3 +16,7 @@ The canonical `href` uses `https://`.
 <!-- ✓ Passes -->
 <link rel="canonical" href="https://example.com/about/" />
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): Google prefers HTTPS pages over HTTP pages as canonical.

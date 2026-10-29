@@ -19,3 +19,7 @@ Pages with `hreflang` links also link to themselves.
 <link rel="alternate" hreflang="en" href="https://example.com/en/" />
 <link rel="alternate" hreflang="fr" href="https://example.com/fr/" />
 ```
+
+## References
+
+- [Google: Localized versions of your pages](https://developers.google.com/search/docs/specialty/international/localized-versions): Each version must list itself as well as all other versions.

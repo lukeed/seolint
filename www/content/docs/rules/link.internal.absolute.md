@@ -18,3 +18,7 @@ The rule is off by default. Search engines follow relative links, and Google lis
 <!-- ✓ Passes -->
 <a href="/about/">About</a>
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): Google lists relative links, such as `./products/`, as crawlable, so the rule is off by default.

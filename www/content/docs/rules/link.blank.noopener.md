@@ -20,3 +20,9 @@ The rule is off by default. Every current browser treats `target="_blank"` as `n
   >Recipe</a
 >
 ```
+
+## References
+
+- [HTML spec: Link type "noopener"](https://html.spec.whatwg.org/multipage/links.html#link-type-noopener): `target="_blank"` implies `noopener` in the HTML spec.
+- [caniuse: target="_blank" implies rel="noopener"](https://caniuse.com/mdn-html_elements_a_implicit_noopener): Every current browser applies it, so the rule is off by default.
+- [MDN: rel=noopener](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/noopener): What `noopener` does.

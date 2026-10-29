@@ -16,3 +16,7 @@ The description does not include the word `null`.
 <!-- ✓ Passes -->
 <meta name="description" content="Fresh bread every morning." />
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): A description should describe the page, so a template value such as "null" is a bug.

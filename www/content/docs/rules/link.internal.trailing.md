@@ -21,3 +21,8 @@ The rule reads the files of a linted folder, so it does not run for single files
 <a href="/about/">About</a>
 <a href="/menu.pdf">Menu</a>
 ```
+
+## References
+
+- [Google: URL structure](https://developers.google.com/search/docs/crawling-indexing/url-structure): Google sets no rule for trailing slashes, so the rule follows the build.
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): Two URLs for one page split its signals.

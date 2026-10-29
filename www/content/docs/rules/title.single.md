@@ -17,3 +17,7 @@ A page has only one `<title>` element.
 <!-- ✓ Passes -->
 <title>Bongo Bakery</title>
 ```
+
+## References
+
+- [HTML spec: The title element](https://html.spec.whatwg.org/multipage/semantics.html#the-title-element): A document has at most one `<title>` element.

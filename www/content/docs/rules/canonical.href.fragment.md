@@ -16,3 +16,8 @@ The canonical `href` has no `#fragment`.
 <!-- ✓ Passes -->
 <link rel="canonical" href="https://example.com/about/" />
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): "Don't specify a URL fragment as canonical."
+- [Google: URL structure](https://developers.google.com/search/docs/crawling-indexing/url-structure): Google generally does not support URL fragments.

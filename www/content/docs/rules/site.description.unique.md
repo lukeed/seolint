@@ -24,3 +24,8 @@ Pages with `noindex`, or with a canonical link to another URL, are left out, bec
 <!-- contact/index.html -->
 <meta name="description" content="Call, write, or visit us." />
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): Identical or similar descriptions on many pages are not helpful.
+- [Google: SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide): A good description is unique to one page.

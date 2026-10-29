@@ -20,3 +20,7 @@ A page has a `<link rel="canonical">` tag.
   <link rel="canonical" href="https://example.com/about/" />
 </head>
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): A canonical link is a strong signal, and Google recommends one on each canonical page, itself included.

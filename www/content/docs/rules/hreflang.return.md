@@ -23,3 +23,7 @@ The rule compares the pages that seolint lints, by their URL, so it needs a [`ho
 <link rel="alternate" hreflang="en" href="https://example.com/en/" />
 <link rel="alternate" hreflang="fr" href="https://example.com/fr/" />
 ```
+
+## References
+
+- [Google: Localized versions of your pages](https://developers.google.com/search/docs/specialty/international/localized-versions): If two pages do not both point to each other, Google ignores the links.

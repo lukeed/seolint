@@ -19,3 +19,8 @@ Only the tags of HTML elements, comments, and declarations count. A title can na
 <title>Fish &amp; Chips</title>
 <title>The &lt;svelte:head&gt; element</title>
 ```
+
+## References
+
+- [HTML spec: The title element](https://html.spec.whatwg.org/multipage/semantics.html#the-title-element): The title is plain text.
+- [Google: Title links](https://developers.google.com/search/docs/appearance/title-link): Google uses the title text for the title link in results.

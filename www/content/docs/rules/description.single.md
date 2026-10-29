@@ -17,3 +17,7 @@ A page has only one description tag.
 <!-- ✓ Passes -->
 <meta name="description" content="Fresh bread every morning." />
 ```
+
+## References
+
+- [HTML spec: The description metadata name](https://html.spec.whatwg.org/multipage/semantics.html#meta-description): A document must not have more than one `description` meta tag.

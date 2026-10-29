@@ -20,3 +20,7 @@ The canonical link is inside `<head>`.
   <link rel="canonical" href="https://example.com/about/" />
 </head>
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): Google only accepts a canonical link inside `<head>`.

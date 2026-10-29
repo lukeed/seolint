@@ -26,3 +26,9 @@ An `@graph` of items also passes, when each item has an `@type`.
   }
 </script>
 ```
+
+## References
+
+- [Google: Structured data guidelines](https://developers.google.com/search/docs/appearance/structured-data/sd-policies): Google recommends JSON-LD, and items that miss required properties are not eligible for rich results.
+- [Google: Introduction to structured data](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data): How Google reads structured data.
+- [W3C: JSON-LD 1.1](https://www.w3.org/TR/json-ld11/): The JSON-LD format, with `@context`, `@type`, and `@graph`.

@@ -16,3 +16,8 @@ An internal link uses `https://`, or a root-relative path.
 <!-- ✓ Passes -->
 <a href="/about/">About</a>
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): Google prefers HTTPS URLs, and a link to an HTTP URL costs a redirect.
+- [Google: Page experience](https://developers.google.com/search/docs/appearance/page-experience): Pages should be served over HTTPS.

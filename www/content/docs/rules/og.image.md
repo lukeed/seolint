@@ -20,3 +20,7 @@ A page has an `og:image`.
   <meta property="og:image" content="https://example.com/og/about.png" />
 </head>
 ```
+
+## References
+
+- [The Open Graph protocol](https://ogp.me/): `og:image` is a required property. It only affects link previews, so the rule warns.

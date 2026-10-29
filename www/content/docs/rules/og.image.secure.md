@@ -16,3 +16,7 @@ The `og:image` is an absolute `https://` URL.
 <!-- ✓ Passes -->
 <meta property="og:image" content="https://example.com/og/about.png" />
 ```
+
+## References
+
+- [The Open Graph protocol](https://ogp.me/): An image URL, with `og:image:secure_url` for HTTPS. The rule warns.

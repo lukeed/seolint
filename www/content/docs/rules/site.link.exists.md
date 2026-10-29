@@ -16,3 +16,7 @@ Internal links point to files that exist in the build.
 <!-- ✓ Passes -->
 <a href="/about/">About</a>
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): Google finds pages through links, so a broken link leads nowhere.

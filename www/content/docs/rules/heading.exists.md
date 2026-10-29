@@ -20,3 +20,8 @@ A page has an `<h1>`.
   <h1>Our bread</h1>
 </body>
 ```
+
+## References
+
+- [axe: page-has-heading-one](https://dequeuniversity.com/rules/axe/4.10/page-has-heading-one): The same check in axe-core.
+- [W3C WAI: Headings](https://www.w3.org/WAI/tutorials/page-structure/headings/): The main heading of a page is the `<h1>`.

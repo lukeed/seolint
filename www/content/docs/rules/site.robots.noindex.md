@@ -16,3 +16,9 @@ The rule reads the `robots.txt` of a linted folder, as Google reads it, and need
 User-agent: *
 Disallow: /private/
 ```
+
+## References
+
+- [Google: Robots meta tag specifications](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag): A page that robots.txt blocks is not crawled, so its `noindex` is never seen.
+- [Google: Block search indexing with noindex](https://developers.google.com/search/docs/crawling-indexing/block-indexing): For `noindex` to work, robots.txt must not block the page.
+- [Google: How Google interprets robots.txt](https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt): How Google reads robots.txt, as seolint does.

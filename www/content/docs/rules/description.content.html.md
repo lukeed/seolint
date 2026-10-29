@@ -19,3 +19,7 @@ Only the tags of HTML elements, comments, and declarations count. A description 
 <meta name="description" content="Our best bread." />
 <meta name="description" content="How &lt;svelte:head&gt; works." />
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): A description is plain, human-readable text.

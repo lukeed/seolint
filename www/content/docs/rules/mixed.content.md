@@ -19,3 +19,8 @@ An `https://` page loads no resources over `http://`.
 <img src="https://example.com/oven.jpg" alt="Our oven" />
 <img src="/oven.jpg" alt="Our oven" />
 ```
+
+## References
+
+- [MDN: Mixed content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content): Browsers block or warn about resources loaded over HTTP on an HTTPS page.
+- [Google: Page experience](https://developers.google.com/search/docs/appearance/page-experience): Pages should be served securely.

@@ -13,3 +13,7 @@ A page does not redirect with a meta refresh.
 <!-- ✗ Fails -->
 <meta http-equiv="refresh" content="0; url=https://example.com/new/" />
 ```
+
+## References
+
+- [Google: Redirects and Google Search](https://developers.google.com/search/docs/crawling-indexing/301-redirects): Google recommends server redirects, and accepts a meta refresh only as a fallback, so the rule warns.

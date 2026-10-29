@@ -16,3 +16,7 @@ A link `href` is not empty.
 <!-- ✓ Passes -->
 <a href="/menu/">Menu</a>
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): Google crawls links by their `href`, so an empty one leads nowhere.

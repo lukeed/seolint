@@ -18,3 +18,7 @@ Only the tags of HTML elements, comments, and declarations count. `alt` text can
 <!-- ✓ Passes -->
 <img src="/bread.jpg" alt="Bread" />
 ```
+
+## References
+
+- [Google: Image SEO best practices](https://developers.google.com/search/docs/appearance/google-images): Alt text is a short, plain description of the image.

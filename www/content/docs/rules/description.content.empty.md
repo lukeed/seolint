@@ -16,3 +16,7 @@ The description is not empty.
 <!-- ✓ Passes -->
 <meta name="description" content="Fresh bread every morning." />
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): An empty description gives Google nothing to use for a snippet.

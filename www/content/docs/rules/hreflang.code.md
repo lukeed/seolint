@@ -18,3 +18,9 @@ An `hreflang` value is a valid language code, or `x-default`.
 <link rel="alternate" hreflang="en" href="https://example.com/en/" />
 <link rel="alternate" hreflang="en-GB" href="https://example.com/uk/" />
 ```
+
+## References
+
+- [Google: Localized versions of your pages](https://developers.google.com/search/docs/specialty/international/localized-versions): Google supports ISO 639-1 languages, ISO 15924 scripts, and ISO 3166-1 regions, and not codes such as `UK` or `es-419`.
+- [Library of Congress: ISO 639 language codes](https://www.loc.gov/standards/iso639-2/php/code_list.php): The ISO 639-1 language codes.
+- [Unicode: ISO 15924 script codes](https://www.unicode.org/iso15924/): The ISO 15924 script codes.

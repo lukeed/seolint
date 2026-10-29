@@ -21,3 +21,7 @@ The description shares at least one meaningful word with the title.
 <title>Our Breads</title>
 <meta name="description" content="Each bread is baked every morning." />
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): A description should describe the page. A description that shares no word with the title may belong to another page, so the rule warns.

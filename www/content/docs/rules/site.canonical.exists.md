@@ -17,3 +17,7 @@ The rule reads the files of a linted folder, so it does not run for single files
 <!-- ✗ Fails -->
 <link rel="canonical" href="https://example.com/old/" />
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): A canonical link points search engines to the page to show, so it must exist.

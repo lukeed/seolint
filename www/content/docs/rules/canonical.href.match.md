@@ -28,3 +28,7 @@ Without a `hostname` option or a [`host`](/docs/config/#host), the rule is skipp
 ```ts
 rules: { "canonical.href.match": { hostname: "www.example.com" } }
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): A canonical link points search engines to the URL to show instead of the page.

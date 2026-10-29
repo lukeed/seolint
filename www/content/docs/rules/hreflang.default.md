@@ -19,3 +19,7 @@ Pages with `hreflang` links also have an `x-default` link.
 <link rel="alternate" hreflang="de" href="https://example.com/de/" />
 <link rel="alternate" hreflang="x-default" href="https://example.com/" />
 ```
+
+## References
+
+- [Google: Localized versions of your pages](https://developers.google.com/search/docs/specialty/international/localized-versions): Google recommends `x-default` for the fallback page, but does not require it, so the rule warns.

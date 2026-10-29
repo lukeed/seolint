@@ -18,3 +18,9 @@ Disallow: /
 User-agent: *
 Allow: /
 ```
+
+## References
+
+- [Google: Introduction to robots.txt](https://developers.google.com/search/docs/crawling-indexing/robots/intro): What robots.txt does. A site can work without one, so the rule warns.
+- [Google: How Google interprets robots.txt](https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt): How Google reads robots.txt, as seolint does.
+- [RFC 9309: Robots Exclusion Protocol](https://www.rfc-editor.org/rfc/rfc9309.html): The robots.txt standard.

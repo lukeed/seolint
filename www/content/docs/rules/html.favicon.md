@@ -20,3 +20,7 @@ A page links to a favicon.
   <link rel="icon" href="/favicon.svg" />
 </head>
 ```
+
+## References
+
+- [Google: Favicon in search results](https://developers.google.com/search/docs/appearance/favicon-in-search): Google shows a favicon from these `rel` values. A favicon is optional, so the rule warns.

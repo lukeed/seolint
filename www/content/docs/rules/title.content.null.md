@@ -16,3 +16,7 @@ The title does not include the word `null`.
 <!-- ✓ Passes -->
 <title>About us</title>
 ```
+
+## References
+
+- [Google: Title links](https://developers.google.com/search/docs/appearance/title-link): A title should describe the page, so a template value such as "null" is a bug.

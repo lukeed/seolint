@@ -16,3 +16,7 @@ The canonical link has a non-empty `href`.
 <!-- ✓ Passes -->
 <link rel="canonical" href="https://example.com/about/" />
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): A canonical link names a URL in its `href`.

@@ -27,3 +27,7 @@ The rule warns, and does not fail. Google sets no limit on the length of a title
 ```ts
 rules: { "title.content.length": { max: 70 } }
 ```
+
+## References
+
+- [Google: Title links](https://developers.google.com/search/docs/appearance/title-link): Google sets no length limit, and cuts titles to fit the device, so the rule warns.

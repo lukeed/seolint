@@ -18,3 +18,7 @@ The rule is off by default. Google sets no rule for file extensions in URLs, and
 <!-- ✓ Passes -->
 <a href="/about/">About</a>
 ```
+
+## References
+
+- [Google: URL structure](https://developers.google.com/search/docs/crawling-indexing/url-structure): Google sets no rule for file extensions in URLs, so the rule is off by default.

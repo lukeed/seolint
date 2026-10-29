@@ -23,3 +23,7 @@ Internal links pass, because the page that opens is on your own site. Without a 
 >
 <a href="/recipe/" target="_blank" rel="noopener">Recipe</a>
 ```
+
+## References
+
+- [MDN: rel=noreferrer](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/noreferrer): What `noreferrer` does. It is a privacy choice, not a search one, so the rule is off by default.

@@ -19,3 +19,8 @@ The viewport does not stop users from zooming.
 <!-- ✓ Passes -->
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ```
+
+## References
+
+- [WCAG 2.2: Understanding Resize Text](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html): Users must be able to zoom text to 200% (Level AA).
+- [axe: meta-viewport](https://dequeuniversity.com/rules/axe/4.10/meta-viewport): The same check in axe-core, with the same limit of 2.

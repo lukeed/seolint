@@ -20,3 +20,7 @@ A page has an `og:title`.
   <meta property="og:title" content="About Bongo Bakery" />
 </head>
 ```
+
+## References
+
+- [The Open Graph protocol](https://ogp.me/): `og:title` is a required property. It only affects link previews, so the rule warns.

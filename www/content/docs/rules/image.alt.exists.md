@@ -17,3 +17,9 @@ An `<img>` has an `alt` attribute.
 <img src="/bread.jpg" alt="A basket of fresh bread" />
 <img src="/divider.svg" alt="" />
 ```
+
+## References
+
+- [Google: Image SEO best practices](https://developers.google.com/search/docs/appearance/google-images): Google calls a missing `alt` bad, and uses alt text to understand images.
+- [WCAG 2.2: Understanding Non-text Content](https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html): Images need a text alternative (Level A).
+- [axe: image-alt](https://dequeuniversity.com/rules/axe/4.10/image-alt): The same check in axe-core.

@@ -17,3 +17,7 @@ A page has only one canonical link.
 <!-- ✓ Passes -->
 <link rel="canonical" href="https://example.com/about/" />
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): "Don't specify different URLs as canonical for the same page."

@@ -18,3 +18,7 @@ The rule reads the `robots` and `googlebot` meta tags. For a URL, it also reads 
 <!-- ✓ Passes -->
 <meta name="robots" content="index, follow" />
 ```
+
+## References
+
+- [Google: Robots meta tag specifications](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag): `nofollow` and `none` stop Google from following the links of the page.

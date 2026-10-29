@@ -18,3 +18,8 @@ A page has an `og:url` that matches its canonical URL.
 <link rel="canonical" href="https://example.com/about/" />
 <meta property="og:url" content="https://example.com/about/" />
 ```
+
+## References
+
+- [The Open Graph protocol](https://ogp.me/): `og:url` is the canonical URL of the page. The rule warns.
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): The canonical URL that `og:url` should match.

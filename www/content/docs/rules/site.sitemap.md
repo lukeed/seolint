@@ -18,3 +18,9 @@ A page with `noindex`, or with a canonical link to another URL, does not need to
 	<url><loc>https://example.com/about/</loc></url>
 </urlset>
 ```
+
+## References
+
+- [Google: Sitemaps overview](https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview): A sitemap helps search engines find pages. Small, well-linked sites may not need one, so the rule warns.
+- [Google: Build and submit a sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap): Sitemap index files, gzipped sitemaps, and the `Sitemap:` line of robots.txt.
+- [sitemaps.org: Sitemaps XML format](https://www.sitemaps.org/protocol.html): The sitemap format.

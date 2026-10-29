@@ -18,3 +18,8 @@ The rule reads the `robots` and `googlebot` meta tags. For a URL, it also reads 
 <!-- ✓ Passes -->
 <meta name="robots" content="index, follow" />
 ```
+
+## References
+
+- [Google: Robots meta tag specifications](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag): `noindex` and `none` leave the page out of results, from a meta tag or the `X-Robots-Tag` header.
+- [Google: Block search indexing with noindex](https://developers.google.com/search/docs/crawling-indexing/block-indexing): How `noindex` works, and why the page must stay crawlable.

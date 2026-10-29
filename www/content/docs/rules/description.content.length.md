@@ -30,3 +30,7 @@ The rule warns, and does not fail. Google sets no limit on the length of a descr
 ```ts
 rules: { "description.content.length": { min: 70, max: 155 } }
 ```
+
+## References
+
+- [Google: Snippets](https://developers.google.com/search/docs/appearance/snippet): Google sets no length limit, and cuts descriptions to fit the device, so the rule warns.

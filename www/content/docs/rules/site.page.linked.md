@@ -16,3 +16,7 @@ The rule reads the links of a linted folder, so it does not run for single files
 <!-- index.html -->
 <a href="/about/">About</a>
 ```
+
+## References
+
+- [Google: Link best practices](https://developers.google.com/search/docs/crawling-indexing/links-crawlable): "Every page you care about should have a link from at least one other page on your site." A sitemap can still list the page, so the rule warns.

@@ -20,3 +20,7 @@ URLs of one page match, with or without `index.html` or `.html`, because hosts s
 <!-- ✓ Passes -->
 <link rel="canonical" href="https://example.com/about/" />
 ```
+
+## References
+
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): Google recommends a self-referencing canonical link on each canonical page. Some pages are duplicates on purpose, so the rule warns.

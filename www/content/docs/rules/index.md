@@ -124,7 +124,9 @@ Rules about JSON-LD, the structured data in `<script type="application/ld+json">
 
 Rules that compare pages across the whole site. They run when you lint a folder, or URLs, with `seolint public` or `run()`. They do not run for `lint()`, which checks one page.
 
-- `site.title.unique` and `site.description.unique` run for files and URLs.
-- `site.link.exists`, `site.robots`, and `site.sitemap` need the built files, so they only run for folders, which they treat as site roots. `site.link.exists`, and the page check of `site.sitemap`, also need a `host`.
+- `site.title.unique` and `site.description.unique` run for files and URLs. They skip pages with `noindex`, or with a canonical link to another URL.
+- The other `site.*` rules read the built files, so they only run for folders, which they treat as site roots. Most of them also need a `host`, to match pages to their URLs.
+
+Two rules of other plugins also compare pages: [`link.internal.trailing`](/docs/rules/link.internal.trailing/) reads the built files, and [`hreflang.return`](/docs/rules/hreflang.return/) compares the linted pages.
 
 <bongo:ruletable plugin="site" />

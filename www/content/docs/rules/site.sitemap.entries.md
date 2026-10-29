@@ -23,3 +23,9 @@ The rule reads the same sitemaps as [`site.sitemap`](/docs/rules/site.sitemap/).
 	<url><loc>https://example.com/</loc></url>
 </urlset>
 ```
+
+## References
+
+- [Google: Build and submit a sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap): List the canonical URLs that you want in results, and not the HTTP version of a page.
+- [Google: How to specify a canonical URL](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls): All pages in a sitemap are suggested as canonical.
+- [Google: Robots meta tag specifications](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag): A page with `noindex` stays out of results, so a sitemap should not suggest it. The rule warns.

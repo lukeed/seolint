@@ -17,3 +17,7 @@ A page has only one viewport tag.
 <!-- ✓ Passes -->
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ```
+
+## References
+
+- [MDN: The viewport meta element](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Viewport_meta_element): How the viewport tag works. Two tags can set different values, so the page may not render as you expect.
