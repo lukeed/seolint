@@ -96,7 +96,9 @@ export const html = plugin({
 
 		context.assert(
 			"html.favicon",
-			document.find("link[rel~=icon i]") != null,
+			document.find(
+				"link[rel~=icon i], link[rel~=apple-touch-icon i], link[rel~=apple-touch-icon-precomposed i]",
+			) != null,
 			'A <link rel="icon"> tag must exist',
 		);
 

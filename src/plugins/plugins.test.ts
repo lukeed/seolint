@@ -36,6 +36,28 @@ describe("html", () => {
 		).toHaveLength(1);
 	});
 
+	test("html.favicon accepts the rel values that Google supports", async () => {
+		for (let rel of [
+			"icon",
+			"shortcut icon",
+			"apple-touch-icon",
+			"apple-touch-icon-precomposed",
+		]) {
+			expect(
+				await check(
+					"html.favicon",
+					page(`<link rel="${rel}" href="/icon.png">`),
+				),
+			).toEqual([]);
+		}
+		expect(
+			await check(
+				"html.favicon",
+				page('<link rel="mask-icon" href="/icon.svg">'),
+			),
+		).toHaveLength(1);
+	});
+
 	test("html.refresh", async () => {
 		expect(await check("html.refresh", page(""))).toEqual([]);
 		expect(
