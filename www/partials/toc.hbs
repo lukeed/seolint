@@ -1,6 +1,6 @@
 {{#var headings = $page.headings.filter(h => h.level === 2 || h.level === 3)}}
 <aside class="toc">
-	{{#if headings.length}}
+	{{#if headings.length > 1}}
 	<p class="group">On this page</p>
 	{{#each headings as h}}
 	<a class="toc-{{ h.level }}" href="#{{ h.id }}">{{{ h.html }}}</a>
