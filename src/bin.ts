@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { appendFileSync } from "node:fs";
 import { isAbsolute, relative } from "node:path";
 import { text } from "node:stream/consumers";
 import { parseArgs, styleText } from "node:util";
@@ -209,9 +210,11 @@ if (format === "ci") {
 		}
 	}
 
-	console.log(
-		`seolint: ${count(errors, "error")} and ${count(warnings, "warning")}`,
-	);
+	let totals = `${count(errors, "error")} and ${count(warnings, "warning")}`;
+	console.log(`seolint: ${totals}`);
+
+	let summary = process.env.GITHUB_STEP_SUMMARY;
+	if (summary) appendFileSync(summary, table(entries, totals));
 	process.exit(failed ? 1 : 0);
 }
 
@@ -225,6 +228,37 @@ function style(
 	input: string,
 ): string {
 	return flags["no-color"] ? input : styleText(format, input, { stream });
+}
+
+/**
+ * The report as a Markdown table, for the job summary of GitHub Actions,
+ * which shows every problem, unlike its annotations.
+ */
+function table(entries: [string, Message[]][], totals: string): string {
+	let cell = (input: string) =>
+		input
+			.replace(/\|/g, "\\|")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/\s*\n\s*/g, " ");
+
+	let rows = entries.flatMap(([file, list]) =>
+		list.map((row) => {
+			let symbol = row.severity === "error" ? "✘" : "⚠";
+			let at = row.line ? `${row.line}:${row.col}` : "";
+			let rule = row.docs
+				? `[\`${row.rule}\`](${row.docs})`
+				: `\`${row.rule}\``;
+			return `| ${symbol} | ${cell(file)} | ${at} | ${cell(row.message)} | ${rule} |`;
+		}),
+	);
+
+	let lines = [`### seolint: ${totals}`, ""];
+	if (rows.length > 0) {
+		lines.push("| | File | Position | Message | Rule |");
+		lines.push("| --- | --- | --- | --- | --- |", ...rows);
+	}
+	return lines.join("\n") + "\n\n";
 }
 
 function location(message: Message): string {

@@ -10,11 +10,16 @@ import type { Message } from "./types";
 const fixtures = resolve(import.meta.dir, "fixtures");
 const bin = join(import.meta.dir, "bin.ts");
 
-function seolint(args: string[], stdin?: string, cwd = fixtures) {
+function seolint(
+	args: string[],
+	stdin?: string,
+	cwd = fixtures,
+	env: Record<string, string> = {},
+) {
 	let proc = Bun.spawnSync([process.execPath, bin, ...args], {
 		cwd,
 		stdin: stdin == null ? "ignore" : Buffer.from(stdin),
-		env: { ...process.env, NO_COLOR: "1" },
+		env: { ...process.env, NO_COLOR: "1", GITHUB_STEP_SUMMARY: "", ...env },
 	});
 
 	return {
@@ -240,6 +245,49 @@ describe("bin", () => {
 			'::warning file=site/sub/bad.html,title=og.title::A "og:title" meta tag must exist',
 		);
 		expect(lines.at(-1)).toBe("seolint: 15 errors and 7 warnings");
+	});
+
+	test("should write the CI report to the job summary", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
+		let file = join(dir, "summary.md");
+		await writeFile(file, "earlier step\n");
+
+		let args = ["site", "-H", "https://example.com", "--format", "ci"];
+		let output = seolint(args, undefined, fixtures, {
+			GITHUB_STEP_SUMMARY: file,
+		});
+		let lines = (await Bun.file(file).text()).split("\n");
+
+		expect(output.code).toBe(1);
+		expect(lines[0]).toBe("earlier step");
+		expect(lines).toContain("### seolint: 15 errors and 7 warnings");
+		expect(lines).toContain("| | File | Position | Message | Rule |");
+		expect(lines).toContain(
+			"| ✘ | site/sub/bad.html | 2:1 | The &lt;html&gt; element must have a `lang` attribute | [`html.lang`](https://seolint.io/docs/rules/html.lang/) |",
+		);
+		expect(lines).toContain(
+			'| ⚠ | site/sub/bad.html |  | A "og:title" meta tag must exist | [`og.title`](https://seolint.io/docs/rules/og.title/) |',
+		);
+		expect(lines.filter((x) => x.startsWith("| ✘ "))).toHaveLength(15);
+		expect(lines.filter((x) => x.startsWith("| ⚠ "))).toHaveLength(7);
+		await rm(dir, { recursive: true, force: true });
+	});
+
+	test("should escape the job summary table", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
+		let file = join(dir, "summary.md");
+		await writeFile(join(dir, "a.html"), "<html></html>");
+		await writeFile(
+			join(dir, "seolint.config.mjs"),
+			'export default { rules: { "*": false, "odd.rule": true }, plugins: [{ name: "odd", rules: { "odd.rule": true }, run(c) { c.report("odd.rule", "a | b\\nc") } }] }',
+		);
+
+		seolint(["a.html", "--format", "ci"], undefined, dir, {
+			GITHUB_STEP_SUMMARY: file,
+		});
+		let text = await Bun.file(file).text();
+		expect(text).toContain("| ✘ | a.html |  | a \\| b c | `odd.rule` |");
+		await rm(dir, { recursive: true, force: true });
 	});
 
 	test("should escape CI annotations", async () => {
