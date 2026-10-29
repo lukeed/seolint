@@ -90,7 +90,7 @@ It prints [GitHub Actions workflow commands](https://docs.github.com/en/actions/
 seolint: 2 errors and 1 warning
 ```
 
-In GitHub Actions, the `ci` format also writes every problem as a table to the job summary, because GitHub shows only the first 10 errors and 10 warnings of a step as annotations. See [CI](/docs/ci/) for a complete workflow.
+In GitHub Actions, the `ci` format also writes every problem as a table to the job summary, because GitHub shows only the first 10 errors and 10 warnings of a step as annotations. See an [example run](https://github.com/lukeed/seolint/actions/runs/40791628128), and [CI](/docs/ci/) for a complete workflow.
 
 ## Exit codes
 

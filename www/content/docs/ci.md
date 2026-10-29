@@ -9,7 +9,9 @@ seolint exits with `1` when it finds an error, so a CI step fails on errors, and
 
 ## GitHub Actions
 
-With `--format ci`, each problem shows as an annotation on its file and line, in the run summary and in the pull request:
+With `--format ci`, each problem shows as an annotation on its file and line, in the run summary and in the pull request. See an [example run](https://github.com/lukeed/seolint/actions/runs/40791628128) on the example site of the seolint repository, or the newer runs of its [Example workflow](https://github.com/lukeed/seolint/actions/workflows/example.yml).
+
+A workflow that builds your site, then lints it:
 
 ```yaml
 name: SEO
