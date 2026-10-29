@@ -33,6 +33,10 @@ jobs:
 
 With a [config file](/docs/config/) that sets `host` and `inputs`, the last step is only `npx seolint --format ci`.
 
+### Annotations and the job summary
+
+GitHub shows at most 10 errors and 10 warnings as annotations for each step. seolint prints every problem in the step's log, and it also writes them all as a table to the [job summary](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-job-summary), on the page of the run. Each row links to the page of its rule.
+
 ## Gitea and Forgejo
 
 Gitea Actions and Forgejo Actions read the same workflow commands, so the same workflow works there.
