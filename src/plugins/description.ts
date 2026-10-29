@@ -144,7 +144,7 @@ export const description = plugin({
 					for (let word of words(title.text)) if (found.has(word)) return true;
 					return false;
 				},
-				"Must include at least one word in the <title> tag.",
+				"Must include at least one word in the <title> tag",
 				elem,
 			);
 	},
