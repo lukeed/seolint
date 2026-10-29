@@ -6,6 +6,7 @@ import { plugin } from "../plugin";
 import * as address from "./address";
 import * as about from "./meta";
 import * as robotstxt from "./robotstxt";
+import * as sitemap from "./sitemap";
 
 import type { Position } from "../types";
 
@@ -105,7 +106,7 @@ export const site = plugin({
 			"warn",
 			"A robots.txt exists, and does not block every crawler.",
 		],
-		"site.sitemap": ["warn", "A sitemap.xml exists, and lists every page."],
+		"site.sitemap": ["warn", "A sitemap exists, and lists every page."],
 	}),
 	run(context, document): Data {
 		let title = document.find("head > title");
@@ -205,22 +206,29 @@ export const site = plugin({
 
 		if (!site.load("site.sitemap")) return;
 
+		let origin = site.options.host
+			? URL.parse(site.options.host)?.origin
+			: undefined;
 		let listed = new Set<string>();
-		let missing: string[] = [];
+		let found = false;
 		for (let root of site.roots) {
-			let file = join(root, "sitemap.xml");
-			let text = await readFile(file, "utf8").catch(() => undefined);
-			if (text === undefined) missing.push(file);
-			for (let match of text?.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g) ?? []) {
-				let url = address.normalize(match[1]);
+			let { entries, missing, declared } = await sitemap.read(root, origin);
+			for (let file of missing) {
+				site.report(
+					"site.sitemap",
+					declared
+						? "Must exist, because robots.txt or a sitemap index lists it"
+						: "A sitemap.xml file must exist",
+					file,
+				);
+			}
+			found ||= missing.length === 0 || entries.length > 0;
+			for (let entry of entries) {
+				let url = address.normalize(entry.url);
 				if (url) listed.add(url);
 			}
 		}
-
-		for (let file of missing) {
-			site.report("site.sitemap", "A sitemap.xml file must exist", file);
-		}
-		if (missing.length === site.roots.length) return;
+		if (!found) return;
 
 		for (let page of pages) {
 			let url = page.url && address.normalize(page.url);

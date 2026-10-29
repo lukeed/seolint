@@ -9,6 +9,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 
 import * as conf from "./config";
 import * as seolint from "./index";
@@ -744,6 +745,43 @@ describe("site", () => {
 		);
 		expect(reported(await seolint.fs(tmp, rules))).toEqual({});
 		await rm(sitemap);
+	});
+
+	test("site.sitemap follows robots.txt and sitemap indexes", async () => {
+		let robots = join(tmp, "robots.txt");
+		let index = join(tmp, "sitemap-index.xml");
+		let rules = config({ "site.sitemap": true });
+		let urls = (...paths: string[]) =>
+			`<urlset>${paths.map((x) => `<url><loc>https://example.com${x}</loc></url>`).join("")}</urlset>`;
+
+		await writeFile(
+			robots,
+			"User-agent: *\nAllow: /\nSitemap: https://example.com/sitemap-index.xml\nSitemap: https://other.com/sitemap.xml\n",
+		);
+		await writeFile(
+			index,
+			"<sitemapindex><sitemap><loc>https://example.com/sitemap-0.xml</loc></sitemap><sitemap><loc>https://example.com/sitemap-1.xml.gz</loc></sitemap><sitemap><loc>https://example.com/sitemap-2.xml</loc></sitemap></sitemapindex>",
+		);
+		await writeFile(join(tmp, "sitemap-0.xml"), urls("/", "/blog/"));
+		await writeFile(
+			join(tmp, "sitemap-1.xml.gz"),
+			gzipSync(urls("/my%20page/", "/about?a=1&amp;b=2", "/about")),
+		);
+
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({
+			[join(tmp, "sitemap-2.xml")]: {
+				"site.sitemap": [
+					{
+						message:
+							"Must exist, because robots.txt or a sitemap index lists it",
+					},
+				],
+			},
+		});
+
+		for (let file of [robots, index, "sitemap-0.xml", "sitemap-1.xml.gz"]) {
+			await rm(file.startsWith(tmp) ? file : join(tmp, file));
+		}
 	});
 
 	test("should skip site files for single files and URLs", async () => {
