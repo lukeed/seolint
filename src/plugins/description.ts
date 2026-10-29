@@ -82,7 +82,7 @@ export const description = plugin({
 		);
 		if (!elem) return;
 
-		let content = (elem.getAttr("content") || "").trim();
+		let content = (elem.getAttr("content") || "").replace(/\s+/g, " ").trim();
 
 		context.assert(
 			"description.content.empty",

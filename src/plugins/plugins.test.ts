@@ -109,6 +109,19 @@ describe("title", () => {
 		).toHaveLength(1);
 	});
 
+	test("title.content.length ignores whitespace around and between words", async () => {
+		let title = (text: string) => page(`<title>${text}</title>`);
+		expect(
+			await check("title.content.length", title("\n\t\tShort\n\t")),
+		).toEqual(["Must not have less than 10 characters"]);
+		expect(
+			await check(
+				"title.content.length",
+				title(`A${" ".repeat(70)}title text`),
+			),
+		).toEqual([]);
+	});
+
 	test("title.content.length defaults to 10 to 60", async () => {
 		expect(
 			await check(
@@ -198,6 +211,19 @@ describe("description", () => {
 				await check("description.content.html", page(meta(content))),
 			).toHaveLength(1);
 		}
+	});
+
+	test("description.content.length ignores whitespace around and between words", async () => {
+		let text = `A good page about fresh bread, baked every morning.${" ".repeat(120)}More.`;
+		expect(await check("description.content.length", page(meta(text)))).toEqual(
+			[],
+		);
+		expect(
+			await check(
+				"description.content.length",
+				page(meta(`  short${" ".repeat(60)}`)),
+			),
+		).toEqual(["Must not have less than 50 characters"]);
 	});
 
 	test("description.content.title ignores stop words", async () => {

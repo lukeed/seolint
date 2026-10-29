@@ -33,7 +33,7 @@ export const title = plugin({
 		);
 		if (!elem) return;
 
-		let text = elem.text;
+		let text = elem.text.replace(/\s+/g, " ").trim();
 
 		context.assert(
 			"title.content.html",
