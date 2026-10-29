@@ -1141,6 +1141,14 @@ a.panel:hover {
 		grid-template-columns: 1fr;
 	}
 
+	.pager {
+		flex-direction: column;
+	}
+
+	.prose .pager a {
+		flex-basis: auto;
+	}
+
 	.rules {
 		grid-template-columns: repeat(2, 1fr);
 	}
