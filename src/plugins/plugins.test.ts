@@ -36,6 +36,26 @@ describe("html", () => {
 		).toHaveLength(1);
 	});
 
+	test("html.lang must be a valid language tag", async () => {
+		let html = (lang: string) =>
+			`<!doctype html><html lang="${lang}"><head></head></html>`;
+		for (let lang of [
+			"en",
+			"EN-us",
+			"zh-Hant-TW",
+			"fil",
+			"es-419",
+			"de-CH-1996",
+		]) {
+			expect(await check("html.lang", html(lang))).toEqual([]);
+		}
+		for (let lang of ["en_US", "english", "jp", "e"]) {
+			expect(await check("html.lang", html(lang))).toEqual([
+				`Must be a valid language tag, such as "en" or "pt-BR", not "${lang}"`,
+			]);
+		}
+	});
+
 	test("html.charset must be utf-8", async () => {
 		for (let head of [
 			'<meta charset="UTF-8">',

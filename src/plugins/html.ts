@@ -1,8 +1,26 @@
 import { plugin } from "../plugin";
+import * as codes from "./codes";
 import * as about from "./meta";
 
 /** The HTML spec requires the charset declaration within the first 1024 bytes. */
 const CHARSET_LIMIT = 1024;
+
+/**
+ * Whether `value` is a well-formed BCP 47 language tag, with an ISO 639-1
+ * language, or a three-letter ISO 639-2 or 639-3 language.
+ * @example
+ * tag("pt-BR"); //=> true
+ * tag("en_US"); //=> false
+ */
+function tag(value: string): boolean {
+	try {
+		Intl.getCanonicalLocales(value);
+	} catch {
+		return false;
+	}
+	let language = value.split("-")[0].toLowerCase();
+	return language.length === 3 || codes.languages.has(language);
+}
 
 export const html = plugin({
 	name: "html",
@@ -14,7 +32,7 @@ export const html = plugin({
 	},
 	meta: about.meta({
 		"html.doctype": "A page starts with <!doctype html>.",
-		"html.lang": "The <html> element has a lang attribute.",
+		"html.lang": "The <html> element has a valid lang attribute.",
 		"html.charset": "A page declares the utf-8 encoding near the top.",
 		"html.favicon": ["warn", "A page links to a favicon."],
 	}),
@@ -28,12 +46,21 @@ export const html = plugin({
 		);
 
 		let root = document.find("html");
+		let lang = root?.getAttr("lang")?.trim() ?? "";
 		context.assert(
 			"html.lang",
-			Boolean(root?.getAttr("lang")?.trim()),
+			lang.length > 0,
 			"The <html> element must have a `lang` attribute",
 			root,
 		);
+		if (lang) {
+			context.assert(
+				"html.lang",
+				tag(lang),
+				`Must be a valid language tag, such as "en" or "pt-BR", not "${lang}"`,
+				root,
+			);
+		}
 
 		let charset =
 			document.find("meta[charset]") ??

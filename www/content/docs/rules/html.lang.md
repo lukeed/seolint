@@ -1,18 +1,20 @@
 ---
 title: html.lang
-summary: "The html element has a lang attribute. See what the html.lang rule checks, why it matters, and how to configure it."
+summary: "The html element has a valid lang attribute. See what the html.lang rule checks, why it matters, and how to configure it."
 ---
 
-The `<html>` element has a `lang` attribute.
+The `<html>` element has a valid `lang` attribute.
 
-**Why:** Search engines and screen readers use `lang` to know the page language, which helps them serve the page to the right people and read it aloud correctly.
+**Why:** Screen readers use `lang` to read the page aloud with the right voice, and browsers use it to translate and hyphenate. Bing uses it to know the page language. Google uses the visible text instead. The value is a language tag, such as `en` or `pt-BR`, not a locale name, such as `en_US`.
 
-**When off:** pages without a language pass.
+**When off:** pages without a language, or with an invalid one, pass.
 
 ```html
 <!-- ✗ Fails -->
-<html>
-  <!-- ✓ Passes -->
-  <html lang="en"></html>
-</html>
+<html></html>
+<html lang="en_US"></html>
+
+<!-- ✓ Passes -->
+<html lang="en"></html>
+<html lang="pt-BR"></html>
 ```
