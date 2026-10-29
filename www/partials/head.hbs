@@ -4,12 +4,18 @@
 {{#var title = $page.params.headline || $page.title + " · seolint"}}
 <title>{{ title }}</title>
 <meta name="description" content="{{ $page.summary }}"/>
+{{#if $page.params.noindex}}
+<meta name="robots" content="noindex"/>
+{{#else}}
 <link rel="canonical" href="{{ $page.url }}"/>
+{{/if}}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="{{ title }}"/>
 <meta property="og:description" content="{{ $page.summary }}"/>
+{{#if !$page.params.noindex}}
 <meta property="og:url" content="{{ $page.url }}"/>
+{{/if}}
 <meta property="og:image" content="{{ $site.url }}og.png"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <bongo:asset preload src="fonts/space-grotesk.woff2" />
