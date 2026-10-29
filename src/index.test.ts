@@ -757,6 +757,27 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("site.page.linked", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-linked-")));
+		let page = (body: string, head = "") =>
+			`<html><head>${head}</head><body>${body}</body></html>`;
+		await mkdir(join(dir, "a"));
+		await writeFile(join(dir, "index.html"), page('<a href="/a/">A</a>'));
+		await writeFile(join(dir, "a/index.html"), page('<a href="../">Home</a>'));
+		await writeFile(join(dir, "b.html"), page('<a href="/b">B</a>'));
+		await writeFile(
+			join(dir, "c.html"),
+			page("", '<meta name="robots" content="noindex">'),
+		);
+		let rules = config({ "site.page.linked": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({
+			[join(dir, "b.html")]: {
+				"site.page.linked": [{ message: "Must have a link from another page" }],
+			},
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.sitemap.entries", async () => {
 		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-entries-")));
 		let head = (extra = "") => `<html><head>${extra}</head></html>`;

@@ -34,6 +34,7 @@ const rules = {
 	"site.title.unique": true,
 	"site.description.unique": true,
 	"site.link.exists": true,
+	"site.page.linked": true,
 	"site.robots": true,
 	"site.sitemap": true,
 	"site.sitemap.entries": true,
@@ -104,6 +105,34 @@ async function links(site: Context, pages: Page<Data>[]): Promise<void> {
 				link.position,
 			);
 		}
+	}
+}
+
+/**
+ * Report the pages that no other page links to, except the home page.
+ */
+function linked(site: Context, pages: Page<Data>[]): void {
+	if (!site.load("site.page.linked") || !site.options.host) return;
+	let origin = URL.parse(site.options.host)?.origin;
+	if (!origin) return;
+
+	let incoming = new Set<string>();
+	for (let page of pages) {
+		let self = page.url && address.normalize(page.url);
+		for (let link of page.data.links) {
+			let url = address.normalize(origin + link.path);
+			if (url && url !== self) incoming.add(url);
+		}
+	}
+
+	for (let page of pages.filter(primary)) {
+		let url = page.url && address.normalize(page.url);
+		if (!url || url === origin + "/" || incoming.has(url)) continue;
+		site.report(
+			"site.page.linked",
+			"Must have a link from another page",
+			page.input,
+		);
 	}
 }
 
@@ -212,6 +241,7 @@ export const site = plugin({
 		"site.description.unique": "Every page has a different description.",
 		"site.link.exists":
 			"Internal links point to files that exist in the build.",
+		"site.page.linked": ["warn", "Every page has a link from another page."],
 		"site.robots": [
 			"warn",
 			"A robots.txt exists, and does not block every crawler.",
@@ -231,7 +261,9 @@ export const site = plugin({
 		let origin = host ? URL.parse(host)?.origin : undefined;
 		let base = URL.parse(context.url ?? host ?? "")?.href;
 
-		if (origin && base && context.load("site.link.exists")) {
+		let follow =
+			context.load("site.link.exists") || context.load("site.page.linked");
+		if (origin && base && follow) {
 			for (let node of document.all("a[href]")) {
 				let url = URL.parse(node.getAttr("href") ?? "", base);
 				if (!url || url.origin !== origin) continue;
@@ -275,6 +307,7 @@ export const site = plugin({
 
 		if (site.roots.length === 0) return;
 		await links(site, pages);
+		linked(site, pages);
 		await robots(site);
 		await sitemaps(site, pages);
 	},
