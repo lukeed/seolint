@@ -1,6 +1,8 @@
 import { plugin } from "../plugin";
 import * as about from "./meta";
 
+const SELF = "seolint.invalid";
+
 /**
  * Whether a link path ends with a slash, or points to a file, such as `/menu.pdf`.
  * @example
@@ -56,7 +58,7 @@ export const link = plugin({
 		],
 		"link.blank.noopener": 'A link with target="_blank" uses rel="noopener".',
 		"link.blank.noreferrer":
-			'A link with target="_blank" uses rel="noreferrer".',
+			'An external link with target="_blank" uses rel="noreferrer".',
 		"link.text.exists":
 			"A link has text, an aria-label, or an image with alt text.",
 		"link.text.vague": [
@@ -71,7 +73,7 @@ export const link = plugin({
 
 		let { host } = context.options;
 		let origin = (host && URL.parse(host)?.hostname) || "";
-		let base = URL.parse(context.url ?? "")?.href ?? "http://x.com";
+		let base = URL.parse(context.url ?? "")?.href ?? `http://${SELF}`;
 
 		links.forEach((link) => {
 			let href = link.getAttr("href") || "";
@@ -134,7 +136,7 @@ export const link = plugin({
 
 			const url = origin ? URL.parse(href, base) : null;
 			const isExternal =
-				url === null || (url.hostname !== "x.com" && url.hostname !== origin);
+				url === null || (url.hostname !== SELF && url.hostname !== origin);
 
 			if (isExternal) {
 				externals++;
@@ -192,12 +194,13 @@ export const link = plugin({
 					link,
 				);
 
-				context.assert(
-					"link.blank.noreferrer",
-					rel.includes("noreferrer"),
-					'Must include "rel=noreferrer" when "target=_blank" in use',
-					link,
-				);
+				if (isExternal)
+					context.assert(
+						"link.blank.noreferrer",
+						rel.includes("noreferrer"),
+						'Must include "rel=noreferrer" when "target=_blank" in use',
+						link,
+					);
 			}
 		});
 

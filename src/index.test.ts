@@ -104,8 +104,11 @@ const BAD_REPORT = {
 	],
 };
 
+/** With a host, the link of the bad page is internal, so it needs no `noreferrer`. */
+const { "link.blank.noreferrer": _, ...BAD_INTERNAL_REPORT } = BAD_REPORT;
+
 const BAD_HOST_REPORT = {
-	...BAD_REPORT,
+	...BAD_INTERNAL_REPORT,
 	"link.internal.lowercase": [
 		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
 	],

@@ -418,6 +418,20 @@ describe("link", () => {
 		).toEqual([]);
 	});
 
+	test("link.blank.noreferrer checks external links only", async () => {
+		let blank = (href: string) =>
+			page("", `<a href="${href}" target="_blank" rel="noopener">Recipe</a>`);
+		for (let href of ["/recipe.md", "recipe/", `${HOST}/recipe/`]) {
+			expect(await check("link.blank.noreferrer", blank(href))).toEqual([]);
+		}
+		for (let href of ["https://other.com/", "https://x.com/recipe"]) {
+			expect(await check("link.blank.noreferrer", blank(href))).toHaveLength(1);
+		}
+		expect(
+			await check("link.blank.noreferrer", blank("/recipe.md"), { host: "" }),
+		).toHaveLength(1);
+	});
+
 	test("link.text.exists", async () => {
 		expect(await check("link.text.exists", link("/a/"))).toEqual([]);
 		expect(
