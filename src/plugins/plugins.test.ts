@@ -719,6 +719,25 @@ describe("hreflang", () => {
 		).toHaveLength(1);
 	});
 
+	test("hreflang.code accepts only codes that Google supports", async () => {
+		for (let code of ["EN-gb", "zh-hant-tw", "sr-Latn", "X-Default", "he"]) {
+			expect(await check("hreflang.code", page(alt(code)))).toEqual([]);
+		}
+		for (let code of [
+			"en-UK",
+			"en-EU",
+			"es-419",
+			"jp",
+			"fil",
+			"en-Xxxx",
+			"gb",
+		]) {
+			expect(await check("hreflang.code", page(alt(code)))).toEqual([
+				`Must be a valid language code, not "${code}"`,
+			]);
+		}
+	});
+
 	test("hreflang.default", async () => {
 		expect(
 			await check("hreflang.default", page(alt("en") + alt("x-default"))),

@@ -1,8 +1,28 @@
 import { plugin } from "../plugin";
+import * as codes from "./codes";
 import * as about from "./meta";
 
-/** A language, with an optional script and region, such as `en`, `zh-Hant`, or `pt-BR`. */
-const CODE = /^(x-default|[a-z]{2,3}(-[a-z]{4})?(-([a-z]{2}|\d{3}))?)$/i;
+/**
+ * Whether `value` is an hreflang value that Google supports: `x-default`, or
+ * an ISO 639-1 language with an optional ISO 15924 script and ISO 3166-1 region.
+ * @example
+ * valid("zh-Hant-TW"); //=> true
+ * valid("en-UK"); //=> false
+ */
+function valid(value: string): boolean {
+	if (value.toLowerCase() === "x-default") return true;
+	let match = /^([a-z]{2})(?:-([a-z]{4}))?(?:-([a-z]{2}))?$/i.exec(value);
+	if (!match) return false;
+	let [, language, script, region] = match;
+	return (
+		codes.languages.has(language.toLowerCase()) &&
+		(!script ||
+			codes.scripts.has(
+				script[0].toUpperCase() + script.slice(1).toLowerCase(),
+			)) &&
+		(!region || codes.regions.has(region.toUpperCase()))
+	);
+}
 
 export const hreflang = plugin({
 	name: "hreflang",
@@ -28,7 +48,7 @@ export const hreflang = plugin({
 			let code = link.getAttr("hreflang") ?? "";
 			context.assert(
 				"hreflang.code",
-				CODE.test(code),
+				valid(code),
 				`Must be a valid language code, not "${code}"`,
 				link,
 			);
