@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 
 import { detach } from "../detach";
 import { plugin } from "../plugin";
@@ -36,6 +36,7 @@ const rules = {
 	"site.link.exists": true,
 	"site.page.linked": true,
 	"site.robots": true,
+	"site.robots.noindex": true,
 	"site.sitemap": true,
 	"site.sitemap.entries": true,
 };
@@ -180,6 +181,30 @@ function unlisted(
 	}
 }
 
+/**
+ * Report the pages with `noindex` that robots.txt blocks, since a crawler
+ * never fetches them, and so never sees the `noindex`.
+ */
+async function blocked(site: Context, pages: Page<Data>[]): Promise<void> {
+	if (!site.load("site.robots.noindex")) return;
+	for (let root of site.roots) {
+		let text = await readFile(join(root, "robots.txt"), "utf8").catch(() => "");
+		let robots = robotstxt.parse(text);
+		for (let page of pages) {
+			let url = page.url && URL.parse(page.url);
+			if (!url || !page.data.noindex || !page.input.startsWith(root + sep)) {
+				continue;
+			}
+			if (robotstxt.allowed(robots, "googlebot", url.pathname)) continue;
+			site.report(
+				"site.robots.noindex",
+				"Must not be blocked by robots.txt, or search engines never see its noindex",
+				page.input,
+			);
+		}
+	}
+}
+
 async function sitemaps(site: Context, pages: Page<Data>[]): Promise<void> {
 	let entriesRule = site.load("site.sitemap.entries");
 	if (!site.load("site.sitemap") && !entriesRule) return;
@@ -246,6 +271,8 @@ export const site = plugin({
 			"warn",
 			"A robots.txt exists, and does not block every crawler.",
 		],
+		"site.robots.noindex":
+			"robots.txt does not block a page with noindex, so search engines see it.",
 		"site.sitemap": ["warn", "A sitemap exists, and lists every page."],
 		"site.sitemap.entries": [
 			"warn",
@@ -309,6 +336,7 @@ export const site = plugin({
 		await links(site, pages);
 		linked(site, pages);
 		await robots(site);
+		await blocked(site, pages);
 		await sitemaps(site, pages);
 	},
 });

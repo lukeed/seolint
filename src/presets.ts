@@ -64,6 +64,7 @@ export const staging: Config = {
 	rules: {
 		"robots.*": false,
 		"site.robots": false,
+		"site.robots.noindex": false,
 		"site.sitemap": false,
 		"site.sitemap.entries": false,
 		"canonical.href.self": false,

@@ -757,6 +757,32 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("site.robots.noindex", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-blocked-")));
+		let page = (robots = "") =>
+			`<html><head><meta name="robots" content="${robots}"></head></html>`;
+		await mkdir(join(dir, "private"));
+		await writeFile(join(dir, "index.html"), page("noindex"));
+		await writeFile(join(dir, "private/a.html"), page("noindex"));
+		await writeFile(join(dir, "private/b.html"), page("index"));
+		await writeFile(
+			join(dir, "robots.txt"),
+			"User-agent: *\nDisallow: /private/\n",
+		);
+		let rules = config({ "site.robots.noindex": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({
+			[join(dir, "private/a.html")]: {
+				"site.robots.noindex": [
+					{
+						message:
+							"Must not be blocked by robots.txt, or search engines never see its noindex",
+					},
+				],
+			},
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.page.linked", async () => {
 		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-linked-")));
 		let page = (body: string, head = "") =>
