@@ -3,6 +3,7 @@ import { join, posix, relative, sep } from "node:path";
 
 import { detach } from "../detach";
 import { plugin } from "../plugin";
+import * as address from "./address";
 import * as about from "./meta";
 
 import type { Position } from "../types";
@@ -227,7 +228,8 @@ export const site = plugin({
 			let text = await readFile(file, "utf8").catch(() => undefined);
 			if (text === undefined) missing.push(file);
 			for (let match of text?.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g) ?? []) {
-				listed.add(match[1]);
+				let url = address.normalize(match[1]);
+				if (url) listed.add(url);
 			}
 		}
 
@@ -237,7 +239,8 @@ export const site = plugin({
 		if (missing.length === site.roots.length) return;
 
 		for (let page of pages) {
-			if (page.url && !listed.has(page.url)) {
+			let url = page.url && address.normalize(page.url);
+			if (url && !listed.has(url)) {
 				site.report(
 					"site.sitemap",
 					`Must be listed in sitemap.xml, as ${page.url}`,

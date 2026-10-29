@@ -729,6 +729,12 @@ describe("site", () => {
 				],
 			},
 		});
+
+		await writeFile(
+			sitemap,
+			"<urlset><url><loc>https://example.com/index.html</loc></url><url><loc>https://example.com/blog/</loc></url><url><loc>https://example.com/my%20page/</loc></url><url><loc>https://example.com/about</loc></url></urlset>",
+		);
+		expect(reported(await seolint.fs(tmp, rules))).toEqual({});
 		await rm(sitemap);
 	});
 

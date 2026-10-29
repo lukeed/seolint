@@ -5,7 +5,7 @@ summary: "A sitemap.xml exists, and lists every page. See what the site.sitemap 
 
 A `sitemap.xml` exists, and lists every page.
 
-**Why:** A sitemap helps search engines find every page, including pages that few links point to. A page missing from it may be found late, or not at all. Pages are matched by their URL, from the `host` and the file path.
+**Why:** A sitemap helps search engines find every page, including pages that few links point to. A page missing from it may be found late, or not at all. Pages are matched by their URL, from the `host` and the file path. URLs of one page match, with or without `index.html` or `.html`, because hosts serve `about.html` at `/about` too.
 
 **When off:** a missing sitemap, or missing pages, pass.
 

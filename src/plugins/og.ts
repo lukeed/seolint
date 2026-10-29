@@ -1,17 +1,6 @@
 import { plugin } from "../plugin";
+import * as address from "./address";
 import * as about from "./meta";
-
-/**
- * Normalize a URL for comparison: without a hash, and `null` when invalid.
- * @example
- * normalize("https://example.com/a/#top"); //=> "https://example.com/a/"
- */
-function normalize(input: string): string | null {
-	if (!URL.canParse(input)) return null;
-	let url = new URL(input);
-	url.hash = "";
-	return url.href;
-}
 
 export const og = plugin({
 	name: "og",
@@ -82,7 +71,7 @@ export const og = plugin({
 		if (url.value && canonical) {
 			context.assert(
 				"og.url",
-				normalize(url.value) === normalize(canonical),
+				address.normalize(url.value) === address.normalize(canonical),
 				`The "og:url" must match the canonical URL, ${canonical}`,
 				url.node,
 			);

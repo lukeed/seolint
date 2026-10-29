@@ -260,6 +260,25 @@ describe("canonical", () => {
 		).toEqual([`Must point to this page, ${HOST}/b/`]);
 		expect(await check("canonical.href.self", page(link))).toEqual([]);
 	});
+
+	test("canonical.href.self matches every URL of the page", async () => {
+		let link = (href: string) => page(`<link rel="canonical" href="${href}">`);
+		let about = { url: `${HOST}/about.html` };
+		expect(
+			await check("canonical.href.self", link(`${HOST}/about`), about),
+		).toEqual([]);
+		expect(
+			await check("canonical.href.self", link(`${HOST}/about.html`), about),
+		).toEqual([]);
+		expect(
+			await check("canonical.href.self", link(`${HOST}/about/`), about),
+		).toHaveLength(1);
+		expect(
+			await check("canonical.href.self", link(`${HOST}/blog/index.html`), {
+				url: `${HOST}/blog/`,
+			}),
+		).toEqual([]);
+	});
 });
 
 describe("canonical.href.match", () => {

@@ -1,17 +1,6 @@
 import { plugin } from "../plugin";
+import * as address from "./address";
 import * as about from "./meta";
-
-/**
- * Normalize a URL for comparison: without a hash, and `null` when invalid.
- * @example
- * normalize("https://example.com/a/#top"); //=> "https://example.com/a/"
- */
-function normalize(input: string): string | null {
-	if (!URL.canParse(input)) return null;
-	let url = new URL(input);
-	url.hash = "";
-	return url.href;
-}
 
 export const canonical = plugin({
 	name: "canonical",
@@ -112,7 +101,7 @@ export const canonical = plugin({
 		if (context.url) {
 			context.assert(
 				"canonical.href.self",
-				normalize(target) === normalize(context.url),
+				address.normalize(target) === address.normalize(context.url),
 				`Must point to this page, ${context.url}`,
 				elem,
 			);
