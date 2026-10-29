@@ -5,7 +5,9 @@ summary: "A page has at most a number of external links. See what the link.exter
 
 A page has at most a number of external links.
 
-**Why:** A page with very many external links looks like a link farm to search engines, and passes little value to each link.
+**Why:** A page with very many external links can look like a link farm, and passes little value to each link.
+
+The rule is off by default. Google says there is no ideal number of links on a page. Turn it on to set a limit of your own.
 
 **When off:** any number of external links passes.
 

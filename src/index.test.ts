@@ -77,13 +77,6 @@ const BAD_REPORT = {
 			col: 46,
 		},
 	],
-	"link.blank.noopener": [
-		{
-			message: 'Must include "rel=noopener" when "target=_blank" in use',
-			line: 8,
-			col: 3,
-		},
-	],
 	"link.internal.lowercase": [
 		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
 	],
@@ -203,7 +196,10 @@ describe("lint()", () => {
 	});
 
 	test("should require `rel` on external `target=_blank` links", async () => {
-		let config = await conf.resolve({ host: "https://example.com" });
+		let config = {
+			...(await conf.resolve({ host: "https://example.com" })),
+			rules: { "link.blank.*": true },
+		};
 		let html = GOOD.replace(
 			'<a href="/">home</a>',
 			'<a href="https://other.com/" target="_blank">other</a>',

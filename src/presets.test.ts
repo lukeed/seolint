@@ -30,6 +30,12 @@ describe("presets", () => {
 		expect(rules["site.sitemap"]).toBe("error");
 	});
 
+	test("strict leaves rules that are off by default off", () => {
+		let rules = enabled({ presets: [presets.strict] });
+		expect(rules["link.external.limit"]).toBeUndefined();
+		expect(rules["link.blank.noopener"]).toBeUndefined();
+	});
+
 	test("essentials keeps only the rules that affect search results", () => {
 		let rules = Object.keys(enabled({ presets: [presets.essentials] }));
 		expect(rules).toContain("title.content.length");
