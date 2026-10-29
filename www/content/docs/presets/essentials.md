@@ -12,6 +12,7 @@ Only the rules that directly affect search results. All other rules are off. Use
 | `"description.*"`           | The meta description.                       |
 | `"canonical.*"`             | The canonical link.                         |
 | `"robots.*"`                | The robots meta tag.                        |
+| `"hreflang.*"`              | The links to translated pages.              |
 | `"heading.exists"`          | The page has an `<h1>`.                     |
 | `"heading.single"`          | The page has only one `<h1>`.               |
 | `"html.lang"`               | The page language.                          |
@@ -22,5 +23,7 @@ Only the rules that directly affect search results. All other rules are off. Use
 | `"site.title.unique"`       | Titles are unique across the site.          |
 | `"site.description.unique"` | Descriptions are unique across the site.    |
 | `"site.link.exists"`        | Internal links point to pages that exist.   |
+| `"site.canonical.exists"`   | Canonical links point to pages that exist.  |
+| `"site.robots.noindex"`     | robots.txt does not hide a `noindex`.       |
 
 Rules from your own `plugins` are also off, because `"*"` matches them. Turn them on in your config.

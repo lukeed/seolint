@@ -757,6 +757,30 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("site.canonical.exists", async () => {
+		let dir = await realpath(
+			await mkdtemp(join(tmpdir(), "seolint-canonical-")),
+		);
+		let page = (href: string) =>
+			`<html><head><link rel="canonical" href="${href}"></head></html>`;
+		await writeFile(join(dir, "index.html"), page("https://example.com/"));
+		await writeFile(join(dir, "a.html"), page("/a"));
+		await writeFile(join(dir, "b.html"), page("https://example.com/old/"));
+		await writeFile(join(dir, "c.html"), page("https://other.com/"));
+		let rules = config({ "site.canonical.exists": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({
+			[join(dir, "b.html")]: {
+				"site.canonical.exists": [
+					{
+						message:
+							"Must point to a page of the build, not https://example.com/old/",
+					},
+				],
+			},
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.robots.noindex", async () => {
 		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-blocked-")));
 		let page = (robots = "") =>

@@ -34,6 +34,7 @@ const rules = {
 	"site.title.unique": true,
 	"site.description.unique": true,
 	"site.link.exists": true,
+	"site.canonical.exists": true,
 	"site.page.linked": true,
 	"site.robots": true,
 	"site.robots.noindex": true,
@@ -106,6 +107,22 @@ async function links(site: Context, pages: Page<Data>[]): Promise<void> {
 				link.position,
 			);
 		}
+	}
+}
+
+async function canonicals(site: Context, pages: Page<Data>[]): Promise<void> {
+	let origin = site.options.host && URL.parse(site.options.host)?.origin;
+	if (!site.load("site.canonical.exists") || !origin) return;
+	let known = await build.files(site.roots);
+	for (let page of pages) {
+		let url = page.data.canonical && URL.parse(page.data.canonical);
+		if (!url || url.origin !== origin) continue;
+		if (build.resolvable(known, url.pathname)) continue;
+		site.report(
+			"site.canonical.exists",
+			`Must point to a page of the build, not ${page.data.canonical}`,
+			page.input,
+		);
 	}
 }
 
@@ -266,6 +283,8 @@ export const site = plugin({
 		"site.description.unique": "Every page has a different description.",
 		"site.link.exists":
 			"Internal links point to files that exist in the build.",
+		"site.canonical.exists":
+			"A canonical link to the site points to a page of the build.",
 		"site.page.linked": ["warn", "Every page has a link from another page."],
 		"site.robots": [
 			"warn",
@@ -334,6 +353,7 @@ export const site = plugin({
 
 		if (site.roots.length === 0) return;
 		await links(site, pages);
+		await canonicals(site, pages);
 		linked(site, pages);
 		await robots(site);
 		await blocked(site, pages);
