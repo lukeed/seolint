@@ -1,4 +1,5 @@
 import { plugin } from "../plugin";
+import * as markup from "./markup";
 import * as about from "./meta";
 
 // TODO: stop words
@@ -36,7 +37,7 @@ export const title = plugin({
 
 		context.assert(
 			"title.content.html",
-			!/<[a-z/!?]/i.test(text),
+			!markup.test(text),
 			"Must not include HTML content",
 			elem,
 		);

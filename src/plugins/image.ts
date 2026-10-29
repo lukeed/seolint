@@ -1,4 +1,5 @@
 import { plugin } from "../plugin";
+import * as markup from "./markup";
 import * as about from "./meta";
 
 export const image = plugin({
@@ -35,7 +36,7 @@ export const image = plugin({
 			// if (toHTML) assert.falsey(alt.inner, 'Must not have HTML content within `alt` value');
 			context.assert(
 				"image.alt.content.html",
-				!/<[a-z/!?]/i.test(alt),
+				!markup.test(alt),
 				"Must not have HTML content within `alt` value",
 				img,
 			);

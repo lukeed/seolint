@@ -7,6 +7,8 @@ The `alt` text has no HTML tags.
 
 **Why:** `alt` holds plain text. Tags in it are read out as literal text.
 
+Only the tags of HTML elements, comments, and declarations count. `alt` text can name a tag that no HTML element has, such as `<my-element>`.
+
 **When off:** `alt` text with tags passes.
 
 ```html

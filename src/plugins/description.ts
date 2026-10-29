@@ -1,4 +1,5 @@
 import { plugin } from "../plugin";
+import * as markup from "./markup";
 import * as about from "./meta";
 
 const STOP = new Set(
@@ -77,7 +78,7 @@ export const description = plugin({
 		// TODO: html chars
 		context.assert(
 			"description.content.html",
-			!/<[a-z/!?]/i.test(content),
+			!markup.test(content),
 			"Must not include HTML content",
 			elem,
 		);

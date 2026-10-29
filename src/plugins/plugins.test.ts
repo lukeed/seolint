@@ -93,6 +93,22 @@ describe("title", () => {
 		).toEqual([]);
 	});
 
+	test("title.content.html allows tags that no HTML element has", async () => {
+		let title = (text: string) => page(`<title>${text}</title>`);
+		expect(
+			await check(
+				"title.content.html",
+				title("The &lt;svelte:head&gt; element"),
+			),
+		).toEqual([]);
+		expect(
+			await check(
+				"title.content.html",
+				title("The &lt;em&gt;best&lt;/em&gt; bread"),
+			),
+		).toHaveLength(1);
+	});
+
 	test("title.content.length defaults to 10 to 60", async () => {
 		expect(
 			await check(
@@ -159,6 +175,29 @@ describe("description", () => {
 				page(meta("&lt;b&gt;bold&lt;/b&gt;")),
 			),
 		).toEqual(["Must not include HTML content"]);
+	});
+
+	test("description.content.html allows tags that no HTML element has", async () => {
+		for (let content of [
+			"How &lt;svelte:head&gt; works",
+			"Define a &lt;my-element&gt; once",
+			"A vector&lt;int&gt; holds numbers",
+			"Prices for a &lt; b, and c &gt; d",
+		]) {
+			expect(
+				await check("description.content.html", page(meta(content))),
+			).toEqual([]);
+		}
+		for (let content of [
+			"Our &lt;/p&gt; bread",
+			"Our &lt;br/&gt; bread",
+			"Our &lt;A HREF=&quot;/&quot;&gt;bread",
+			"Our &lt;!-- best --&gt; bread",
+		]) {
+			expect(
+				await check("description.content.html", page(meta(content))),
+			).toHaveLength(1);
+		}
 	});
 
 	test("description.content.title ignores stop words", async () => {
@@ -298,6 +337,15 @@ describe("image", () => {
 		expect(
 			await check("image.alt.exists", page("", '<img src="a.png">')),
 		).toHaveLength(1);
+	});
+
+	test("image.alt.content.html allows tags that no HTML element has", async () => {
+		expect(
+			await check(
+				"image.alt.content.html",
+				page("", '<img src="a.png" alt="The &lt;my-cat&gt; element">'),
+			),
+		).toEqual([]);
 	});
 
 	test("image.alt.content.html", async () => {
