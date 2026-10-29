@@ -22,7 +22,7 @@ export const mixed = plugin({
 	rules: {
 		"mixed.content": true,
 	},
-	meta: about.meta({
+	meta: about.meta("security", {
 		"mixed.content": "An https:// page loads no resources over http://.",
 	}),
 	run(context, document) {

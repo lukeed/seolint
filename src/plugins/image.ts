@@ -10,7 +10,7 @@ export const image = plugin({
 		"image.alt.content.undefined": true,
 		"image.alt.content.null": true,
 	},
-	meta: about.meta({
+	meta: about.meta("search", {
 		"image.alt.exists":
 			'An <img> has an alt attribute. alt="" is allowed, for decorative images.',
 		"image.alt.content.html": "The alt text has no HTML tags.",

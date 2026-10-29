@@ -6,11 +6,11 @@ import * as presets from "./presets";
 const DIR = join(import.meta.dir, "../www/content/docs/presets");
 
 /**
- * The rule names or patterns in the first column of each table row.
+ * The rule names, patterns, or categories in the first column of each table row.
  */
 async function listed(name: string): Promise<string[]> {
 	let text = await Bun.file(join(DIR, `${name}.md`)).text();
-	let rows = text.matchAll(/^\| \[?`"?([\w.*]+)"?(?:": \w+)?`/gm);
+	let rows = text.matchAll(/^\| \[?`"?([\w.*#]+)"?(?:": \w+)?`/gm);
 	return [...rows].map((x) => x[1]).sort();
 }
 

@@ -11,16 +11,20 @@ export const viewport = plugin({
 		"viewport.content.scale": true,
 		"viewport.content.zoom": true,
 	},
-	meta: about.meta({
-		"viewport.exists": 'A page has a <meta name="viewport"> tag.',
-		"viewport.single": "A page has only one viewport tag.",
-		"viewport.content.empty": "The viewport content is not empty.",
-		"viewport.content.device":
-			'The viewport content includes "width=device-width".',
-		"viewport.content.scale":
-			'The viewport content includes "initial-scale=1".',
-		"viewport.content.zoom": "The viewport does not stop users from zooming.",
-	}),
+	meta: {
+		...about.meta("search", {
+			"viewport.exists": 'A page has a <meta name="viewport"> tag.',
+			"viewport.single": "A page has only one viewport tag.",
+			"viewport.content.empty": "The viewport content is not empty.",
+			"viewport.content.device":
+				'The viewport content includes "width=device-width".',
+			"viewport.content.scale":
+				'The viewport content includes "initial-scale=1".',
+		}),
+		...about.meta("accessibility", {
+			"viewport.content.zoom": "The viewport does not stop users from zooming.",
+		}),
+	},
 	run(context, document) {
 		let [elem, ...rest] = document.all("meta[name=viewport i]");
 

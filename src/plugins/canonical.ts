@@ -16,24 +16,28 @@ export const canonical = plugin({
 		"canonical.href.self": true,
 		"canonical.head": true,
 	},
-	meta: about.meta({
-		"canonical.exists": 'A page has a <link rel="canonical"> tag.',
-		"canonical.single": "A page has only one canonical link.",
-		"canonical.href.exists": "The canonical link has a non-empty href.",
-		"canonical.href.absolute": "The canonical href is an absolute URL.",
-		"canonical.href.lowercase": [
-			"warn",
-			"The canonical href has no uppercase letters.",
-		],
-		"canonical.href.https": "The canonical href uses https://.",
-		"canonical.href.fragment": "The canonical href has no #fragment.",
-		"canonical.href.match": "The canonical href uses the site hostname.",
-		"canonical.href.self": [
-			"warn",
-			"The canonical href points at the page itself.",
-		],
-		"canonical.head": "The canonical link is inside <head>.",
-	}),
+	meta: {
+		...about.meta("search", {
+			"canonical.exists": 'A page has a <link rel="canonical"> tag.',
+			"canonical.single": "A page has only one canonical link.",
+			"canonical.href.exists": "The canonical link has a non-empty href.",
+			"canonical.href.absolute": "The canonical href is an absolute URL.",
+			"canonical.href.https": "The canonical href uses https://.",
+			"canonical.href.fragment": "The canonical href has no #fragment.",
+			"canonical.href.match": "The canonical href uses the site hostname.",
+			"canonical.href.self": [
+				"warn",
+				"The canonical href points at the page itself.",
+			],
+			"canonical.head": "The canonical link is inside <head>.",
+		}),
+		...about.meta("style", {
+			"canonical.href.lowercase": [
+				"warn",
+				"The canonical href has no uppercase letters.",
+			],
+		}),
+	},
 	run(context, document) {
 		let [elem, ...rest] = document.all("link[rel~=canonical i]");
 

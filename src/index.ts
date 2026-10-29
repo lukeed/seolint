@@ -15,6 +15,7 @@ import type { Argv, Config, Message, Report, Site } from "./types";
 
 export type {
 	Argv,
+	Category,
 	Config,
 	Context,
 	Dict,
