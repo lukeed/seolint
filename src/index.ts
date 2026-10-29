@@ -33,6 +33,7 @@ export type {
 const CONCURRENCY = 32;
 const HTTP = /^https?:\/\//;
 const HTML = /\.html?$/;
+const ERROR_PAGE = /^[45]\d\d\.html?$/;
 
 /**
  * The config with its `presets` merged in, so presets work for every entry point.
@@ -67,8 +68,9 @@ export async function lint(
 }
 
 /**
- * Lint an HTML file, or every HTML file inside a directory. A directory is
- * treated as the site root, for site checks such as `site.robots`.
+ * Lint an HTML file, or every HTML file inside a directory, except error pages
+ * such as `404.html`. A directory is treated as the site root, for site checks
+ * such as `site.robots`.
  * @example
  * let report = await fs('public', await resolve());
  */
@@ -146,7 +148,8 @@ async function walk(path: string): Promise<string[]> {
 		for (let entry of await readdir(dir, { withFileTypes: true })) {
 			let next = join(dir, entry.name);
 			if (entry.isDirectory()) dirs.push(next);
-			else if (HTML.test(entry.name)) files.push(next);
+			else if (HTML.test(entry.name) && !ERROR_PAGE.test(entry.name))
+				files.push(next);
 		}
 	}
 

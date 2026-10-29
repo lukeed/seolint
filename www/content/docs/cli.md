@@ -21,7 +21,7 @@ seolint https://example.com/      # fetch and lint a URL
 curl -s https://example.com | seolint -i   # HTML from stdin
 ```
 
-- **A folder** is a site root. seolint lints every `.html` file inside it, and also runs the site checks, for `robots.txt`, `sitemap.xml`, and broken links.
+- **A folder** is a site root. seolint lints every `.html` file inside it, except error pages such as `404.html`, and also runs the site checks, for `robots.txt`, `sitemap.xml`, and broken links.
 - **A file** gets the checks for one page, but not the site checks.
 - **A URL** is fetched and linted. Its origin is the `host`, unless you set one.
 

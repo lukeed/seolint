@@ -209,9 +209,10 @@ export type Config = {
 	 * Pages to skip, as glob patterns. A pattern matches the page's path,
 	 * relative to the linted folder, or the URL path for URLs. `*` matches
 	 * within one folder, `**` across folders, and `?` one character. A
-	 * pattern without `/` matches at any depth.
+	 * pattern without `/` matches at any depth. Error pages, such as
+	 * `404.html`, are always skipped in folders.
 	 * @example
-	 * let ignore = ["404.html", "drafts/**"];
+	 * let ignore = ["print.html", "drafts/**"];
 	 */
 	ignore?: string[];
 	/** Other configs to merge in first. This config's values win. */

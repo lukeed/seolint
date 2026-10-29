@@ -78,7 +78,7 @@ import * as presets from "seolint/presets";
 
 export default config.define({
   presets: [presets.strict],
-  ignore: ["404.html", "drafts/**"],
+  ignore: ["drafts/**"],
   rules: {
     "title.content.length": { max: 70 },
     "twitter.*": false,

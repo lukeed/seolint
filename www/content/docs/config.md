@@ -18,7 +18,7 @@ import * as config from "seolint/config";
 export default config.define({
   host: "https://example.com",
   inputs: ["public"],
-  ignore: ["404.html", "drafts/**"],
+  ignore: ["drafts/**"],
   rules: {
     "html.favicon": false,
     "title.content.length": { max: 70 },
@@ -56,12 +56,14 @@ Files, folders, or URLs to lint, relative to the working directory. They must be
 
 Pages to skip, as glob patterns. Ignored pages are also left out of the site checks, such as unique titles and the sitemap.
 
+In a folder, seolint always skips the error pages: the files with a 4xx or 5xx status code as their name, such as `404.html` or `fr/500.html`. An error page is not for search results. To lint one, give it as a file input, such as `seolint public/404.html`.
+
 - A pattern matches the page's path inside the linted folder, such as `blog/draft/index.html`. For URLs, it matches the URL path, such as `blog/draft/`.
 - `*` matches within one folder, `**` matches across folders, and `?` matches one character.
-- A pattern without `/` matches at any depth, so `404.html` also matches `fr/404.html`.
+- A pattern without `/` matches at any depth, so `print.html` also matches `fr/print.html`.
 
 ```ts
-ignore: ["404.html", "drafts/**", "tags/*/index.html"],
+ignore: ["print.html", "drafts/**", "tags/*/index.html"],
 ```
 
 ## `rules`

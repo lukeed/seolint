@@ -765,6 +765,12 @@ describe("fs()", () => {
 		await mkdir(join(tmp, "a/b"), { recursive: true });
 		await writeFile(join(tmp, "a/b/deep.html"), BAD);
 		await writeFile(join(tmp, "a/notes.txt"), BAD);
+		for (let file of ["404.html", "a/500.html", "a/b/503.htm"]) {
+			await writeFile(join(tmp, file), BAD);
+		}
+		for (let file of ["a/600.html", "a/4040.html"]) {
+			await writeFile(join(tmp, file), BAD);
+		}
 		await symlink(join(site, "sub/bad.html"), join(tmp, "linked.html"));
 		await symlink(site, join(tmp, "linked-dir"));
 		for (let i = 0; i < 100; i++) {
@@ -804,12 +810,31 @@ describe("fs()", () => {
 		let output = reported(await seolint.fs(tmp, config));
 		let keys = Object.keys(output);
 
-		expect(keys).toHaveLength(102);
+		expect(keys).toHaveLength(104);
 		expect(keys).toEqual([...keys].sort());
 		expect(keys).toContain(join(tmp, "a/b/deep.html"));
 		expect(keys).toContain(join(tmp, "linked.html"));
 		expect(keys).not.toContain(join(tmp, "a/notes.txt"));
 		expect(keys.some((x) => x.includes("linked-dir"))).toBe(false);
+	});
+
+	test("should skip error pages in a directory", async () => {
+		let config = await conf.resolve();
+		config.rules = { "site.*": false };
+		let keys = Object.keys(await seolint.fs(tmp, config));
+		expect(keys).not.toContain(join(tmp, "404.html"));
+		expect(keys).not.toContain(join(tmp, "a/500.html"));
+		expect(keys).not.toContain(join(tmp, "a/b/503.htm"));
+		expect(keys).toContain(join(tmp, "a/600.html"));
+		expect(keys).toContain(join(tmp, "a/4040.html"));
+	});
+
+	test("should lint an error page given as a file", async () => {
+		let config = await conf.resolve();
+		let file = join(tmp, "404.html");
+		expect(Object.keys(await seolint.fs(file, config))).toEqual([file]);
+		let output = await seolint.run({ ...config, inputs: [file] });
+		expect(Object.keys(output)).toEqual([file]);
 	});
 
 	test("should reject a missing path", async () => {
