@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "1.0.0-next.1",
+  "version": "1.0.0",
   "name": "seolint",
   "repository": "lukeed/seolint",
   "homepage": "https://seolint.io",
