@@ -4,6 +4,7 @@ import { heading } from "./heading";
 import { hreflang } from "./hreflang";
 import { html } from "./html";
 import { image } from "./image";
+import { jsonld } from "./jsonld";
 import { link } from "./link";
 import { mixed } from "./mixed";
 import { og } from "./og";
@@ -20,6 +21,7 @@ export {
 	hreflang,
 	html,
 	image,
+	jsonld,
 	link,
 	mixed,
 	og,
@@ -45,5 +47,6 @@ export const builtins = [
 	hreflang,
 	og,
 	twitter,
+	jsonld,
 	site,
 ] as const;

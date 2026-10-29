@@ -802,6 +802,36 @@ describe("hreflang", () => {
 	});
 });
 
+describe("jsonld", () => {
+	let script = (json: string) =>
+		page(`<script type="application/ld+json">${json}</script>`);
+
+	test("jsonld.valid", async () => {
+		for (let json of [
+			'{"@context":"https://schema.org","@type":"Article"}',
+			'[{"@context":"https://schema.org","@type":"Article"},{"@context":"https://schema.org","@type":"Person"}]',
+			'{"@context":"https://schema.org","@graph":[{"@type":"WebSite"},{"@type":"Organization"}]}',
+		]) {
+			expect(await check("jsonld.valid", script(json))).toEqual([]);
+		}
+		expect(await check("jsonld.valid", script('{"@type":"A",}'))).toEqual([
+			"Must be valid JSON",
+		]);
+		expect(await check("jsonld.valid", script('"text"'))).toEqual([
+			"Must be an object, or an array of objects",
+		]);
+		expect(await check("jsonld.valid", script('{"@type":"A"}'))).toEqual([
+			"Must have an @context, such as https://schema.org",
+		]);
+		expect(
+			await check(
+				"jsonld.valid",
+				script('{"@context":"https://schema.org","@graph":[{"name":"x"}]}'),
+			),
+		).toEqual(["Must have an @type, such as Article"]);
+	});
+});
+
 describe("og and twitter", () => {
 	let meta = (property: string, content: string) =>
 		`<meta property="${property}" content="${content}">`;

@@ -114,6 +114,12 @@ Rules about Open Graph tags, which social networks and chat apps use for link pr
 
 <bongo:ruletable plugin="twitter" />
 
+## jsonld
+
+Rules about JSON-LD, the structured data in `<script type="application/ld+json">` that Google reads for rich results.
+
+<bongo:ruletable plugin="jsonld" />
+
 ## site
 
 Rules that compare pages across the whole site. They run when you lint a folder, or URLs, with `seolint public` or `run()`. They do not run for `lint()`, which checks one page.
