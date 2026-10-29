@@ -1,18 +1,17 @@
 import { plugin } from "../plugin";
+import * as build from "./build";
 import * as about from "./meta";
+
+import type { Position } from "../types";
 
 const SELF = "seolint.invalid";
 
-/**
- * Whether a link path ends with a slash, or points to a file, such as `/menu.pdf`.
- * @example
- * trailing("/about/"); //=> true
- * trailing("/about"); //=> false
- */
-function trailing(path: string): boolean {
-	let last = path.slice(path.lastIndexOf("/") + 1);
-	return last === "" || last.includes(".");
-}
+/** An internal link, for the checks that compare it with the built files. */
+type Internal = {
+	/** The URL path of the target, without the search or hash. */
+	path: string;
+	position: Position;
+};
 
 export const link = plugin({
 	name: "link",
@@ -44,13 +43,18 @@ export const link = plugin({
 	meta: about.meta({
 		"link.href.exists": "A link has an href attribute.",
 		"link.href.empty": "A link href is not empty.",
-		"link.internal.trailing": "An internal link to a page ends with a slash.",
+		"link.internal.trailing":
+			"An internal link ends with a slash for a folder page, and without one for a file page.",
 		"link.internal.lowercase": [
 			"warn",
 			"An internal link has no uppercase letters.",
 		],
 		"link.internal.nofollow": 'An internal link does not use rel="nofollow".',
-		"link.internal.pretty": 'An internal link does not end with ".html".',
+		"link.internal.pretty": [
+			"error",
+			'An internal link does not end with ".html".',
+			"off",
+		],
 		"link.internal.absolute": [
 			"error",
 			"An internal link starts with /, //, or a protocol.",
@@ -82,6 +86,7 @@ export const link = plugin({
 	}),
 	run(context, document) {
 		let externals = 0;
+		let internals: Internal[] = [];
 		let seen: Set<string> = new Set();
 		let links = document.all("a");
 
@@ -170,12 +175,12 @@ export const link = plugin({
 					link,
 				);
 
-				context.assert(
-					"link.internal.trailing",
-					trailing(url.pathname),
-					"Internal links must end with a trailing slash",
-					link,
-				);
+				if (context.url || href.startsWith("/")) {
+					internals.push({
+						path: url.pathname,
+						position: document.position(link.start),
+					});
+				}
 
 				context.assert(
 					"link.internal.pretty",
@@ -225,6 +230,33 @@ export const link = plugin({
 				(o) => externals <= o.max,
 				"Exceeded external links maximum",
 			);
+		}
+
+		return internals;
+	},
+	async finish(site, pages) {
+		if (site.roots.length === 0 || !site.load("link.internal.trailing")) return;
+		let known = await build.files(site.roots);
+		for (let page of pages) {
+			for (let { path, position } of page.data) {
+				let shape = build.shape(known, path);
+				let slash = path.endsWith("/");
+				if (shape === "folder" && !slash) {
+					site.report(
+						"link.internal.trailing",
+						`Must end with a slash, as ${path}/, because the page is a folder`,
+						page.input,
+						position,
+					);
+				} else if (shape === "file" && slash) {
+					site.report(
+						"link.internal.trailing",
+						`Must not end with a slash, as ${path.slice(0, -1)}, because the page is a file`,
+						page.input,
+						position,
+					);
+				}
+			}
 		}
 	},
 });

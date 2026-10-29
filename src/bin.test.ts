@@ -67,11 +67,10 @@ describe("bin", () => {
 				'   5:3  ✘  Must point to an "https://" address                             canonical.href.https',
 				"   5:3  ⚠  Must point to this page, https://example.com/sub/bad.html       canonical.href.self",
 				"   8:3  ⚠  Internal links should not include uppercase                     link.internal.lowercase",
-				'   8:3  ✘  Internal links should not include ".html" suffix                link.internal.pretty',
 				"   8:3  ✘  Must point to a file that exists, not /About.html               site.link.exists",
 				'  8:46  ✘  Must have an `alt` attribute; use alt="" for decorative images  image.alt.exists',
 				"",
-				" FAIL  Reported 10 errors and 10 warnings!",
+				" FAIL  Reported 9 errors and 10 warnings!",
 				"",
 				"",
 			].join("\n"),
@@ -89,7 +88,7 @@ describe("bin", () => {
 		let report = JSON.parse(output.stdout);
 		expect(output.code).toBe(1);
 		expect(Object.keys(report)).toEqual(["site/sub/bad.html"]);
-		expect(report["site/sub/bad.html"]).toHaveLength(20);
+		expect(report["site/sub/bad.html"]).toHaveLength(19);
 		let messages: Message[] = report["site/sub/bad.html"];
 		expect(messages.find((x) => x.rule === "title.content.null")).toEqual({
 			rule: "title.content.null",
@@ -242,7 +241,7 @@ describe("bin", () => {
 		expect(lines).toContain(
 			'::warning file=site/sub/bad.html,title=og.title::A "og:title" meta tag must exist',
 		);
-		expect(lines.at(-1)).toBe("seolint: 10 errors and 10 warnings");
+		expect(lines.at(-1)).toBe("seolint: 9 errors and 10 warnings");
 	});
 
 	test("should write the CI report to the job summary", async () => {
@@ -258,7 +257,7 @@ describe("bin", () => {
 
 		expect(output.code).toBe(1);
 		expect(lines[0]).toBe("earlier step");
-		expect(lines).toContain("### seolint: 10 errors and 10 warnings");
+		expect(lines).toContain("### seolint: 9 errors and 10 warnings");
 		expect(lines).toContain("| | File | Position | Message | Rule |");
 		expect(lines).toContain(
 			"| ✘ | site/sub/bad.html | 2:1 | The &lt;html&gt; element must have a `lang` attribute | [`html.lang`](https://seolint.io/docs/rules/html.lang/) |",
@@ -266,7 +265,7 @@ describe("bin", () => {
 		expect(lines).toContain(
 			'| ⚠ | site/sub/bad.html |  | A "og:title" meta tag must exist | [`og.title`](https://seolint.io/docs/rules/og.title/) |',
 		);
-		expect(lines.filter((x) => x.startsWith("| ✘ "))).toHaveLength(10);
+		expect(lines.filter((x) => x.startsWith("| ✘ "))).toHaveLength(9);
 		expect(lines.filter((x) => x.startsWith("| ⚠ "))).toHaveLength(10);
 		await rm(dir, { recursive: true, force: true });
 	});

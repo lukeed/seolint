@@ -80,13 +80,6 @@ const BAD_REPORT = {
 	"link.internal.lowercase": [
 		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
 	],
-	"link.internal.pretty": [
-		{
-			message: 'Internal links should not include ".html" suffix',
-			line: 8,
-			col: 3,
-		},
-	],
 	"og.title": [{ message: 'A "og:title" meta tag must exist' }],
 	"og.description": [{ message: 'A "og:description" meta tag must exist' }],
 	"og.image": [{ message: 'A "og:image" meta tag must exist' }],
@@ -762,6 +755,60 @@ describe("site", () => {
 		);
 		expect(reported(await seolint.fs(tmp, rules))).toEqual({});
 		await rm(sitemap);
+	});
+
+	test("link.internal.trailing matches each link to its built file", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-slash-")));
+		let links = [
+			"/blog",
+			"/blog/",
+			"/about/",
+			"/about",
+			"/menu.pdf",
+			"/gone",
+			"/both/",
+			"both",
+		]
+			.map((x) => `<a href="${x}">Page</a>`)
+			.join("");
+		await writeFile(
+			join(dir, "index.html"),
+			`<html><body>${links}</body></html>`,
+		);
+		await mkdir(join(dir, "blog"));
+		await mkdir(join(dir, "both"));
+		for (let file of [
+			"blog/index.html",
+			"about.html",
+			"menu.pdf",
+			"both.html",
+			"both/index.html",
+		]) {
+			await writeFile(join(dir, file), "");
+		}
+		let rules = config({ "link.internal.trailing": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({
+			[join(dir, "index.html")]: {
+				"link.internal.trailing": [
+					{
+						message:
+							"Must end with a slash, as /blog/, because the page is a folder",
+						line: 1,
+						col: 13,
+					},
+					{
+						message:
+							"Must not end with a slash, as /about, because the page is a file",
+						line: 1,
+						col: 62,
+					},
+				],
+			},
+		});
+		expect(reported(await seolint.fs(join(dir, "index.html"), rules))).toEqual(
+			{},
+		);
+		await rm(dir, { recursive: true, force: true });
 	});
 
 	test("site.title.unique skips noindex pages, and pages that canonicalize elsewhere", async () => {

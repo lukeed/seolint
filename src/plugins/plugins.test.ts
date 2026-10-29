@@ -588,27 +588,6 @@ describe("link", () => {
 	let link = (href: string, text = "Read the recipe") =>
 		page("", `<a href="${href}">${text}</a>`);
 
-	test("link.internal.trailing", async () => {
-		for (let href of [
-			"/",
-			"/about/",
-			"/menu.pdf",
-			"/about/?q=1",
-			"/about/#top",
-			"https://example.com/a/",
-		]) {
-			expect(await check("link.internal.trailing", link(href))).toEqual([]);
-		}
-		for (let href of [
-			"/about",
-			"/about?q=1",
-			"/a/b",
-			"https://example.com/a",
-		]) {
-			expect(await check("link.internal.trailing", link(href))).toHaveLength(1);
-		}
-	});
-
 	test("link.internal checks relative links without a host", async () => {
 		let none = { host: "" };
 		expect(
