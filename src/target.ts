@@ -52,12 +52,20 @@ export function remote(href: string, host: string | undefined): Target {
 	};
 }
 
+/** The HTML of a target, and the response headers when it was fetched. */
+export type Source = {
+	html: string;
+	headers: Headers | undefined;
+};
+
 /**
  * The HTML of a target: the file contents, or the fetched page.
  * @throws {Error} for a failed request or a response that is not HTML.
  */
-export async function read(target: Target): Promise<string> {
-	if (!target.remote) return readFile(target.input, "utf8");
+export async function read(target: Target): Promise<Source> {
+	if (!target.remote) {
+		return { html: await readFile(target.input, "utf8"), headers: undefined };
+	}
 
 	let res = await fetch(target.input);
 	if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
@@ -67,5 +75,5 @@ export async function read(target: Target): Promise<string> {
 		throw new Error('Invalid "Content-Type" header');
 	}
 
-	return res.text();
+	return { html: await res.text(), headers: res.headers };
 }

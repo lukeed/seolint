@@ -74,6 +74,7 @@ let images = document.all("img:not([alt])");
 | `context.report(rule, message, node?)`        | Reports a problem.                                                                                      |
 | `context.load(rule)`                          | The rule's options, or `undefined` when the rule is off.                                                |
 | `context.url`                                 | The URL of the page, when seolint knows it.                                                             |
+| `context.headers`                             | The HTTP response headers of the page, when seolint fetched it from a URL.                              |
 | `context.options.host`                        | The site URL, from the config.                                                                          |
 
 Pass the `node` that failed, so the message gets its line and column. seolint reports nothing for a rule that the config turns off, so `run` does not need to check that itself.

@@ -4,6 +4,7 @@ import { join, posix, relative, sep } from "node:path";
 import { detach } from "../detach";
 import { plugin } from "../plugin";
 import * as address from "./address";
+import * as directives from "./directives";
 import * as about from "./meta";
 import * as robotstxt from "./robotstxt";
 import * as sitemap from "./sitemap";
@@ -143,10 +144,15 @@ export const site = plugin({
 			}
 		}
 
-		let robots = document.all("meta[name=robots i], meta[name=googlebot i]");
-		let noindex = robots.some((node) =>
-			/(^|,)\s*(noindex|none)\s*(,|$)/i.test(node.getAttr("content") ?? ""),
-		);
+		let noindex =
+			directives
+				.tags(document)
+				.some((x) =>
+					directives.noindex(directives.meta(x.getAttr("content") ?? "")),
+				) ||
+			directives.noindex(
+				directives.header(context.headers?.get("x-robots-tag") ?? ""),
+			);
 		let href = document.find("link[rel~=canonical i]")?.getAttr("href");
 		let canonical = href ? URL.parse(href, base)?.href : undefined;
 

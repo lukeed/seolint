@@ -66,6 +66,13 @@ export type Context<T extends Rules = Rules> = {
 	readonly url: string | undefined;
 
 	/**
+	 * The HTTP response headers of the page, when it was fetched from a URL.
+	 * @example
+	 * context.headers?.get("x-robots-tag"); //=> "noindex"
+	 */
+	readonly headers: Headers | undefined;
+
+	/**
 	 * The rule's options, `true` for a rule without options, or `undefined` when the rule is off.
 	 * @example
 	 * let length = context.load("title.content.length"); //=> { min: 10, max: 60 }

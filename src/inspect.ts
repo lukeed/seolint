@@ -53,6 +53,7 @@ export async function inspect(
 	state: Setup,
 	host: string | undefined,
 	url: string | undefined,
+	headers?: Headers,
 ): Promise<Result> {
 	let document: Document = parse(html);
 	let messages: Message[] = [];
@@ -61,6 +62,7 @@ export async function inspect(
 	let context: Context = {
 		options: { host },
 		url,
+		headers,
 		load: (rule) => options(state, rule),
 		report(rule, text, node) {
 			let position = node ? document.position(node.start) : undefined;

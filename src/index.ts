@@ -170,8 +170,14 @@ async function serial(
 		Array.from({ length: Math.min(CONCURRENCY, targets.length) }, async () => {
 			for (let [i, target] of queue) {
 				try {
-					let html = await read(target);
-					results[i] = await inspect(html, state, target.host, target.url);
+					let { html, headers } = await read(target);
+					results[i] = await inspect(
+						html,
+						state,
+						target.host,
+						target.url,
+						headers,
+					);
 				} catch (err) {
 					throw new Error(`Failed to lint "${target.input}"`, { cause: err });
 				}

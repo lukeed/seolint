@@ -32,8 +32,8 @@ function unsendable(data: [string, unknown][]): Error {
 port.on("message", async ({ id, target }: Task) => {
 	let reply: Reply;
 	try {
-		let html = await read(target);
-		let result = await inspect(html, state, target.host, target.url);
+		let { html, headers } = await read(target);
+		let result = await inspect(html, state, target.host, target.url, headers);
 		reply = { id, messages: result.messages, data: [...result.data] };
 	} catch (err) {
 		port.postMessage({ id, error: pack(err) } satisfies Reply);

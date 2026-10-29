@@ -960,6 +960,32 @@ describe("url()", () => {
 		).toEqual({});
 	});
 
+	test("should read the X-Robots-Tag header of a URL", async () => {
+		let server = Bun.serve({
+			port: 0,
+			fetch: () =>
+				new Response(GOOD, {
+					headers: {
+						"content-type": "text/html",
+						"x-robots-tag": "googlebot: noindex",
+					},
+				}),
+		});
+		let href = server.url.href;
+		let rules = { "*": false, "robots.noindex": true };
+		expect(reported(await seolint.url(href, { rules }))).toEqual({
+			[href]: {
+				"robots.noindex": [
+					{
+						message:
+							'Must not use "noindex" in the X-Robots-Tag header, which removes the page from search results',
+					},
+				],
+			},
+		});
+		server.stop(true);
+	});
+
 	test("should reject non-HTML responses", async () => {
 		let href = new URL("/json", server.url).href;
 		let error = await seolint.url(href).catch((err: unknown) => err);
