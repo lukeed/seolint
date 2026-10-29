@@ -29,12 +29,14 @@ export const html = plugin({
 		"html.lang": true,
 		"html.charset": true,
 		"html.favicon": true,
+		"html.refresh": true,
 	},
 	meta: about.meta({
 		"html.doctype": "A page starts with <!doctype html>.",
 		"html.lang": "The <html> element has a valid lang attribute.",
 		"html.charset": "A page declares the utf-8 encoding near the top.",
 		"html.favicon": ["warn", "A page links to a favicon."],
+		"html.refresh": ["warn", "A page does not redirect with a meta refresh."],
 	}),
 	run(context, document) {
 		let doctype = document.children.find((x) => x.type === "directive");
@@ -97,5 +99,13 @@ export const html = plugin({
 			document.find("link[rel~=icon i]") != null,
 			'A <link rel="icon"> tag must exist',
 		);
+
+		for (let node of document.all("meta[http-equiv=refresh i]")) {
+			context.report(
+				"html.refresh",
+				"Must not use a meta refresh; use a server redirect",
+				node,
+			);
+		}
 	},
 });

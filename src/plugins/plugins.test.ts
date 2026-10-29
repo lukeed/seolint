@@ -36,6 +36,16 @@ describe("html", () => {
 		).toHaveLength(1);
 	});
 
+	test("html.refresh", async () => {
+		expect(await check("html.refresh", page(""))).toEqual([]);
+		expect(
+			await check(
+				"html.refresh",
+				page('<meta http-equiv="Refresh" content="0; url=/new/">'),
+			),
+		).toEqual(["Must not use a meta refresh; use a server redirect"]);
+	});
+
 	test("html.lang must be a valid language tag", async () => {
 		let html = (lang: string) =>
 			`<!doctype html><html lang="${lang}"><head></head></html>`;
