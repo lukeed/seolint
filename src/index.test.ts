@@ -453,6 +453,27 @@ describe("rules", () => {
 		);
 	});
 
+	test("should keep the options of a rule that meta turns off", async () => {
+		let optin = conf.plugin({
+			name: "optin",
+			rules: { "optin.limit": { max: 3 } },
+			meta: {
+				"optin.limit": { description: "x", severity: "warn", off: true },
+			},
+			run(context) {
+				context.assert("optin.limit", (o) => o.max === 3, "options");
+				context.report("optin.limit", "reported");
+			},
+		});
+		let config = { host: "https://example.com", plugins: [optin] };
+		expect(await seolint.lint(GOOD, config)).toBeUndefined();
+
+		let on = { ...config, rules: { "optin.limit": true } };
+		expect(
+			(await seolint.lint(GOOD, on))?.map((x) => [x.message, x.severity]),
+		).toEqual([["reported", "warn"]]);
+	});
+
 	test("should turn on a rule that is off by default", async () => {
 		let optin = conf.plugin({
 			name: "optin",

@@ -7,7 +7,8 @@ function warnings(): Record<string, Setting> {
 	for (let plugin of plugins.builtins) {
 		let meta: Record<string, Meta | undefined> = plugin.meta ?? {};
 		for (let rule of Object.keys(plugin.rules)) {
-			if (meta[rule]?.severity === "warn") output[rule] = "error";
+			let info = meta[rule];
+			if (info?.severity === "warn" && !info.off) output[rule] = "error";
 		}
 	}
 	return output;

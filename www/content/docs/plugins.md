@@ -44,13 +44,13 @@ export default config.define({
 
 ## Fields
 
-| Field    | Description                                                                                             |
-| -------- | ------------------------------------------------------------------------------------------------------- |
-| `name`   | The plugin name. A plugin with the name of a built-in plugin, such as `"title"`, replaces it.           |
-| `rules`  | Each rule name maps to `true`, to `false` for a rule that is off by default, or to its default options. |
-| `meta`   | Optional. For each rule: a `description`, a default `severity`, and a `docs` link.                      |
-| `run`    | Checks one page. What it returns goes to `finish`.                                                      |
-| `finish` | Optional. Runs once after every page, to compare pages.                                                 |
+| Field    | Description                                                                                                                          |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`   | The plugin name. A plugin with the name of a built-in plugin, such as `"title"`, replaces it.                                        |
+| `rules`  | Each rule name maps to `true`, to `false` for a rule that is off by default, or to its default options.                              |
+| `meta`   | Optional. For each rule: a `description`, a default `severity`, `off` to keep it off by default with its options, and a `docs` link. |
+| `run`    | Checks one page. What it returns goes to `finish`.                                                                                   |
+| `finish` | Optional. Runs once after every page, to compare pages.                                                                              |
 
 A rule name must be unique: two plugins cannot declare the same rule. By convention, a rule name starts with its plugin name, such as `brand.title`.
 

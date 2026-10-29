@@ -116,7 +116,8 @@ export function setup(config: Config): Setup {
 				severity: meta[rule]?.severity ?? "error",
 				options: typeof value === "object" ? value : true,
 			};
-			let defaults: State = value === false ? false : fallback;
+			let defaults: State =
+				value === false || meta[rule]?.off ? false : fallback;
 			fallbacks.set(rule, fallback);
 			rules.set(rule, {
 				plugin: x.name,

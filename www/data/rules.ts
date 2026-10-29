@@ -19,7 +19,7 @@ export default builtins.map((plugin) => {
 		name,
 		plugin: plugin.name,
 		severity: meta[name]?.severity ?? "error",
-		off: value === false,
+		off: value === false || meta[name]?.off === true,
 		options: typeof value === "object" ? value : undefined,
 		description: meta[name]?.description ?? "",
 	}));

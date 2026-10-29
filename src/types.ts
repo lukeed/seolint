@@ -36,6 +36,11 @@ export type Meta = {
 	description: string;
 	/** The severity when a config does not set one. Default: `"error"`. */
 	severity?: Severity;
+	/**
+	 * Whether the rule is off unless a config turns it on. Default: `false`.
+	 * Unlike `false` in `rules`, it keeps the rule's default options.
+	 */
+	off?: boolean;
 	/** A page that explains the rule. Messages for the rule link to it. */
 	docs?: string;
 };
