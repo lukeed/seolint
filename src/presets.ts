@@ -26,9 +26,10 @@ export const strict: Config = {
 
 /**
  * Only the rules that directly affect search results: the title, the
- * description, the canonical link, robots, hreflang, the `<h1>`, the
- * language, image `alt` text, the mobile viewport, working links, and unique
- * titles and descriptions. Useful to adopt seolint on a large existing site.
+ * description, the canonical link, robots, hreflang, the `<h1>`, image
+ * `alt` text, the mobile viewport, working links, and unique titles and
+ * descriptions, without style rules. Useful to adopt seolint on a large
+ * existing site.
  * @example
  * export default define({ presets: [presets.essentials] });
  */
@@ -41,8 +42,6 @@ export const essentials: Config = {
 		"robots.*": true,
 		"hreflang.*": true,
 		"heading.exists": true,
-		"heading.single": true,
-		"html.lang": true,
 		"image.alt.exists": true,
 		"viewport.exists": true,
 		"viewport.content.device": true,
@@ -52,6 +51,7 @@ export const essentials: Config = {
 		"site.link.exists": true,
 		"site.canonical.exists": true,
 		"site.robots.noindex": true,
+		"#style": false,
 	},
 };
 
