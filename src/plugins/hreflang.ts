@@ -43,7 +43,7 @@ export const hreflang = plugin({
 		"hreflang.self": true,
 		"hreflang.return": true,
 	},
-	meta: about.meta({
+	meta: about.meta("search", {
 		"hreflang.code":
 			"An hreflang value is a valid language code, or x-default.",
 		"hreflang.absolute": "An hreflang link uses an absolute URL.",

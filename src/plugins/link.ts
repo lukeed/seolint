@@ -40,50 +40,56 @@ export const link = plugin({
 			],
 		},
 	},
-	meta: about.meta({
-		"link.href.exists": "A link has an href attribute.",
-		"link.href.empty": "A link href is not empty.",
-		"link.internal.trailing":
-			"An internal link ends with a slash for a folder page, and without one for a file page.",
-		"link.internal.lowercase": [
-			"warn",
-			"An internal link has no uppercase letters.",
-		],
-		"link.internal.nofollow": 'An internal link does not use rel="nofollow".',
-		"link.internal.pretty": [
-			"error",
-			'An internal link does not end with ".html".',
-			"off",
-		],
-		"link.internal.absolute": [
-			"error",
-			"An internal link starts with /, //, or a protocol.",
-			"off",
-		],
-		"link.internal.https":
-			"An internal link uses https:// or a root-relative path.",
-		"link.external.limit": [
-			"warn",
-			"A page has at most a number of external links.",
-			"off",
-		],
-		"link.blank.noopener": [
-			"error",
-			'A link with target="_blank" uses rel="noopener".',
-			"off",
-		],
-		"link.blank.noreferrer": [
-			"error",
-			'An external link with target="_blank" uses rel="noreferrer".',
-			"off",
-		],
-		"link.text.exists":
-			"A link has text, an aria-label, or an image with alt text.",
-		"link.text.vague": [
-			"warn",
-			'A link text describes its target, unlike "click here".',
-		],
-	}),
+	meta: {
+		...about.meta("search", {
+			"link.href.exists": "A link has an href attribute.",
+			"link.href.empty": "A link href is not empty.",
+			"link.internal.trailing":
+				"An internal link ends with a slash for a folder page, and without one for a file page.",
+			"link.internal.nofollow": 'An internal link does not use rel="nofollow".',
+			"link.internal.https":
+				"An internal link uses https:// or a root-relative path.",
+			"link.text.exists":
+				"A link has text, an aria-label, or an image with alt text.",
+			"link.text.vague": [
+				"warn",
+				'A link text describes its target, unlike "click here".',
+			],
+		}),
+		...about.meta("style", {
+			"link.internal.lowercase": [
+				"warn",
+				"An internal link has no uppercase letters.",
+			],
+			"link.internal.pretty": [
+				"error",
+				'An internal link does not end with ".html".',
+				"off",
+			],
+			"link.internal.absolute": [
+				"error",
+				"An internal link starts with /, //, or a protocol.",
+				"off",
+			],
+			"link.external.limit": [
+				"warn",
+				"A page has at most a number of external links.",
+				"off",
+			],
+		}),
+		...about.meta("security", {
+			"link.blank.noopener": [
+				"error",
+				'A link with target="_blank" uses rel="noopener".',
+				"off",
+			],
+			"link.blank.noreferrer": [
+				"error",
+				'An external link with target="_blank" uses rel="noreferrer".',
+				"off",
+			],
+		}),
+	},
 	run(context, document) {
 		let externals = 0;
 		let internals: Internal[] = [];

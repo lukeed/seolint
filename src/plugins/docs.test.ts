@@ -37,6 +37,7 @@ describe("www/content/docs/rules", () => {
 			test(rule, async () => {
 				let info = meta[rule];
 				expect(info?.description).toBeString();
+				expect(info?.category).toBeString();
 				expect(info?.docs).toBe(about.docs(rule));
 
 				let page = await Bun.file(join(DIR, `${rule}.md`)).text();

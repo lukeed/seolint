@@ -195,12 +195,15 @@ describe("bin", () => {
 		let lines = output.stdout.split("\n");
 		expect(output.code).toBe(0);
 		expect(lines).toContain(
-			'  title.content.length           warn   The title length is within a range of characters.  {"min":10,"max":60}',
+			'  title.content.length           warn   search         The title length is within a range of characters.  {"min":10,"max":60}',
 		);
 		expect(lines.some((x) => /^ {2}canonical\.href\.match +off /.test(x))).toBe(
 			true,
 		);
 		expect(lines.some((x) => /^ {2}html\.favicon +warn /.test(x))).toBe(true);
+		expect(
+			lines.some((x) => /^ {2}link\.blank\.noopener +off +security /.test(x)),
+		).toBe(true);
 
 		let json = JSON.parse(seolint(["--rules", "--json"]).stdout);
 		expect(
@@ -209,6 +212,7 @@ describe("bin", () => {
 			rule: "link.text.vague",
 			plugin: "link",
 			severity: "warn",
+			category: "search",
 			options: {
 				words: [
 					"click here",

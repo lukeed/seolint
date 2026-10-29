@@ -283,7 +283,7 @@ async function sitemaps(site: Context, pages: Page<Data>[]): Promise<void> {
 export const site = plugin({
 	name: "site",
 	rules,
-	meta: about.meta({
+	meta: about.meta("search", {
 		"site.title.unique": "Every page has a different title.",
 		"site.description.unique": "Every page has a different description.",
 		"site.link.exists":

@@ -13,7 +13,7 @@ export const title = plugin({
 		"title.content.null": true,
 		"title.content.length": { min: 10, max: 60 },
 	},
-	meta: about.meta({
+	meta: about.meta("search", {
 		"title.exists": "A page has a <title> element in its <head>.",
 		"title.single": "A page has only one <title> element.",
 		"title.content.html": "The title has no HTML tags in its text.",

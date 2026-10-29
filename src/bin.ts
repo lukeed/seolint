@@ -112,6 +112,7 @@ if (flags.rules) {
 		rule,
 		plugin: info.plugin,
 		severity: info.state ? info.state.severity : "off",
+		category: info.meta?.category ?? "",
 		options:
 			info.state && typeof info.state.options === "object"
 				? info.state.options
@@ -127,8 +128,10 @@ if (flags.rules) {
 
 	let wRule = Math.max(...rows.map((x) => x.rule.length));
 	let wLevel = Math.max(...rows.map((x) => x.severity.length));
+	let wCategory = Math.max(...rows.map((x) => x.category.length));
 	for (let row of rows) {
 		let line = row.rule.padEnd(wRule) + "  " + row.severity.padEnd(wLevel);
+		line += "  " + row.category.padEnd(wCategory);
 		line += "  " + row.description;
 		if (row.options) line += "  " + JSON.stringify(row.options);
 		console.log("  " + line);

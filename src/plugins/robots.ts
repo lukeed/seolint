@@ -10,7 +10,7 @@ export const robots = plugin({
 		"robots.noindex": true,
 		"robots.nofollow": true,
 	},
-	meta: about.meta({
+	meta: about.meta("search", {
 		"robots.noindex":
 			"A page does not ask search engines to leave it out of results.",
 		"robots.nofollow":
