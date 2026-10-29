@@ -86,9 +86,12 @@ const BAD_REPORT = {
 			col: 3,
 		},
 	],
-	"link.blank.noreferrer": [
+	"link.internal.lowercase": [
+		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
+	],
+	"link.internal.pretty": [
 		{
-			message: 'Must include "rel=noreferrer" when "target=_blank" in use',
+			message: 'Internal links should not include ".html" suffix',
 			line: 8,
 			col: 3,
 		},
@@ -104,26 +107,9 @@ const BAD_REPORT = {
 	],
 };
 
-/** With a host, the link of the bad page is internal, so it needs no `noreferrer`. */
-const { "link.blank.noreferrer": _, ...BAD_INTERNAL_REPORT } = BAD_REPORT;
-
-const BAD_HOST_REPORT = {
-	...BAD_INTERNAL_REPORT,
-	"link.internal.lowercase": [
-		{ message: "Internal links should not include uppercase", line: 8, col: 3 },
-	],
-	"link.internal.pretty": [
-		{
-			message: 'Internal links should not include ".html" suffix',
-			line: 8,
-			col: 3,
-		},
-	],
-};
-
 /** The bad page when the whole fixture site is linted with a host. */
 const BAD_SITE_REPORT = {
-	...BAD_HOST_REPORT,
+	...BAD_REPORT,
 	"canonical.href.self": [
 		{
 			message: "Must point to this page, https://example.com/sub/bad.html",

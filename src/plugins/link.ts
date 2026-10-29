@@ -134,9 +134,10 @@ export const link = plugin({
 				link,
 			);
 
-			const url = origin ? URL.parse(href, base) : null;
+			const url = URL.parse(href, base);
 			const isExternal =
-				url === null || (url.hostname !== SELF && url.hostname !== origin);
+				url === null ||
+				(url.hostname !== SELF && (!origin || url.hostname !== origin));
 
 			if (isExternal) {
 				externals++;

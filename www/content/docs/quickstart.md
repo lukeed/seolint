@@ -23,7 +23,7 @@ Run seolint on the output folder, such as `public` or `dist`, and give it the UR
 npx seolint public --host https://example.com
 ```
 
-The `--host` tells internal links from external ones, and gives each page its URL, such as `https://example.com/about/`. Without it, the checks for internal links do not run.
+The `--host` tells internal links from external ones, and gives each page its URL, such as `https://example.com/about/`. Without it, only relative links count as internal.
 
 ## 3. Read the report
 

@@ -406,6 +406,35 @@ describe("link", () => {
 		}
 	});
 
+	test("link.internal checks relative links without a host", async () => {
+		let none = { host: "" };
+		expect(
+			await check("link.internal.lowercase", link("/About/"), none),
+		).toHaveLength(1);
+		expect(
+			await check("link.internal.lowercase", link(`${HOST}/About/`), none),
+		).toEqual([]);
+		expect(
+			await check("link.internal.lowercase", link("file:///About/"), none),
+		).toEqual([]);
+	});
+
+	test("link.external.limit counts absolute links only without a host", async () => {
+		let none = { host: "", setting: { max: 1 } };
+		let links = (...hrefs: string[]) =>
+			page("", hrefs.map((x) => `<a href="${x}">Recipe</a>`).join(""));
+		expect(
+			await check("link.external.limit", links("/a/", "/b/", "c/"), none),
+		).toEqual([]);
+		expect(
+			await check(
+				"link.external.limit",
+				links("https://a.com/", "https://b.com/"),
+				none,
+			),
+		).toHaveLength(1);
+	});
+
 	test("link.internal resolves relative links against the page URL", async () => {
 		let relative = link("Other/");
 		expect(
@@ -427,8 +456,12 @@ describe("link", () => {
 		for (let href of ["https://other.com/", "https://x.com/recipe"]) {
 			expect(await check("link.blank.noreferrer", blank(href))).toHaveLength(1);
 		}
+		let none = { host: "" };
 		expect(
-			await check("link.blank.noreferrer", blank("/recipe.md"), { host: "" }),
+			await check("link.blank.noreferrer", blank("/recipe.md"), none),
+		).toEqual([]);
+		expect(
+			await check("link.blank.noreferrer", blank(`${HOST}/recipe/`), none),
 		).toHaveLength(1);
 	});
 

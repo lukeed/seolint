@@ -46,7 +46,7 @@ export default config.define({
 
 The URL of your site. seolint uses it to tell internal links from external ones, and to give each page its URL, such as `https://example.com/about/` for `public/about/index.html`.
 
-Without a `host`, the `link.internal.*` rules do not run, and neither do the rules that compare against the page URL, such as [`canonical.href.self`](/docs/rules/canonical.href.self/).
+Without a `host`, only relative links count as internal, and the rules that compare against the page URL do not run, such as [`canonical.href.self`](/docs/rules/canonical.href.self/).
 
 ## `inputs`
 
