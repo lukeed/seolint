@@ -11,6 +11,7 @@ export const canonical = plugin({
 		"canonical.href.absolute": true,
 		"canonical.href.lowercase": true,
 		"canonical.href.https": true,
+		"canonical.href.fragment": true,
 		"canonical.href.match": { hostname: "" },
 		"canonical.href.self": true,
 		"canonical.head": true,
@@ -22,6 +23,7 @@ export const canonical = plugin({
 		"canonical.href.absolute": "The canonical href is an absolute URL.",
 		"canonical.href.lowercase": "The canonical href has no uppercase letters.",
 		"canonical.href.https": "The canonical href uses https://.",
+		"canonical.href.fragment": "The canonical href has no #fragment.",
 		"canonical.href.match": "The canonical href uses the site hostname.",
 		"canonical.href.self": [
 			"warn",
@@ -78,6 +80,13 @@ export const canonical = plugin({
 			"canonical.href.https",
 			/^https:\/\//.test(target),
 			'Must point to an "https://" address',
+			elem,
+		);
+
+		context.assert(
+			"canonical.href.fragment",
+			!target.includes("#"),
+			'Must not include a "#" fragment',
 			elem,
 		);
 

@@ -325,6 +325,16 @@ describe("canonical", () => {
 		expect(await check("canonical.href.self", page(link))).toEqual([]);
 	});
 
+	test("canonical.href.fragment", async () => {
+		let link = (href: string) => page(`<link rel="canonical" href="${href}">`);
+		expect(
+			await check("canonical.href.fragment", link(`${HOST}/a/?b=1`)),
+		).toEqual([]);
+		expect(
+			await check("canonical.href.fragment", link(`${HOST}/a/#top`)),
+		).toEqual(['Must not include a "#" fragment']);
+	});
+
 	test("canonical.href.self matches every URL of the page", async () => {
 		let link = (href: string) => page(`<link rel="canonical" href="${href}">`);
 		let about = { url: `${HOST}/about.html` };
