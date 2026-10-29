@@ -9,16 +9,32 @@ const STOP = new Set(
 );
 
 /**
- * The meaningful words of `text`: lowercase, without stop words.
+ * The form of `word` that its singular and plural share.
  * @example
- * words("The Best Bread in Town"); //=> Set { "best", "bread", "town" }
+ * stem("stories"); //=> "stori"
+ * stem("story"); //=> "stori"
+ */
+function stem(word: string): string {
+	if (word.length <= 3) return word;
+	return word
+		.replace(/ies$/, "i")
+		.replace(/(ss|x|z|ch|sh)es$/, "$1")
+		.replace(/([^s])s$/, "$1")
+		.replace(/(ie|y)$/, "i");
+}
+
+/**
+ * The meaningful words of `text`: lowercase, without stop words, and stemmed.
+ * @example
+ * words("The Best Breads in Town"); //=> Set { "best", "bread", "town" }
  */
 function words(text: string): Set<string> {
 	return new Set(
 		text
 			.toLowerCase()
 			.split(/[^\w]+/)
-			.filter((x) => x.length > 0 && !STOP.has(x)),
+			.filter((x) => x.length > 0 && !STOP.has(x))
+			.map(stem),
 	);
 }
 

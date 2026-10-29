@@ -5,7 +5,7 @@ summary: "The description shares at least one meaningful word with the title. Se
 
 The description shares at least one meaningful word with the title.
 
-**Why:** A description that shares no words with the title may belong to another page. Common words such as "the" and "and" do not count.
+**Why:** A description that shares no words with the title may belong to another page. Common words such as "the" and "and" do not count. The singular and plural of a word match, such as "story" and "stories".
 
 **When off:** any description passes.
 
@@ -17,4 +17,7 @@ The description shares at least one meaningful word with the title.
 <!-- ✓ Passes -->
 <title>The Bakery</title>
 <meta name="description" content="Our bakery bakes bread every morning." />
+
+<title>Our Breads</title>
+<meta name="description" content="Each bread is baked every morning." />
 ```

@@ -215,6 +215,23 @@ describe("description", () => {
 				html("The Bakery", "The shop in town."),
 			),
 		).toHaveLength(1);
+	});
+
+	test("description.content.title matches singular and plural words", async () => {
+		let html = (title: string, content: string) =>
+			page(`<title>${title}</title>${meta(content)}`);
+		for (let [title, content] of [
+			["View transitions", "How to animate a transition"],
+			["Dynamic images", "Draw an image at build time"],
+			["Our stories", "A story of bread"],
+			["Movies", "A movie night"],
+			["Classes", "Each class of bread"],
+			["Boxes", "A box of bread"],
+		]) {
+			expect(
+				await check("description.content.title", html(title, content)),
+			).toEqual([]);
+		}
 		expect(
 			await check("description.content.title", html("Bakery.", ".Shop")),
 		).toHaveLength(1);
