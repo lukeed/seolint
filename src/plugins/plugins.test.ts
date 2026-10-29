@@ -374,6 +374,27 @@ describe("viewport", () => {
 			await check("viewport.content.zoom", page(meta("maximum-scale=1"))),
 		).toHaveLength(1);
 	});
+
+	test("viewport.content.device and viewport.content.scale read each value", async () => {
+		for (let content of [
+			"width=device-width, initial-scale=1",
+			"width = device-width ; initial-scale = 1.0",
+			"Initial-Scale=1,WIDTH=DEVICE-WIDTH",
+		]) {
+			expect(
+				await check("viewport.content.device", page(meta(content))),
+			).toEqual([]);
+			expect(
+				await check("viewport.content.scale", page(meta(content))),
+			).toEqual([]);
+		}
+		let wrong = page(meta("min-width=device-width, initial-scale=10"));
+		expect(await check("viewport.content.device", wrong)).toHaveLength(1);
+		expect(await check("viewport.content.scale", wrong)).toHaveLength(1);
+		expect(
+			await check("viewport.content.zoom", page(meta("user-scalable = NO"))),
+		).toHaveLength(1);
+	});
 });
 
 describe("heading", () => {

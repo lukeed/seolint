@@ -48,25 +48,32 @@ export const viewport = plugin({
 			elem,
 		);
 
+		let props = new Map(
+			content.split(/[,;]/).map((pair) => {
+				let [key, value = ""] = pair.split("=");
+				return [key.trim().toLowerCase(), value.trim().toLowerCase()];
+			}),
+		);
+
 		context.assert(
 			"viewport.content.device",
-			content.includes("width=device-width"),
+			props.get("width") === "device-width",
 			'Must include "width=device-width" value',
 			elem,
 		);
 
 		context.assert(
 			"viewport.content.scale",
-			content.includes("initial-scale=1"),
+			Number(props.get("initial-scale")) === 1,
 			'Must include "initial-scale=1" value',
 			elem,
 		);
 
-		let scale = /maximum-scale\s*=\s*([\d.]+)/.exec(content);
+		let scalable = props.get("user-scalable");
+		let maximum = Number(props.get("maximum-scale") ?? Infinity);
 		context.assert(
 			"viewport.content.zoom",
-			!/user-scalable\s*=\s*(no|0)\b/.test(content) &&
-				(!scale || Number(scale[1]) >= 2),
+			scalable !== "no" && scalable !== "0" && !(maximum < 2),
 			'Must not use "user-scalable=no" or a "maximum-scale" below 2',
 			elem,
 		);
