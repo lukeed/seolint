@@ -307,6 +307,24 @@ describe("heading", () => {
 			await check("heading.order", page("", "<h1>a</h1><h3>b</h3>")),
 		).toEqual(["Must not skip from <h1> to <h3>"]);
 	});
+
+	test("heading.order checks the first heading", async () => {
+		expect(
+			await check(
+				"heading.order",
+				page("", "<h2>Menu</h2><h1>a</h1><h2>b</h2>"),
+			),
+		).toEqual([]);
+		expect(
+			await check("heading.order", page("", "<h4>Docs</h4><h1>a</h1>")),
+		).toEqual(["Must start at <h1> or <h2>, not <h4>"]);
+		expect(
+			await check("heading.order", page("", "<h3>a</h3><h5>b</h5>")),
+		).toEqual([
+			"Must start at <h1> or <h2>, not <h3>",
+			"Must not skip from <h3> to <h5>",
+		]);
+	});
 });
 
 describe("robots", () => {

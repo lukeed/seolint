@@ -13,7 +13,7 @@ export const heading = plugin({
 		"heading.single": "A page has only one <h1>.",
 		"heading.order": [
 			"warn",
-			"Headings do not skip levels, such as an <h4> after an <h2>.",
+			"Headings start at <h1> or <h2>, and do not skip levels, such as an <h4> after an <h2>.",
 		],
 	}),
 	run(context, document) {
@@ -26,7 +26,13 @@ export const heading = plugin({
 		let previous = 0;
 		for (let node of document.all("h1, h2, h3, h4, h5, h6")) {
 			let level = Number(node.name[1]);
-			if (previous > 0 && level > previous + 1) {
+			if (previous === 0 && level > 2) {
+				context.report(
+					"heading.order",
+					`Must start at <h1> or <h2>, not <h${level}>`,
+					node,
+				);
+			} else if (previous > 0 && level > previous + 1) {
 				context.report(
 					"heading.order",
 					`Must not skip from <h${previous}> to <h${level}>`,
