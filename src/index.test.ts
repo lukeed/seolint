@@ -747,6 +747,28 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("site.sitemap skips noindex pages, and pages that canonicalize elsewhere", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-primary-")));
+		let head = (extra: string) =>
+			`<html><head><title>Page</title>${extra}</head><body></body></html>`;
+		await writeFile(join(dir, "index.html"), head(""));
+		await writeFile(
+			join(dir, "draft.html"),
+			head('<meta name="robots" content="max-snippet:10, NoIndex">'),
+		);
+		await writeFile(
+			join(dir, "print.html"),
+			head('<link rel="canonical" href="/">'),
+		);
+		await writeFile(
+			join(dir, "sitemap.xml"),
+			"<urlset><url><loc>https://example.com/</loc></url></urlset>",
+		);
+		let rules = config({ "site.sitemap": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.sitemap follows robots.txt and sitemap indexes", async () => {
 		let robots = join(tmp, "robots.txt");
 		let index = join(tmp, "sitemap-index.xml");

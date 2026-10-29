@@ -8,7 +8,7 @@ import * as about from "./meta";
 import * as robotstxt from "./robotstxt";
 import * as sitemap from "./sitemap";
 
-import type { Position } from "../types";
+import type { Page, Position } from "../types";
 
 type Link = {
 	/** The URL path of the target, without the search or hash. */
@@ -20,6 +20,10 @@ type Data = {
 	title: { text: string; position: Position } | undefined;
 	description: { text: string; position: Position } | undefined;
 	links: Link[];
+	/** Whether the page asks search engines to leave it out, with `noindex` or `none`. */
+	noindex: boolean;
+	/** The absolute URL of the page's canonical link, if any. */
+	canonical: string | undefined;
 };
 
 /**
@@ -88,6 +92,17 @@ function duplicates<T extends { text: string }>(
 	return [...groups.values()].filter((x) => x.length > 1);
 }
 
+/**
+ * Whether search engines can show `page` as itself: it has no `noindex`, and
+ * its canonical link, if any, points to the page.
+ */
+function primary(page: Page<Data>): boolean {
+	let { noindex, canonical } = page.data;
+	if (noindex) return false;
+	if (!canonical || !page.url) return true;
+	return address.normalize(canonical) === address.normalize(page.url);
+}
+
 export const site = plugin({
 	name: "site",
 	rules: {
@@ -128,6 +143,13 @@ export const site = plugin({
 			}
 		}
 
+		let robots = document.all("meta[name=robots i], meta[name=googlebot i]");
+		let noindex = robots.some((node) =>
+			/(^|,)\s*(noindex|none)\s*(,|$)/i.test(node.getAttr("content") ?? ""),
+		);
+		let href = document.find("link[rel=canonical]")?.getAttr("href");
+		let canonical = href ? URL.parse(href, base)?.href : undefined;
+
 		return {
 			title: title && {
 				text: detach(title.text),
@@ -138,6 +160,8 @@ export const site = plugin({
 				position: document.position(description.start),
 			},
 			links,
+			noindex,
+			canonical,
 		};
 	},
 	async finish(site, pages) {
@@ -230,7 +254,7 @@ export const site = plugin({
 		}
 		if (!found) return;
 
-		for (let page of pages) {
+		for (let page of pages.filter(primary)) {
 			let url = page.url && address.normalize(page.url);
 			if (url && !listed.has(url)) {
 				site.report(
