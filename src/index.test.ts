@@ -757,6 +757,65 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("site.sitemap.entries", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-entries-")));
+		let head = (extra = "") => `<html><head>${extra}</head></html>`;
+		await mkdir(join(dir, "private"));
+		await writeFile(join(dir, "index.html"), head());
+		await writeFile(
+			join(dir, "draft.html"),
+			head('<meta name="robots" content="noindex">'),
+		);
+		await writeFile(
+			join(dir, "print.html"),
+			head('<link rel="canonical" href="/">'),
+		);
+		await writeFile(join(dir, "private/index.html"), head());
+		await writeFile(
+			join(dir, "robots.txt"),
+			"User-agent: *\nDisallow: /private/\n",
+		);
+		let urls = [
+			"https://example.com/",
+			"http://example.com/",
+			"https://example.com/draft",
+			"https://example.com/print.html",
+			"https://example.com/private/",
+			"https://example.com/gone/",
+			"https://cdn.com/x/",
+		];
+		let sitemap = join(dir, "sitemap.xml");
+		await writeFile(
+			sitemap,
+			`<urlset>${urls.map((x) => `<url><loc>${x}</loc></url>`).join("")}</urlset>`,
+		);
+		let rules = config({ "site.sitemap.entries": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({
+			[sitemap]: {
+				"site.sitemap.entries": [
+					{ message: "Must use https://, not http://example.com/" },
+					{
+						message:
+							"Must not list https://example.com/draft, which has noindex",
+					},
+					{
+						message:
+							"Must not list https://example.com/print.html, whose canonical URL is https://example.com/",
+					},
+					{
+						message:
+							"Must not list https://example.com/private/, which robots.txt blocks",
+					},
+					{
+						message:
+							"Must not list https://example.com/gone/, which is not a page of the build",
+					},
+				],
+			},
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("hreflang.return", async () => {
 		let dir = await realpath(
 			await mkdtemp(join(tmpdir(), "seolint-hreflang-")),

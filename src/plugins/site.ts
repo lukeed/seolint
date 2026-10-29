@@ -36,6 +36,7 @@ const rules = {
 	"site.link.exists": true,
 	"site.robots": true,
 	"site.sitemap": true,
+	"site.sitemap.entries": true,
 };
 
 type Context = Site<typeof rules>;
@@ -122,16 +123,58 @@ async function robots(site: Context): Promise<void> {
 	}
 }
 
+/**
+ * Why a sitemap should not list `entry`, or `undefined` when it may.
+ */
+function unlisted(
+	entry: sitemap.Entry,
+	origin: string | undefined,
+	robots: robotstxt.Robots,
+	known: Set<string>,
+	pages: Map<string, Page<Data>>,
+): string | undefined {
+	let url = URL.parse(entry.url);
+	if (!url) return `Must list a valid URL, not ${entry.url}`;
+	if (url.protocol === "http:") return `Must use https://, not ${entry.url}`;
+	if (origin && url.origin !== origin) return;
+	if (!robotstxt.allowed(robots, "googlebot", url.pathname + url.search)) {
+		return `Must not list ${entry.url}, which robots.txt blocks`;
+	}
+	let page = pages.get(address.normalize(entry.url) ?? "");
+	if (!page) {
+		if (build.resolvable(known, url.pathname)) return;
+		return `Must not list ${entry.url}, which is not a page of the build`;
+	}
+	if (page.data.noindex) return `Must not list ${entry.url}, which has noindex`;
+	if (!primary(page)) {
+		return `Must not list ${entry.url}, whose canonical URL is ${page.data.canonical}`;
+	}
+}
+
 async function sitemaps(site: Context, pages: Page<Data>[]): Promise<void> {
-	if (!site.load("site.sitemap")) return;
+	let entriesRule = site.load("site.sitemap.entries");
+	if (!site.load("site.sitemap") && !entriesRule) return;
 
 	let origin = site.options.host
 		? URL.parse(site.options.host)?.origin
 		: undefined;
+	let known = await build.files(site.roots);
+	let byUrl = new Map(
+		pages.flatMap((page) => {
+			let url = page.url && address.normalize(page.url);
+			return url ? [[url, page] as const] : [];
+		}),
+	);
 	let listed = new Set<string>();
 	let found = false;
 	for (let root of site.roots) {
 		let { entries, missing, declared } = await sitemap.read(root, origin);
+		let text = await readFile(join(root, "robots.txt"), "utf8").catch(() => "");
+		let robots = robotstxt.parse(text);
+		for (let entry of entriesRule ? entries : []) {
+			let reason = unlisted(entry, origin, robots, known, byUrl);
+			if (reason) site.report("site.sitemap.entries", reason, entry.file);
+		}
 		for (let file of missing) {
 			site.report(
 				"site.sitemap",
@@ -174,6 +217,10 @@ export const site = plugin({
 			"A robots.txt exists, and does not block every crawler.",
 		],
 		"site.sitemap": ["warn", "A sitemap exists, and lists every page."],
+		"site.sitemap.entries": [
+			"warn",
+			"A sitemap lists only https pages of the build that search engines can index and crawl.",
+		],
 	}),
 	run(context, document): Data {
 		let title = document.find("head > title");
