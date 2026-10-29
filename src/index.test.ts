@@ -757,6 +757,33 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("hreflang.return", async () => {
+		let dir = await realpath(
+			await mkdtemp(join(tmpdir(), "seolint-hreflang-")),
+		);
+		let alt = (code: string) =>
+			`<link rel="alternate" hreflang="${code}" href="https://example.com/${code}/">`;
+		let page = (...codes: string[]) =>
+			`<html><head>${codes.map(alt).join("")}</head></html>`;
+		await mkdir(join(dir, "en"));
+		await mkdir(join(dir, "fr"));
+		await writeFile(join(dir, "en/index.html"), page("en", "fr", "de"));
+		await writeFile(join(dir, "fr/index.html"), page("fr"));
+		let rules = config({ "hreflang.return": true });
+		expect(reported(await seolint.fs(dir, rules))).toEqual({
+			[join(dir, "en/index.html")]: {
+				"hreflang.return": [
+					{
+						message: "Must have a return link from https://example.com/fr/",
+						line: 1,
+						col: 80,
+					},
+				],
+			},
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("link.internal.trailing matches each link to its built file", async () => {
 		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-slash-")));
 		let links = [

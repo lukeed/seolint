@@ -3,6 +3,15 @@ import * as address from "./address";
 import * as codes from "./codes";
 import * as about from "./meta";
 
+import type { Position } from "../types";
+
+/** The hreflang links of a page, for `hreflang.return`. */
+type Data = {
+	/** The normalized URL of the page. */
+	url: string;
+	links: { url: string; position: Position }[];
+};
+
 /**
  * Whether `value` is an hreflang value that Google supports: `x-default`, or
  * an ISO 639-1 language with an optional ISO 15924 script and ISO 3166-1 region.
@@ -32,6 +41,7 @@ export const hreflang = plugin({
 		"hreflang.absolute": true,
 		"hreflang.default": true,
 		"hreflang.self": true,
+		"hreflang.return": true,
 	},
 	meta: about.meta({
 		"hreflang.code":
@@ -42,8 +52,10 @@ export const hreflang = plugin({
 			"Pages with hreflang links also have an x-default link.",
 		],
 		"hreflang.self": "Pages with hreflang links also link to themselves.",
+		"hreflang.return":
+			"A page that an hreflang link points to links back to the page.",
 	}),
-	run(context, document) {
+	run(context, document): Data | void {
 		let links = document.all("link[rel~=alternate i][hreflang]");
 		if (links.length === 0) return;
 
@@ -71,13 +83,38 @@ export const hreflang = plugin({
 		);
 
 		let page = context.url && address.normalize(context.url);
-		if (page) {
-			context.assert(
-				"hreflang.self",
-				links.some((x) => address.normalize(x.getAttr("href") ?? "") === page),
-				`Must include an hreflang link to this page, ${context.url}`,
-				links[0],
-			);
+		if (!page) return;
+
+		context.assert(
+			"hreflang.self",
+			links.some((x) => address.normalize(x.getAttr("href") ?? "") === page),
+			`Must include an hreflang link to this page, ${context.url}`,
+			links[0],
+		);
+
+		return {
+			url: page,
+			links: links.flatMap((x) => {
+				let url = address.normalize(x.getAttr("href") ?? "");
+				return url ? [{ url, position: document.position(x.start) }] : [];
+			}),
+		};
+	},
+	finish(site, pages) {
+		let known = new Map(pages.map((x) => [x.data.url, x.data]));
+		for (let page of pages) {
+			for (let link of page.data.links) {
+				if (link.url === page.data.url) continue;
+				let target = known.get(link.url);
+				if (!target || target.links.some((x) => x.url === page.data.url))
+					continue;
+				site.report(
+					"hreflang.return",
+					`Must have a return link from ${link.url}`,
+					page.input,
+					link.position,
+				);
+			}
 		}
 	},
 });
