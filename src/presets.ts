@@ -68,5 +68,6 @@ export const staging: Config = {
 		"canonical.href.self": false,
 		"canonical.href.match": false,
 		"og.url": false,
+		"hreflang.self": false,
 	},
 };

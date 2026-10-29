@@ -1,4 +1,5 @@
 import { plugin } from "../plugin";
+import * as address from "./address";
 import * as codes from "./codes";
 import * as about from "./meta";
 
@@ -30,6 +31,7 @@ export const hreflang = plugin({
 		"hreflang.code": true,
 		"hreflang.absolute": true,
 		"hreflang.default": true,
+		"hreflang.self": true,
 	},
 	meta: about.meta({
 		"hreflang.code":
@@ -39,6 +41,7 @@ export const hreflang = plugin({
 			"warn",
 			"Pages with hreflang links also have an x-default link.",
 		],
+		"hreflang.self": "Pages with hreflang links also link to themselves.",
 	}),
 	run(context, document) {
 		let links = document.all("link[rel~=alternate i][hreflang]");
@@ -66,5 +69,15 @@ export const hreflang = plugin({
 			'Must include an hreflang="x-default" link',
 			links[0],
 		);
+
+		let page = context.url && address.normalize(context.url);
+		if (page) {
+			context.assert(
+				"hreflang.self",
+				links.some((x) => address.normalize(x.getAttr("href") ?? "") === page),
+				`Must include an hreflang link to this page, ${context.url}`,
+				links[0],
+			);
+		}
 	},
 });

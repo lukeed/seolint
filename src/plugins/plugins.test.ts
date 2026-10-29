@@ -765,6 +765,24 @@ describe("hreflang", () => {
 		}
 	});
 
+	test("hreflang.self", async () => {
+		let url = { url: `${HOST}/en/` };
+		expect(
+			await check(
+				"hreflang.self",
+				page(alt("en", `${HOST}/en/`) + alt("fr", `${HOST}/fr/`)),
+				url,
+			),
+		).toEqual([]);
+		expect(
+			await check("hreflang.self", page(alt("fr", `${HOST}/fr/`)), url),
+		).toEqual([`Must include an hreflang link to this page, ${HOST}/en/`]);
+		expect(
+			await check("hreflang.self", page(alt("fr", `${HOST}/fr/`))),
+		).toEqual([]);
+		expect(await check("hreflang.self", page(""), url)).toEqual([]);
+	});
+
 	test("hreflang.default", async () => {
 		expect(
 			await check("hreflang.default", page(alt("en") + alt("x-default"))),

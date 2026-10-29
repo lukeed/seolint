@@ -13,5 +13,6 @@ For staging and preview deploys. These sites are not for search engines, so they
 | [`canonical.href.self`](/docs/rules/canonical.href.self/)   | Canonical links point to the production page.          |
 | [`canonical.href.match`](/docs/rules/canonical.href.match/) | Canonical links point to the production host.          |
 | [`og.url`](/docs/rules/og.url/)                             | `og:url` points to the production page.                |
+| [`hreflang.self`](/docs/rules/hreflang.self/)               | `hreflang` links point to the production pages.        |
 
 All other rules keep their defaults.
