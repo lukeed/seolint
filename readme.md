@@ -4,7 +4,7 @@
 
 seolint checks the HTML of a built site, or of live URLs, for SEO problems: titles, descriptions, canonical links, headings, links, images, social tags, and more. Some checks span the whole site, such as duplicate titles, broken links, and pages missing from the sitemap.
 
-- **70 rules**, each with its own page in [the rules reference](https://seolint.io/docs/rules/).
+- **79 rules**, each with its own page in [the rules reference](https://seolint.io/docs/rules/).
 - **Configurable** in `seolint.config.ts`, with type-checked rule names and options.
 - **Extensible** with your own plugins and/or presets, for one page or for the whole site.
 - **CI-ready**, with exit codes, JSON output, and inline annotations for GitHub Actions. See an [example run](https://github.com/lukeed/seolint/actions/runs/40791628128).
@@ -28,10 +28,10 @@ $ seolint public --host https://example.com
 ```txt
  FAIL  public/about/index.html
          ✘  A "meta[name=description]" must exist       description.exists
-    6:2  ✘  Must not have less than 10 characters       title.content.length
+    6:2  ⚠  Must not have less than 10 characters       title.content.length
   21:52  ⚠  Must describe the target, not "click here"  link.text.vague
 
- FAIL  Reported 2 errors and 1 warning!
+ FAIL  Reported 1 error and 2 warnings!
 ```
 
 ## Documentation

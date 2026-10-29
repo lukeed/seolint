@@ -32,10 +32,10 @@ seolint prints each page that has problems, with one line for each problem:
 ```txt
  FAIL  public/about/index.html
          ✘  A "meta[name=description]" must exist       description.exists
-    6:2  ✘  Must not have less than 10 characters       title.content.length
+    6:2  ⚠  Must not have less than 10 characters       title.content.length
   21:52  ⚠  Must describe the target, not "click here"  link.text.vague
 
- FAIL  Reported 2 errors and 1 warning!
+ FAIL  Reported 1 error and 2 warnings!
 ```
 
 Each line has four columns:

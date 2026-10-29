@@ -53,10 +53,10 @@ The default. It prints each page with its problems, sorted by position, to stder
 ```txt
  FAIL  public/about/index.html
          ✘  A "meta[name=description]" must exist       description.exists
-    6:2  ✘  Must not have less than 10 characters       title.content.length
+    6:2  ⚠  Must not have less than 10 characters       title.content.length
   21:52  ⚠  Must describe the target, not "click here"  link.text.vague
 
- FAIL  Reported 2 errors and 1 warning!
+ FAIL  Reported 1 error and 2 warnings!
 ```
 
 ### `json`
@@ -68,7 +68,7 @@ It prints the report as JSON to stdout. Each input maps to a list of messages:
   "public/about/index.html": [
     {
       "rule": "title.content.length",
-      "severity": "error",
+      "severity": "warn",
       "message": "Must not have less than 10 characters",
       "line": 6,
       "col": 2,
@@ -85,9 +85,9 @@ A message has no `line` and `col` when the problem has no element, such as a mis
 It prints [GitHub Actions workflow commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions) to stdout. GitHub, Gitea, and Forgejo Actions show each one as an annotation on its file and line:
 
 ```txt
-::error file=public/about/index.html,line=6,col=2,title=title.content.length::Must not have less than 10 characters
+::warning file=public/about/index.html,line=6,col=2,title=title.content.length::Must not have less than 10 characters
 ::warning file=public/about/index.html,line=21,col=52,title=link.text.vague::Must describe the target, not "click here"
-seolint: 2 errors and 1 warning
+seolint: 1 error and 2 warnings
 ```
 
 In GitHub Actions, the `ci` format also writes every problem as a table to the job summary, because GitHub shows only the first 10 errors and 10 warnings of a step as annotations. See an [example run](https://github.com/lukeed/seolint/actions/runs/40791628128), and [CI](/docs/ci/) for a complete workflow.
