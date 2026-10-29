@@ -125,7 +125,7 @@ export const site = plugin({
 	}),
 	run(context, document): Data {
 		let title = document.find("head > title");
-		let description = document.find("meta[name=description]");
+		let description = document.find("meta[name=description i]");
 		let links: Link[] = [];
 
 		let host = context.options.host;
@@ -147,7 +147,7 @@ export const site = plugin({
 		let noindex = robots.some((node) =>
 			/(^|,)\s*(noindex|none)\s*(,|$)/i.test(node.getAttr("content") ?? ""),
 		);
-		let href = document.find("link[rel=canonical]")?.getAttr("href");
+		let href = document.find("link[rel~=canonical i]")?.getAttr("href");
 		let canonical = href ? URL.parse(href, base)?.href : undefined;
 
 		return {

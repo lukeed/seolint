@@ -61,7 +61,7 @@ export const og = plugin({
 
 		let url = content("og:url");
 		let canonical =
-			document.find("link[rel=canonical]")?.getAttr("href") ?? context.url;
+			document.find("link[rel~=canonical i]")?.getAttr("href") ?? context.url;
 		context.assert(
 			"og.url",
 			url.value.length > 0,

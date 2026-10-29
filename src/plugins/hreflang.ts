@@ -21,7 +21,7 @@ export const hreflang = plugin({
 		],
 	}),
 	run(context, document) {
-		let links = document.all("link[rel~=alternate][hreflang]");
+		let links = document.all("link[rel~=alternate i][hreflang]");
 		if (links.length === 0) return;
 
 		for (let link of links) {

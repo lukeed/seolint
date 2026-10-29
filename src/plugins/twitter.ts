@@ -15,7 +15,7 @@ export const twitter = plugin({
 		],
 	}),
 	run(context, document) {
-		let node = document.find('meta[name="twitter:card"]');
+		let node = document.find('meta[name="twitter:card" i]');
 		let value = node?.getAttr("content")?.trim() ?? "";
 		context.assert(
 			"twitter.card",

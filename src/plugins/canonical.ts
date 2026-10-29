@@ -30,7 +30,7 @@ export const canonical = plugin({
 		"canonical.head": "The canonical link is inside <head>.",
 	}),
 	run(context, document) {
-		let [elem, ...rest] = document.all("link[rel=canonical]");
+		let [elem, ...rest] = document.all("link[rel~=canonical i]");
 
 		context.assert(
 			"canonical.exists",

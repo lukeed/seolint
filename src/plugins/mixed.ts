@@ -8,7 +8,7 @@ const SOURCES: [selector: string, attribute: string][] = [
 	["source[src]", "src"],
 	["source[srcset]", "srcset"],
 	["script[src]", "src"],
-	["link[href]:not([rel~=canonical]):not([rel~=alternate])", "href"],
+	["link[href]:not([rel~=canonical i]):not([rel~=alternate i])", "href"],
 	["iframe[src]", "src"],
 	["video[src]", "src"],
 	["video[poster]", "poster"],

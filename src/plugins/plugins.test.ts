@@ -307,6 +307,33 @@ describe("canonical", () => {
 	});
 });
 
+describe("names and rel values", () => {
+	test("match without case", async () => {
+		let head = [
+			'<meta name="Description" content="A description">',
+			'<meta name="VIEWPORT" content="width=device-width, initial-scale=1">',
+			'<meta name="Twitter:Card" content="summary">',
+			'<link rel="Canonical" href="https://example.com/">',
+			'<link rel="Shortcut Icon" href="/favicon.ico">',
+		].join("");
+		for (let rule of [
+			"description.exists",
+			"viewport.exists",
+			"twitter.card",
+			"canonical.exists",
+			"html.favicon",
+		]) {
+			expect(await check(rule, page(head))).toEqual([]);
+		}
+		expect(
+			await check(
+				"hreflang.absolute",
+				page('<link rel="Alternate" hreflang="en" href="/en/">'),
+			),
+		).toHaveLength(1);
+	});
+});
+
 describe("canonical.href.match", () => {
 	let link = (href: string) => page(`<link rel="canonical" href="${href}">`);
 

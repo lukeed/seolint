@@ -54,7 +54,7 @@ export const html = plugin({
 
 		context.assert(
 			"html.favicon",
-			document.find("link[rel~=icon]") != null,
+			document.find("link[rel~=icon i]") != null,
 			'A <link rel="icon"> tag must exist',
 		);
 	},

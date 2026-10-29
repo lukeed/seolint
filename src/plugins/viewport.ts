@@ -22,7 +22,7 @@ export const viewport = plugin({
 		"viewport.content.zoom": "The viewport does not stop users from zooming.",
 	}),
 	run(context, document) {
-		let [elem, ...rest] = document.all("meta[name=viewport]");
+		let [elem, ...rest] = document.all("meta[name=viewport i]");
 
 		context.assert(
 			"viewport.exists",

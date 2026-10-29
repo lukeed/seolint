@@ -67,7 +67,7 @@ export const description = plugin({
 			"The description length is within a range of characters.",
 	}),
 	run(context, document) {
-		let [elem, ...rest] = document.all("meta[name=description]");
+		let [elem, ...rest] = document.all("meta[name=description i]");
 
 		context.assert(
 			"description.exists",
