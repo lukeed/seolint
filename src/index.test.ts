@@ -702,6 +702,14 @@ describe("site", () => {
 				],
 			},
 		});
+
+		await writeFile(
+			robots,
+			"User-agent: *\nUser-agent: Googlebot\nDisallow: /\n",
+		);
+		expect(Object.keys(reported(await seolint.fs(tmp, rules)))).toEqual([
+			robots,
+		]);
 		await rm(robots);
 	});
 

@@ -5,6 +5,7 @@ import { detach } from "../detach";
 import { plugin } from "../plugin";
 import * as address from "./address";
 import * as about from "./meta";
+import * as robotstxt from "./robotstxt";
 
 import type { Position } from "../types";
 
@@ -59,23 +60,6 @@ function resolvable(known: Set<string>, path: string): boolean {
 		? [base + "index.html"]
 		: [base, base + "/index.html", base + ".html"];
 	return candidates.some((x) => known.has(x));
-}
-
-/**
- * Whether a robots.txt blocks every crawler from the whole site.
- * @example
- * blocked("User-agent: *\nDisallow: /"); //=> true
- */
-function blocked(text: string): boolean {
-	let everyone = false;
-	for (let raw of text.split(/\r?\n/)) {
-		let line = raw.replace(/#.*$/, "").trim();
-		let [key, ...rest] = line.split(":");
-		let value = rest.join(":").trim();
-		if (/^user-agent$/i.test(key)) everyone = value === "*";
-		else if (everyone && /^disallow$/i.test(key) && value === "/") return true;
-	}
-	return false;
 }
 
 /**
@@ -210,7 +194,7 @@ export const site = plugin({
 			let text = await readFile(file, "utf8").catch(() => undefined);
 			if (text === undefined) {
 				site.report("site.robots", "A robots.txt file must exist", file);
-			} else if (blocked(text)) {
+			} else if (!robotstxt.allowed(robotstxt.parse(text), "*", "/")) {
 				site.report(
 					"site.robots",
 					'Must not block every crawler with "Disallow: /"',
