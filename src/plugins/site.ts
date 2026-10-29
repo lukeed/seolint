@@ -10,7 +10,7 @@ import * as about from "./meta";
 import * as robotstxt from "./robotstxt";
 import * as sitemap from "./sitemap";
 
-import type { Page, Position } from "../types";
+import type { Page, Position, Site } from "../types";
 
 type Link = {
 	/** The URL path of the target, without the search or hash. */
@@ -18,9 +18,11 @@ type Link = {
 	position: Position;
 };
 
+type Text = { text: string; position: Position };
+
 type Data = {
-	title: { text: string; position: Position } | undefined;
-	description: { text: string; position: Position } | undefined;
+	title: Text | undefined;
+	description: Text | undefined;
 	links: Link[];
 	/** Whether the page asks search engines to leave it out, with `noindex` or `none`. */
 	noindex: boolean;
@@ -28,29 +30,22 @@ type Data = {
 	canonical: string | undefined;
 };
 
+const rules = {
+	"site.title.unique": true,
+	"site.description.unique": true,
+	"site.link.exists": true,
+	"site.robots": true,
+	"site.sitemap": true,
+};
+
+type Context = Site<typeof rules>;
+
 /**
  * @example
  * others(1); //=> "1 other page uses"
  */
 function others(total: number): string {
 	return total === 1 ? "1 other page uses" : `${total} other pages use`;
-}
-
-/**
- * Group pages that share the same text, keeping only groups of two or more.
- */
-function duplicates<T extends { text: string }>(
-	items: { input: string; value: T }[],
-): { input: string; value: T }[][] {
-	let groups = new Map<string, { input: string; value: T }[]>();
-	for (let item of items) {
-		let key = item.value.text.trim().toLowerCase();
-		if (!key) continue;
-		let group = groups.get(key);
-		if (group) group.push(item);
-		else groups.set(key, [item]);
-	}
-	return [...groups.values()].filter((x) => x.length > 1);
 }
 
 /**
@@ -64,15 +59,111 @@ function primary(page: Page<Data>): boolean {
 	return address.normalize(canonical) === address.normalize(page.url);
 }
 
+/**
+ * Report the pages that share a title or a description, ignoring case.
+ */
+function unique(
+	site: Context,
+	pages: Page<Data>[],
+	field: "title" | "description",
+): void {
+	let groups = new Map<string, { input: string; value: Text }[]>();
+	for (let page of pages) {
+		let value = page.data[field];
+		let key = value?.text.trim().toLowerCase();
+		if (!value || !key) continue;
+		let group = groups.get(key) ?? [];
+		group.push({ input: page.input, value });
+		groups.set(key, group);
+	}
+
+	for (let group of groups.values()) {
+		if (group.length < 2) continue;
+		for (let item of group) {
+			site.report(
+				field === "title" ? "site.title.unique" : "site.description.unique",
+				`Must be unique; ${others(group.length - 1)} the same ${field}`,
+				item.input,
+				item.value.position,
+			);
+		}
+	}
+}
+
+async function links(site: Context, pages: Page<Data>[]): Promise<void> {
+	if (!site.load("site.link.exists")) return;
+	let known = await build.files(site.roots);
+	for (let page of pages) {
+		for (let link of page.data.links) {
+			if (build.resolvable(known, link.path)) continue;
+			site.report(
+				"site.link.exists",
+				`Must point to a file that exists, not ${link.path}`,
+				page.input,
+				link.position,
+			);
+		}
+	}
+}
+
+async function robots(site: Context): Promise<void> {
+	for (let root of site.roots) {
+		let file = join(root, "robots.txt");
+		let text = await readFile(file, "utf8").catch(() => undefined);
+		if (text === undefined) {
+			site.report("site.robots", "A robots.txt file must exist", file);
+		} else if (!robotstxt.allowed(robotstxt.parse(text), "*", "/")) {
+			site.report(
+				"site.robots",
+				'Must not block every crawler with "Disallow: /"',
+				file,
+			);
+		}
+	}
+}
+
+async function sitemaps(site: Context, pages: Page<Data>[]): Promise<void> {
+	if (!site.load("site.sitemap")) return;
+
+	let origin = site.options.host
+		? URL.parse(site.options.host)?.origin
+		: undefined;
+	let listed = new Set<string>();
+	let found = false;
+	for (let root of site.roots) {
+		let { entries, missing, declared } = await sitemap.read(root, origin);
+		for (let file of missing) {
+			site.report(
+				"site.sitemap",
+				declared
+					? "Must exist, because robots.txt or a sitemap index lists it"
+					: "A sitemap.xml file must exist",
+				file,
+			);
+		}
+		found ||= missing.length === 0 || entries.length > 0;
+		for (let entry of entries) {
+			let url = address.normalize(entry.url);
+			if (url) listed.add(url);
+		}
+	}
+	if (!found) return;
+
+	for (let page of pages.filter(primary)) {
+		let url = page.url && address.normalize(page.url);
+		if (url && !listed.has(url)) {
+			site.report(
+				"site.sitemap",
+				`Must be listed in sitemap.xml, as ${page.url}`,
+				page.input,
+			);
+		}
+	}
+}
+
 export const site = plugin({
 	name: "site",
-	rules: {
-		"site.title.unique": true,
-		"site.description.unique": true,
-		"site.link.exists": true,
-		"site.robots": true,
-		"site.sitemap": true,
-	},
+	rules,
 	meta: about.meta({
 		"site.title.unique": "Every page has a different title.",
 		"site.description.unique": "Every page has a different description.",
@@ -132,105 +223,12 @@ export const site = plugin({
 	},
 	async finish(site, pages) {
 		let shown = pages.filter(primary);
-
-		let titles = shown.flatMap((page) =>
-			page.data.title ? [{ input: page.input, value: page.data.title }] : [],
-		);
-		for (let group of duplicates(titles)) {
-			for (let item of group) {
-				site.report(
-					"site.title.unique",
-					`Must be unique; ${others(group.length - 1)} the same title`,
-					item.input,
-					item.value.position,
-				);
-			}
-		}
-
-		let descriptions = shown.flatMap((page) =>
-			page.data.description
-				? [{ input: page.input, value: page.data.description }]
-				: [],
-		);
-		for (let group of duplicates(descriptions)) {
-			for (let item of group) {
-				site.report(
-					"site.description.unique",
-					`Must be unique; ${others(group.length - 1)} the same description`,
-					item.input,
-					item.value.position,
-				);
-			}
-		}
+		unique(site, shown, "title");
+		unique(site, shown, "description");
 
 		if (site.roots.length === 0) return;
-
-		if (site.load("site.link.exists")) {
-			let known = await build.files(site.roots);
-			for (let page of pages) {
-				for (let link of page.data.links) {
-					let path = link.path;
-					if (!build.resolvable(known, path)) {
-						site.report(
-							"site.link.exists",
-							`Must point to a file that exists, not ${path}`,
-							page.input,
-							link.position,
-						);
-					}
-				}
-			}
-		}
-
-		for (let root of site.roots) {
-			let file = join(root, "robots.txt");
-			let text = await readFile(file, "utf8").catch(() => undefined);
-			if (text === undefined) {
-				site.report("site.robots", "A robots.txt file must exist", file);
-			} else if (!robotstxt.allowed(robotstxt.parse(text), "*", "/")) {
-				site.report(
-					"site.robots",
-					'Must not block every crawler with "Disallow: /"',
-					file,
-				);
-			}
-		}
-
-		if (!site.load("site.sitemap")) return;
-
-		let origin = site.options.host
-			? URL.parse(site.options.host)?.origin
-			: undefined;
-		let listed = new Set<string>();
-		let found = false;
-		for (let root of site.roots) {
-			let { entries, missing, declared } = await sitemap.read(root, origin);
-			for (let file of missing) {
-				site.report(
-					"site.sitemap",
-					declared
-						? "Must exist, because robots.txt or a sitemap index lists it"
-						: "A sitemap.xml file must exist",
-					file,
-				);
-			}
-			found ||= missing.length === 0 || entries.length > 0;
-			for (let entry of entries) {
-				let url = address.normalize(entry.url);
-				if (url) listed.add(url);
-			}
-		}
-		if (!found) return;
-
-		for (let page of shown) {
-			let url = page.url && address.normalize(page.url);
-			if (url && !listed.has(url)) {
-				site.report(
-					"site.sitemap",
-					`Must be listed in sitemap.xml, as ${page.url}`,
-					page.input,
-				);
-			}
-		}
+		await links(site, pages);
+		await robots(site);
+		await sitemaps(site, pages);
 	},
 });
