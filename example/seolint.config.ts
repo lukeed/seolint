@@ -50,6 +50,7 @@ export default config.define({
 	rules: {
 		"brand.title": { name: "Bongo Bakery" },
 		"description.content.title": false,
+		"link.blank.*": true,
 		"link.external.limit": ["warn", { max: 10 }],
 		"og.*": "error",
 	},

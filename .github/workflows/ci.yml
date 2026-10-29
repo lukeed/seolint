@@ -102,7 +102,7 @@ jobs:
           errors=$(jq '[.[][] | select(.severity == "error")] | length' report.json)
           warnings=$(jq '[.[][] | select(.severity == "warn")] | length' report.json)
           echo "exit=$code errors=$errors warnings=$warnings"
-          test "$code" = 1 && test "$errors" = 22 && test "$warnings" = 5
+          test "$code" = 1 && test "$errors" = 14 && test "$warnings" = 8
 
   www:
     name: Site
