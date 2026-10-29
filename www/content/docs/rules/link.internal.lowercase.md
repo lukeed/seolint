@@ -7,6 +7,8 @@ An internal link has no uppercase letters.
 
 **Why:** URL paths are case-sensitive, so `/About/` and `/about/` are different URLs, and one of them may not exist.
 
+The rule warns, and does not fail. Google asks for one case, not for lowercase. A link with the wrong case to a page of the build fails [`site.link.exists`](/docs/rules/site.link.exists/).
+
 **When off:** links with uppercase letters pass.
 
 ```html

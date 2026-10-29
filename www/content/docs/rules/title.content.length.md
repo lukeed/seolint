@@ -5,7 +5,9 @@ summary: "The title length is within a range of characters. See what the title.c
 
 The title length is within a range of characters.
 
-**Why:** Search results cut off titles at about 60 characters, and very short titles say little about the page.
+**Why:** Search results cut off long titles to fit the screen, at about 60 characters, and very short titles say little about the page.
+
+The rule warns, and does not fail. Google sets no limit on the length of a title, and cuts it as needed.
 
 **When off:** titles of any length pass.
 

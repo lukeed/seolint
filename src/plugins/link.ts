@@ -45,7 +45,10 @@ export const link = plugin({
 		"link.href.exists": "A link has an href attribute.",
 		"link.href.empty": "A link href is not empty.",
 		"link.internal.trailing": "An internal link to a page ends with a slash.",
-		"link.internal.lowercase": "An internal link has no uppercase letters.",
+		"link.internal.lowercase": [
+			"warn",
+			"An internal link has no uppercase letters.",
+		],
 		"link.internal.nofollow": 'An internal link does not use rel="nofollow".',
 		"link.internal.pretty": 'An internal link does not end with ".html".',
 		"link.internal.absolute": [

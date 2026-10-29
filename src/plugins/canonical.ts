@@ -21,7 +21,10 @@ export const canonical = plugin({
 		"canonical.single": "A page has only one canonical link.",
 		"canonical.href.exists": "The canonical link has a non-empty href.",
 		"canonical.href.absolute": "The canonical href is an absolute URL.",
-		"canonical.href.lowercase": "The canonical href has no uppercase letters.",
+		"canonical.href.lowercase": [
+			"warn",
+			"The canonical href has no uppercase letters.",
+		],
 		"canonical.href.https": "The canonical href uses https://.",
 		"canonical.href.fragment": "The canonical href has no #fragment.",
 		"canonical.href.match": "The canonical href uses the site hostname.",

@@ -5,7 +5,9 @@ summary: "The description length is within a range of characters. See what the d
 
 The description length is within a range of characters.
 
-**Why:** Search results cut off descriptions at about 155 to 160 characters, and short descriptions say little about the page.
+**Why:** Search results cut off long descriptions to fit the screen, at about 155 to 160 characters, and short descriptions say little about the page.
+
+The rule warns, and does not fail. Google sets no limit on the length of a description, and cuts it as needed.
 
 **When off:** descriptions of any length pass.
 

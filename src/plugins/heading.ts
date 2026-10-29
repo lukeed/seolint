@@ -10,7 +10,7 @@ export const heading = plugin({
 	},
 	meta: about.meta({
 		"heading.exists": "A page has an <h1>.",
-		"heading.single": "A page has only one <h1>.",
+		"heading.single": ["warn", "A page has only one <h1>."],
 		"heading.order": [
 			"warn",
 			"Headings start at <h1> or <h2>, and do not skip levels, such as an <h4> after an <h2>.",

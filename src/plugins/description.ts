@@ -63,8 +63,10 @@ export const description = plugin({
 			'The description does not include the word "undefined".',
 		"description.content.null":
 			'The description does not include the word "null".',
-		"description.content.length":
+		"description.content.length": [
+			"warn",
 			"The description length is within a range of characters.",
+		],
 	}),
 	run(context, document) {
 		let [elem, ...rest] = document.all("meta[name=description i]");

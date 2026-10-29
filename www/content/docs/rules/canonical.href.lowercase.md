@@ -7,6 +7,8 @@ The canonical `href` has no uppercase letters.
 
 **Why:** URL paths are case-sensitive, so `/About/` and `/about/` are different URLs. Lowercase URLs avoid two versions of one page.
 
+The rule warns, and does not fail. Google asks for one case, not for lowercase.
+
 **When off:** canonical links with uppercase letters pass.
 
 ```html

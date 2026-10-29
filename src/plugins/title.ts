@@ -20,7 +20,10 @@ export const title = plugin({
 		"title.content.undefined":
 			'The title does not include the word "undefined".',
 		"title.content.null": 'The title does not include the word "null".',
-		"title.content.length": "The title length is within a range of characters.",
+		"title.content.length": [
+			"warn",
+			"The title length is within a range of characters.",
+		],
 	}),
 	run(context, document) {
 		let [elem, ...rest] = document.all("head>title");

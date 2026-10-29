@@ -62,16 +62,16 @@ describe("bin", () => {
 				'        ⚠  A "twitter:card" meta tag must exist                            twitter.card',
 				"   2:1  ✘  The <html> element must have a `lang` attribute                 html.lang",
 				'   4:3  ✘  Must not include "null" in `title` value                        title.content.null',
-				"   4:3  ✘  Must not have less than 10 characters                           title.content.length",
-				"   5:3  ✘  Must not include uppercase character(s)                         canonical.href.lowercase",
+				"   4:3  ⚠  Must not have less than 10 characters                           title.content.length",
+				"   5:3  ⚠  Must not include uppercase character(s)                         canonical.href.lowercase",
 				'   5:3  ✘  Must point to an "https://" address                             canonical.href.https',
 				"   5:3  ⚠  Must point to this page, https://example.com/sub/bad.html       canonical.href.self",
-				"   8:3  ✘  Internal links should not include uppercase                     link.internal.lowercase",
+				"   8:3  ⚠  Internal links should not include uppercase                     link.internal.lowercase",
 				'   8:3  ✘  Internal links should not include ".html" suffix                link.internal.pretty',
 				"   8:3  ✘  Must point to a file that exists, not /About.html               site.link.exists",
 				'  8:46  ✘  Must have an `alt` attribute; use alt="" for decorative images  image.alt.exists',
 				"",
-				" FAIL  Reported 13 errors and 7 warnings!",
+				" FAIL  Reported 10 errors and 10 warnings!",
 				"",
 				"",
 			].join("\n"),
@@ -196,7 +196,7 @@ describe("bin", () => {
 		let lines = output.stdout.split("\n");
 		expect(output.code).toBe(0);
 		expect(lines).toContain(
-			'  title.content.length           error  The title length is within a range of characters.  {"min":10,"max":60}',
+			'  title.content.length           warn   The title length is within a range of characters.  {"min":10,"max":60}',
 		);
 		expect(lines.some((x) => /^ {2}canonical\.href\.match +off /.test(x))).toBe(
 			true,
@@ -242,7 +242,7 @@ describe("bin", () => {
 		expect(lines).toContain(
 			'::warning file=site/sub/bad.html,title=og.title::A "og:title" meta tag must exist',
 		);
-		expect(lines.at(-1)).toBe("seolint: 13 errors and 7 warnings");
+		expect(lines.at(-1)).toBe("seolint: 10 errors and 10 warnings");
 	});
 
 	test("should write the CI report to the job summary", async () => {
@@ -258,7 +258,7 @@ describe("bin", () => {
 
 		expect(output.code).toBe(1);
 		expect(lines[0]).toBe("earlier step");
-		expect(lines).toContain("### seolint: 13 errors and 7 warnings");
+		expect(lines).toContain("### seolint: 10 errors and 10 warnings");
 		expect(lines).toContain("| | File | Position | Message | Rule |");
 		expect(lines).toContain(
 			"| ✘ | site/sub/bad.html | 2:1 | The &lt;html&gt; element must have a `lang` attribute | [`html.lang`](https://seolint.io/docs/rules/html.lang/) |",
@@ -266,8 +266,8 @@ describe("bin", () => {
 		expect(lines).toContain(
 			'| ⚠ | site/sub/bad.html |  | A "og:title" meta tag must exist | [`og.title`](https://seolint.io/docs/rules/og.title/) |',
 		);
-		expect(lines.filter((x) => x.startsWith("| ✘ "))).toHaveLength(13);
-		expect(lines.filter((x) => x.startsWith("| ⚠ "))).toHaveLength(7);
+		expect(lines.filter((x) => x.startsWith("| ✘ "))).toHaveLength(10);
+		expect(lines.filter((x) => x.startsWith("| ⚠ "))).toHaveLength(10);
 		await rm(dir, { recursive: true, force: true });
 	});
 
