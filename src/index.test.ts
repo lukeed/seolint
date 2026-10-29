@@ -747,6 +747,33 @@ describe("site", () => {
 		await rm(sitemap);
 	});
 
+	test("site.title.unique skips noindex pages, and pages that canonicalize elsewhere", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-unique-")));
+		let head = (extra: string) =>
+			`<html><head><title>Same</title><meta name="description" content="Same">${extra}</head><body></body></html>`;
+		await writeFile(join(dir, "index.html"), head(""));
+		await writeFile(
+			join(dir, "a.html"),
+			head('<meta name="robots" content="none">'),
+		);
+		await writeFile(
+			join(dir, "b.html"),
+			head('<link rel="canonical" href="https://example.com/">'),
+		);
+		let rules = config({
+			"site.title.unique": true,
+			"site.description.unique": true,
+		});
+		expect(reported(await seolint.fs(dir, rules))).toEqual({});
+
+		await writeFile(join(dir, "c.html"), head(""));
+		expect(Object.keys(reported(await seolint.fs(dir, rules)))).toEqual([
+			join(dir, "c.html"),
+			join(dir, "index.html"),
+		]);
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.sitemap skips noindex pages, and pages that canonicalize elsewhere", async () => {
 		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-primary-")));
 		let head = (extra: string) =>

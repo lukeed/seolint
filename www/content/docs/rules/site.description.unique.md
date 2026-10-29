@@ -7,6 +7,8 @@ Every page has a different description.
 
 **Why:** A description that repeats across pages tells search engines nothing about each page, so they often replace it with page text. Case is ignored.
 
+Pages with `noindex`, or with a canonical link to another URL, are left out, because search engines do not show them as themselves.
+
 **When off:** duplicate descriptions pass.
 
 ```html

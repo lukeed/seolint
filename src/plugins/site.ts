@@ -165,7 +165,9 @@ export const site = plugin({
 		};
 	},
 	async finish(site, pages) {
-		let titles = pages.flatMap((page) =>
+		let shown = pages.filter(primary);
+
+		let titles = shown.flatMap((page) =>
 			page.data.title ? [{ input: page.input, value: page.data.title }] : [],
 		);
 		for (let group of duplicates(titles)) {
@@ -179,7 +181,7 @@ export const site = plugin({
 			}
 		}
 
-		let descriptions = pages.flatMap((page) =>
+		let descriptions = shown.flatMap((page) =>
 			page.data.description
 				? [{ input: page.input, value: page.data.description }]
 				: [],
@@ -254,7 +256,7 @@ export const site = plugin({
 		}
 		if (!found) return;
 
-		for (let page of pages.filter(primary)) {
+		for (let page of shown) {
 			let url = page.url && address.normalize(page.url);
 			if (url && !listed.has(url)) {
 				site.report(

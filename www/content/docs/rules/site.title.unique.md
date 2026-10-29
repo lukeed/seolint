@@ -7,6 +7,8 @@ Every page has a different title.
 
 **Why:** Search engines use titles to tell pages apart. When two pages share a title, they compete for the same searches, and one may be left out of results. Case is ignored.
 
+Pages with `noindex`, or with a canonical link to another URL, are left out, because search engines do not show them as themselves.
+
 **When off:** duplicate titles pass.
 
 ```html
