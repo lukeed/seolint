@@ -15,7 +15,7 @@ export const html = plugin({
 	meta: about.meta({
 		"html.doctype": "A page starts with <!doctype html>.",
 		"html.lang": "The <html> element has a lang attribute.",
-		"html.charset": "A page declares its character encoding near the top.",
+		"html.charset": "A page declares the utf-8 encoding near the top.",
 		"html.favicon": ["warn", "A page links to a favicon."],
 	}),
 	run(context, document) {
@@ -44,6 +44,19 @@ export const html = plugin({
 			'A <meta charset="utf-8"> tag must exist',
 		);
 		if (charset) {
+			let value = (
+				charset.getAttr("charset") ??
+				/charset\s*=\s*["']?([^\s;"']+)/i.exec(
+					charset.getAttr("content") ?? "",
+				)?.[1] ??
+				""
+			).trim();
+			context.assert(
+				"html.charset",
+				value.toLowerCase() === "utf-8",
+				`Must use "utf-8", not "${value}"`,
+				charset,
+			);
 			context.assert(
 				"html.charset",
 				charset.start < CHARSET_LIMIT,

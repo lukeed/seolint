@@ -36,6 +36,24 @@ describe("html", () => {
 		).toHaveLength(1);
 	});
 
+	test("html.charset must be utf-8", async () => {
+		for (let head of [
+			'<meta charset="UTF-8">',
+			'<meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
+		]) {
+			expect(await check("html.charset", page(head))).toEqual([]);
+		}
+		expect(
+			await check("html.charset", page('<meta charset="iso-8859-1">')),
+		).toEqual(['Must use "utf-8", not "iso-8859-1"']);
+		expect(
+			await check(
+				"html.charset",
+				page('<meta http-equiv="content-type" content="text/html">'),
+			),
+		).toEqual(['Must use "utf-8", not ""']);
+	});
+
 	test("html.lang", async () => {
 		expect(await check("html.lang", page(""))).toEqual([]);
 		expect(await check("html.lang", "<html><head></head></html>")).toHaveLength(
