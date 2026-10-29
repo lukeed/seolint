@@ -5,7 +5,7 @@ summary: "Headings start at h1 or h2, and do not skip levels. See what the headi
 
 Headings start at `<h1>` or `<h2>`, and do not skip levels, such as an `<h4>` after an `<h2>`.
 
-**Why:** Skipped levels break the outline of the page, which search engines and screen readers use to understand how sections relate.
+**Why:** Skipped levels break the outline of the page. Screen readers list the outline, so their users can see how sections relate and jump between them. Search engines do not rank pages by heading order, so this rule is for accessibility.
 
 The outline holds every heading of the page, in order, including the headings of a sidebar or footer. The first heading can be an `<h2>`, such as a menu before the `<h1>`. A first heading of `<h3>` or lower skips levels, because the outline starts below its top.
 
