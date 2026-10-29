@@ -87,6 +87,7 @@ export const link = plugin({
 	run(context, document) {
 		let externals = 0;
 		let internals: Internal[] = [];
+		let trailing = context.load("link.internal.trailing");
 		let seen: Set<string> = new Set();
 		let links = document.all("a");
 
@@ -175,7 +176,7 @@ export const link = plugin({
 					link,
 				);
 
-				if (context.url || href.startsWith("/")) {
+				if (trailing && (context.url || href.startsWith("/"))) {
 					internals.push({
 						path: url.pathname,
 						position: document.position(link.start),
