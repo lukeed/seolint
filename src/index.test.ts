@@ -67,9 +67,6 @@ const BAD_REPORT = {
 	"canonical.href.https": [
 		{ message: 'Must point to an "https://" address', line: 5, col: 3 },
 	],
-	"canonical.href.match": [
-		{ message: "Must include the provided `hostname` value", line: 5, col: 3 },
-	],
 	"viewport.exists": [{ message: 'A "meta[name=viewport]" tag must exist' }],
 	"heading.exists": [{ message: "A page must have an <h1>" }],
 	"image.alt.exists": [

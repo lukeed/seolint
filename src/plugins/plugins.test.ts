@@ -262,6 +262,50 @@ describe("canonical", () => {
 	});
 });
 
+describe("canonical.href.match", () => {
+	let link = (href: string) => page(`<link rel="canonical" href="${href}">`);
+
+	test("compares the hostname of the canonical URL", async () => {
+		expect(
+			await check("canonical.href.match", link("https://EXAMPLE.com/a/")),
+		).toEqual([]);
+		expect(
+			await check(
+				"canonical.href.match",
+				link("https://example.com.evil.net/"),
+			),
+		).toEqual(["Must point to the site hostname, example.com"]);
+		expect(
+			await check(
+				"canonical.href.match",
+				link("https://other.com/?example.com"),
+			),
+		).toHaveLength(1);
+	});
+
+	test("uses the hostname option over the host", async () => {
+		let www = { setting: { hostname: "WWW.example.com" } };
+		expect(
+			await check(
+				"canonical.href.match",
+				link("https://www.example.com/"),
+				www,
+			),
+		).toEqual([]);
+		expect(
+			await check("canonical.href.match", link("https://example.com/"), www),
+		).toEqual(["Must point to the site hostname, www.example.com"]);
+	});
+
+	test("is skipped without a host or hostname", async () => {
+		expect(
+			await check("canonical.href.match", link("https://other.com/"), {
+				host: "",
+			}),
+		).toEqual([]);
+	});
+});
+
 describe("viewport", () => {
 	let meta = (content: string) => `<meta name="viewport" content="${content}">`;
 

@@ -33,7 +33,7 @@ export const canonical = plugin({
 		"canonical.href.absolute": "The canonical href is an absolute URL.",
 		"canonical.href.lowercase": "The canonical href has no uppercase letters.",
 		"canonical.href.https": "The canonical href uses https://.",
-		"canonical.href.match": "The canonical href includes the site hostname.",
+		"canonical.href.match": "The canonical href uses the site hostname.",
 		"canonical.href.self": [
 			"warn",
 			"The canonical href points at the page itself.",
@@ -92,14 +92,22 @@ export const canonical = plugin({
 			elem,
 		);
 
+		let match = context.load("canonical.href.match");
 		let { host } = context.options;
+		let hostname = (
+			(match && match.hostname) ||
+			(host && URL.parse(host)?.hostname) ||
+			""
+		).toLowerCase();
 
-		context.assert(
-			"canonical.href.match",
-			(o) => target.includes(o.hostname || host || "\0"),
-			"Must include the provided `hostname` value",
-			elem,
-		);
+		if (hostname) {
+			context.assert(
+				"canonical.href.match",
+				URL.parse(target)?.hostname === hostname,
+				`Must point to the site hostname, ${hostname}`,
+				elem,
+			);
+		}
 
 		if (context.url) {
 			context.assert(
