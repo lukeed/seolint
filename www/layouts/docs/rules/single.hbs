@@ -7,7 +7,7 @@
 <h1><code>{{ rule.name }}</code></h1>
 <dl class="facts">
 	<div><dt>Default</dt><dd>{{#partial src="severity" rule=rule}}</dd></div>
-	<div><dt>Category</dt><dd><a href="/docs/rules/#categories"><code>{{ rule.category }}</code></a></dd></div>
+	<div><dt>Category</dt><dd><code>{{ rule.category }}</code></dd></div>
 	{{#if rule.options}}
 	<div><dt>Options</dt><dd><code>{{ JSON.stringify(rule.options) }}</code></dd></div>
 	{{/if}}

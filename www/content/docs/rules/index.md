@@ -41,21 +41,21 @@ export default config.define({
 - **Unknown names** are an error, so a typo does not go unnoticed. `define()` also checks rule names and options as you type.
 - **The page URL:** some rules compare against the page's own URL. For a file, it is the `host` plus the file's path, without `index.html`. Without a `host`, these rules are skipped.
 
+Run `seolint --rules` to list every rule with its current setting.
+
 ## Categories
 
-Each rule has one category, for what it is for. Its page shows it, and `seolint --rules` lists it.
+Each rule has one category, for what it is for, which the page of the rule shows.
 
-| Category         | Rules that                                                                 |
-| ---------------- | -------------------------------------------------------------------------- |
-| `#search`        | change how search engines crawl, index, and show your pages.               |
-| `#accessibility` | help people who use screen readers, zoom, or the keyboard, but not search. |
-| `#social`        | set the link previews of social networks and chat apps.                    |
-| `#style`         | keep URLs in one form. They do not change search results.                  |
-| `#security`      | keep your pages and visitors safe, such as from mixed content.             |
+| Category         | Rules about                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| `#search`        | How search engines crawl, index, and show your pages.                          |
+| `#accessibility` | Screen readers, zoom, and the keyboard, when search is not affected.           |
+| `#social`        | Link previews in social networks and chat apps.                                |
+| `#style`         | One house style, such as one form for URLs. They do not change search results. |
+| `#security`      | The safety of your pages and visitors, such as mixed content.                  |
 
 A rule that matters to search and to accessibility, such as [`image.alt.exists`](/docs/rules/image.alt.exists/), is a search rule.
-
-Run `seolint --rules` to list every rule with its current setting.
 
 ## html
 
