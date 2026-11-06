@@ -6,8 +6,8 @@
     "dev": "bongo dev",
     "build": "bongo build",
     "lint": "node node_modules/seolint/dist/bin.js",
-    "preview": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "preview": "cf dev",
+    "deploy": "cf build && cf deploy --prebuilt"
   },
   "devDependencies": {
     "@bongo/markdown": "^1.2.0",
