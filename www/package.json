@@ -12,9 +12,10 @@
   "devDependencies": {
     "@bongo/markdown": "^1.2.0",
     "bongo": "npm:@bongo/bongo@^1.2.0",
+    "cf": "^1.0.0-beta.28",
+    "crowne": "^0.3.0",
     "seolint": "workspace:*",
     "shiki": "^4.0.2",
-    "wrangler": "^4.151.0",
-    "crowne": "^0.3.0"
+    "wrangler": "^4.151.0"
   }
 }
