@@ -8,8 +8,6 @@ export default defineConfig({
 			htmlHandling: "auto-trailing-slash",
 			notFoundHandling: "404-page",
 		},
-		domains: [
-			"seolint.io",
-		],
+		domains: ["seolint.io"],
 	},
 });
