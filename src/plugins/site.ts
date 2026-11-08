@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join, sep } from "node:path";
 
 import { detach } from "../detach";
+import * as glob from "../glob";
 import { plugin } from "../plugin";
 import * as address from "./address";
 import * as build from "./build";
@@ -33,7 +34,7 @@ type Data = {
 const rules = {
 	"site.title.unique": true,
 	"site.description.unique": true,
-	"site.link.exists": true,
+	"site.link.exists": { ignore: [] as string[] },
 	"site.canonical.exists": true,
 	"site.page.linked": true,
 	"site.robots": true,
@@ -95,9 +96,15 @@ function unique(
 }
 
 async function links(site: Context, pages: Page<Data>[]): Promise<void> {
-	if (!site.load("site.link.exists")) return;
+	let rule = site.load("site.link.exists");
+	if (!rule) return;
+	let skips = rule.ignore.map(glob.compile);
 	let known = await build.files(site.roots);
-	let exists = build.memo((path) => build.resolvable(known, path));
+	let exists = build.memo(
+		(path) =>
+			skips.some((skip) => skip.test(path.slice(1))) ||
+			build.resolvable(known, path),
+	);
 	for (let page of pages) {
 		for (let link of page.data.links) {
 			if (exists(link.path)) continue;

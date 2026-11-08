@@ -9,12 +9,20 @@ Internal links point to files that exist in the build.
 
 **When off:** broken internal links pass.
 
+| Option   | Type       | Default | Description                                                                                                                                   |
+| -------- | ---------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ignore` | `string[]` | `[]`    | Link paths to skip, as glob patterns, such as paths that a server answers without a file in the build. Same syntax as `ignore` in the config. |
+
 ```html
 <!-- ✗ Fails, when there is no menu/index.html -->
 <a href="/menu/">Menu</a>
 
 <!-- ✓ Passes -->
 <a href="/about/">About</a>
+```
+
+```ts
+rules: { "site.link.exists": { ignore: ["download/**"] } }
 ```
 
 ## References

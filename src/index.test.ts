@@ -671,6 +671,30 @@ describe("site", () => {
 		});
 	});
 
+	test("site.link.exists with ignore", async () => {
+		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
+		await writeFile(
+			join(dir, "index.html"),
+			'<a href="/download/1.0.0/app.dmg">a</a><a href="/download/latest">b</a><a href="/missing/">c</a>',
+		);
+		let output = reported(
+			await seolint.fs(
+				dir,
+				config({ "site.link.exists": { ignore: ["download/**"] } }),
+			),
+		);
+		expect(output[join(dir, "index.html")]).toEqual({
+			"site.link.exists": [
+				{
+					message: "Must point to a file that exists, not /missing/",
+					line: 1,
+					col: 72,
+				},
+			],
+		});
+		await rm(dir, { recursive: true, force: true });
+	});
+
 	test("site.link.exists with a malformed escape", async () => {
 		let dir = await realpath(await mkdtemp(join(tmpdir(), "seolint-")));
 		await writeFile(join(dir, "index.html"), '<a href="/bad%zz/">x</a>');
