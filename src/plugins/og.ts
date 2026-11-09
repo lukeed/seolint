@@ -11,7 +11,7 @@ export const og = plugin({
 		"og.image.secure": true,
 		"og.url": true,
 	},
-	meta: about.meta({
+	meta: about.meta("social", {
 		"og.title": ["warn", "A page has an og:title, for link previews."],
 		"og.description": [
 			"warn",

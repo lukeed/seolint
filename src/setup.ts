@@ -1,7 +1,15 @@
 import * as pattern from "./pattern";
 import * as plugins from "./plugins";
 
-import type { Config, Dict, Meta, Plugin, Setting, Severity } from "./types";
+import type {
+	Category,
+	Config,
+	Dict,
+	Meta,
+	Plugin,
+	Setting,
+	Severity,
+} from "./types";
 
 /** A rule's resolved state: off, or on with a severity and options. */
 export type State =
@@ -75,12 +83,22 @@ function apply(
 	);
 }
 
+/** Every {@link Category}, so a `#` key can be checked at runtime. */
+const CATEGORIES: Record<Category, true> = {
+	search: true,
+	accessibility: true,
+	social: true,
+	style: true,
+	security: true,
+};
+
 /**
  * The plugins and rules to lint with. The built-in plugins come first; a
  * config plugin with the same name replaces one. Rule settings apply over
- * each rule's defaults: patterns like `"link.*"` first, then exact names.
+ * each rule's defaults: patterns like `"link.*"` first, then categories like
+ * `"#style"`, then exact names.
  * @throws {Error} for an invalid plugin or setting, a rule that two plugins
- * declare, or a rule name or pattern that no plugin declares.
+ * declare, or a rule name, pattern, or category that no rule matches.
  */
 export function setup(config: Config): Setup {
 	let { workers } = config;
@@ -146,7 +164,16 @@ export function setup(config: Config): Setup {
 	}
 
 	for (let [key, setting] of entries) {
-		if (key.includes("*")) continue;
+		if (!key.startsWith("#")) continue;
+		let category = key.slice(1);
+		if (!Object.hasOwn(CATEGORIES, category)) unknown.push(key);
+		for (let [rule, info] of rules) {
+			if (info.meta?.category === category) set(rule, setting);
+		}
+	}
+
+	for (let [key, setting] of entries) {
+		if (key.includes("*") || key.startsWith("#")) continue;
 		if (rules.has(key)) set(key, setting);
 		else unknown.push(key);
 	}

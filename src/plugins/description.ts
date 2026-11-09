@@ -50,7 +50,7 @@ export const description = plugin({
 		"description.content.null": true,
 		"description.content.length": { min: 50, max: 160 },
 	},
-	meta: about.meta({
+	meta: about.meta("search", {
 		"description.exists": 'A page has a <meta name="description"> tag.',
 		"description.single": "A page has only one description tag.",
 		"description.content.empty": "The description is not empty.",

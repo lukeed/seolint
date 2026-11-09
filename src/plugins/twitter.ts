@@ -8,7 +8,7 @@ export const twitter = plugin({
 	rules: {
 		"twitter.card": true,
 	},
-	meta: about.meta({
+	meta: about.meta("social", {
 		"twitter.card": [
 			"warn",
 			"A page has a valid twitter:card, for link previews.",

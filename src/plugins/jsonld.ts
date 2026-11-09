@@ -24,7 +24,7 @@ export const jsonld = plugin({
 	rules: {
 		"jsonld.valid": true,
 	},
-	meta: about.meta({
+	meta: about.meta("search", {
 		"jsonld.valid":
 			"Each JSON-LD script is valid JSON, with an @context and an @type.",
 	}),

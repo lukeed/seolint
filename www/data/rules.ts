@@ -1,11 +1,12 @@
 import { builtins } from "../../src/plugins/index.ts";
 
-import type { Meta } from "../../src/types.ts";
+import type { Category, Meta } from "../../src/types.ts";
 
 export type Rule = {
 	name: string;
 	plugin: string;
 	severity: "error" | "warn";
+	category: Category | undefined;
 	/** Whether the rule is off unless a config turns it on. */
 	off: boolean;
 	options: Record<string, unknown> | undefined;
@@ -19,6 +20,7 @@ export default builtins.map((plugin) => {
 		name,
 		plugin: plugin.name,
 		severity: meta[name]?.severity ?? "error",
+		category: meta[name]?.category,
 		off: value === false || meta[name]?.off === true,
 		options: typeof value === "object" ? value : undefined,
 		description: meta[name]?.description ?? "",

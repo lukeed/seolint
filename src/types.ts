@@ -8,6 +8,13 @@ export type Promisable<T> = Promise<T> | T;
 export type Severity = "error" | "warn";
 
 /**
+ * What a rule is for. A config sets every rule of a category with a `#`
+ * key, such as `"#style": false`.
+ */
+export type Category =
+	"search" | "accessibility" | "social" | "style" | "security";
+
+/**
  * A plugin's rules: each rule name maps to `true`, to `false` for a rule
  * that is off unless a config turns it on, or to the rule's default options.
  * Rule names are usually prefixed with the plugin name.
@@ -36,6 +43,8 @@ export type Meta = {
 	description: string;
 	/** The severity when a config does not set one. Default: `"error"`. */
 	severity?: Severity;
+	/** What the rule is for, so a config can set it with its category, such as `"#style"`. */
+	category?: Category;
 	/**
 	 * Whether the rule is off unless a config turns it on. Default: `false`.
 	 * Unlike `false` in `rules`, it keeps the rule's default options.

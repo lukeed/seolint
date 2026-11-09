@@ -8,14 +8,18 @@ export const heading = plugin({
 		"heading.single": true,
 		"heading.order": true,
 	},
-	meta: about.meta({
-		"heading.exists": "A page has an <h1>.",
-		"heading.single": ["warn", "A page has only one <h1>."],
-		"heading.order": [
-			"warn",
-			"Headings start at <h1> or <h2>, and do not skip levels, such as an <h4> after an <h2>.",
-		],
-	}),
+	meta: {
+		...about.meta("search", {
+			"heading.exists": "A page has an <h1>.",
+		}),
+		...about.meta("accessibility", {
+			"heading.single": ["warn", "A page has only one <h1>."],
+			"heading.order": [
+				"warn",
+				"Headings start at <h1> or <h2>, and do not skip levels, such as an <h4> after an <h2>.",
+			],
+		}),
+	},
 	run(context, document) {
 		let [first, ...rest] = document.all("h1");
 		context.assert("heading.exists", first != null, "A page must have an <h1>");

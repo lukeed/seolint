@@ -31,13 +31,17 @@ export const html = plugin({
 		"html.favicon": true,
 		"html.refresh": true,
 	},
-	meta: about.meta({
-		"html.doctype": "A page starts with <!doctype html>.",
-		"html.lang": "The <html> element has a valid lang attribute.",
-		"html.charset": "A page declares the utf-8 encoding near the top.",
-		"html.favicon": ["warn", "A page links to a favicon."],
-		"html.refresh": ["warn", "A page does not redirect with a meta refresh."],
-	}),
+	meta: {
+		...about.meta("search", {
+			"html.doctype": "A page starts with <!doctype html>.",
+			"html.charset": "A page declares the utf-8 encoding near the top.",
+			"html.favicon": ["warn", "A page links to a favicon."],
+			"html.refresh": ["warn", "A page does not redirect with a meta refresh."],
+		}),
+		...about.meta("accessibility", {
+			"html.lang": "The <html> element has a valid lang attribute.",
+		}),
+	},
 	run(context, document) {
 		let doctype = document.children.find((x) => x.type === "directive");
 		context.assert(

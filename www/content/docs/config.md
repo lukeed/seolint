@@ -79,7 +79,9 @@ Each rule has a default severity, and some rules have options. A setting changes
 | `["warn", { ... }]`   | Sets the severity and some options.                       |
 
 - **Severity:** an `error` makes the CLI exit with `1`. A `warn` is reported, but it does not change the exit code.
-- **Patterns:** a name with `*`, such as `"og.*"`, sets every rule that matches. Patterns apply first, then exact names, so `{ "og.*": false, "og.title": true }` keeps only `og.title`.
+- **Patterns:** a name with `*`, such as `"og.*"`, sets every rule that matches.
+- **Categories:** a `#` key, such as `"#style"`, sets every rule of that [category](/docs/rules/#categories): `#search`, `#accessibility`, `#social`, `#style`, or `#security`.
+- **Order:** patterns apply first, then categories, then exact names. So `{ "og.*": false, "og.title": true }` keeps only `og.title`.
 - **Unknown names** are an error, so a typo does not go unnoticed.
 
 See the [rules reference](/docs/rules/) for every rule, its default, and its options.

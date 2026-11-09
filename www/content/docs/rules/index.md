@@ -21,6 +21,7 @@ export default config.define({
     "title.content.length": { max: 70 }, // change some options
     "link.external.limit": ["warn", { max: 10 }], // both
     "og.*": "error", // every rule that matches a pattern
+    "#style": false, // every rule of a category
   },
 });
 ```
@@ -34,11 +35,27 @@ export default config.define({
 | `["warn", { ... }]`   | Sets the severity and some options.                       |
 
 - **Severity:** an `error` makes the CLI exit with `1`. A `warn` is reported, but does not change the exit code.
-- **Patterns:** a name with `*` sets every rule that matches. Patterns apply first, then exact names, so `{ "og.*": false, "og.title": true }` keeps only `og.title`.
+- **Patterns:** a name with `*` sets every rule that matches.
+- **Categories:** a `#` key, such as `"#style"`, sets every rule of that [category](#categories). It takes `true`, `false`, or a severity.
+- **Order:** patterns apply first, then categories, then exact names. So `{ "og.*": false, "og.title": true }` keeps only `og.title`, and `{ "*": false, "#search": true }` keeps only the search rules.
 - **Unknown names** are an error, so a typo does not go unnoticed. `define()` also checks rule names and options as you type.
 - **The page URL:** some rules compare against the page's own URL. For a file, it is the `host` plus the file's path, without `index.html`. Without a `host`, these rules are skipped.
 
 Run `seolint --rules` to list every rule with its current setting.
+
+## Categories
+
+Each rule has one category, for what it is for, which the page of the rule shows.
+
+| Category         | Rules about                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| `#search`        | How search engines crawl, index, and show your pages.                          |
+| `#accessibility` | Screen readers, zoom, and the keyboard, when search is not affected.           |
+| `#social`        | Link previews in social networks and chat apps.                                |
+| `#style`         | One house style, such as one form for URLs. They do not change search results. |
+| `#security`      | The safety of your pages and visitors, such as mixed content.                  |
+
+A rule that matters to search and to accessibility, such as [`image.alt.exists`](/docs/rules/image.alt.exists/), is a search rule.
 
 ## html
 

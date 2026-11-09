@@ -7,11 +7,12 @@ import * as origin from "./origin";
 import * as setup from "./setup";
 
 import type * as plugins from "./plugins";
-import type { Argv, Config, Plugin, Rules, Severity } from "./types";
+import type { Argv, Category, Config, Plugin, Rules, Severity } from "./types";
 
 export { plugin } from "./plugin";
 export type {
 	Argv,
+	Category,
 	Config,
 	Meta,
 	Page,
@@ -34,7 +35,8 @@ type Value<U, K extends string> = U extends unknown
 
 /**
  * Settings for the rules of plugins `P`: each known rule name takes a boolean
- * or partial options, and each pattern with `*` takes a boolean.
+ * or partial options, and each pattern with `*`, or category with `#`, takes
+ * a boolean or a severity.
  */
 type SettingOf<V> =
 	| boolean
@@ -48,6 +50,8 @@ type Settings<U> = {
 	[K in Keys<U>]?: SettingOf<Value<U, K>>;
 } & {
 	[pattern: `${string}*${string}`]: boolean | Severity;
+} & {
+	[K in `#${Category}`]?: boolean | Severity;
 };
 
 declare const plugged: unique symbol;

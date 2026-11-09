@@ -147,6 +147,22 @@ describe("define()", () => {
 		});
 	});
 
+	test("should type category keys", () => {
+		config.define({
+			rules: { "#style": false, "#social": "error", "#security": true },
+		});
+
+		config.define({
+			// @ts-expect-error unknown category
+			rules: { "#styel": false },
+		});
+
+		config.define({
+			// @ts-expect-error a category takes no options
+			rules: { "#style": { max: 1 } },
+		});
+	});
+
 	test("should type the rules of plugins from presets", () => {
 		let custom = config.plugin({
 			name: "custom",
